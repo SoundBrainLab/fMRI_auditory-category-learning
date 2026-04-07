@@ -37,7 +37,10 @@ sub_list_nman = list(participants_df.participant_id[participants_df.group=='non-
 sub_dict = {'Mandarin': sub_list_mand, 'non-Mandarin': sub_list_nman}
 participant_list = sub_list_mand + sub_list_nman
 
-for sub_id in ['sub-FLT02']: #participant_list:
+# create a list to accumulate accuracies
+accuracy_records = []
+
+for sub_id in participant_list:
     print(sub_id)
     
     # make output directory
@@ -74,6 +77,12 @@ for sub_id in ['sub-FLT02']: #participant_list:
         np.savetxt(out_fpath, cm, delimiter = '\t')
 
         print('sub-{} {} tone accuracy = {:.03f}'.format(sub_id, run_id, cm.diagonal().mean()))
+
+        accuracy_records.append({'participant_id': sub_id,
+                                 'run': run_id,
+                                 'accuracy': cm.diagonal().mean(),
+                                })
+
 
         ''' Stimulus-based behavioral RDMs '''
         stim_df = tsv_pd.loc[:,['trial_type', 'correct_key']]
@@ -121,3 +130,8 @@ for sub_id in ['sub-FLT02']: #participant_list:
         sub_run_out_fpath = os.path.join(sub_beh_out_dir, 
                                          f'{sub_id}_{run_id}_stimulus_confusion_matrix.tsv')
         np.savetxt(sub_run_out_fpath, stim_conf_mat, delimiter='\t')
+
+# save accuracy records
+acc_df = pd.DataFrame(accuracy_records)
+acc_fpath = os.path.join(beh_out_dir, 'run_accuracies.tsv')
+acc_df.to_csv(acc_fpath, sep='\t', index=False)
