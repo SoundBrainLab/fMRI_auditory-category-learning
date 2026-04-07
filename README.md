@@ -1,4 +1,12 @@
+# Auditory category learning in striatum and cortex using 7T functional MRI
+
 Processing and analyzing tone-learning fMRI data collected at the University of Pittsburgh's 7T MRI Center.
+
+## Manuscript details
+Currently in revision. Preprint to come shortly!
+
+## Data availability
+Data will be uploaded to OpenNeuro.
 
 ## Processing pipeline
 
