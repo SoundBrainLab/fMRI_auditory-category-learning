@@ -20,12 +20,14 @@ def fmt_p(p: float) -> str:
     return f"p = {p:.3f}".replace("0.", ".")
 
 
-def fmt_t(df: int | float, t: float) -> str:
+#def fmt_t(df: int | float, t: float) -> str:
+def fmt_t(df, t): # running Python 3.9 without doc typing
     """Format a t-statistic with degrees of freedom."""
     return f"t({df}) = {t:.2f}"
 
 
-def fmt_F(df1: int | float, df2: int | float, F: float) -> str:
+#def fmt_F(df1: int | float, df2: int | float, F: float) -> str:
+def fmt_F(df1, df2, F):
     """Format an F-statistic with numerator and denominator degrees of freedom."""
     return f"F({df1}, {df2}) = {F:.2f}"
 
