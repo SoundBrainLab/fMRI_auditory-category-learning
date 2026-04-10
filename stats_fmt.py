@@ -1,3 +1,5 @@
+import os
+
 """
 Formatting helpers for consistent APA-style statistical reporting.
 
@@ -66,6 +68,86 @@ def stat_str(stat_type: str, *args) -> str:
         return f"{fmt_z(z_val)}, {fmt_p(p_val)}"
     else:
         raise ValueError(f"Unknown stat_type '{stat_type}'. Use 't', 'F', 'r', or 'z'.")
+
+
+def export_anova(aov, label, out_dir, filename=None):
+    """
+    Convert an AnovaRM result to a clean DataFrame and save as TSV.
+
+    Parameters
+    ----------
+    aov : AnovaRM fitted result (has .anova_table attribute)
+    label : str, used in filename if filename not provided (e.g. 'sound_striatum')
+    out_dir : str, directory to save TSV
+    filename : str, optional override for output filename
+    """
+    table = aov.anova_table.copy()
+    table.index.name = 'source'
+    table = table.reset_index()
+    table.columns = ['source', 'F', 'df_num', 'df_den', 'p']
+    table['stat_str'] = table.apply(
+        lambda r: stat_str('F', int(r['df_num']), int(r['df_den']), r['F'], r['p']), axis=1)
+    table = table[['source', 'F', 'df_num', 'df_den', 'p', 'stat_str']]
+
+    fname = filename or f'anova_{label}.tsv'
+    table.to_csv(os.path.join(out_dir, fname), sep='\t', index=False, float_format='%.4f')
+    return table
+
+
+def export_posthoc(pg_df, label, out_dir, filename=None):
+    """
+    Convert a pg.pairwise_tests result to a clean DataFrame and save as TSV.
+    Expects p-corr column (FDR-corrected) already present from padjust='fdr'.
+
+    Parameters
+    ----------
+    pg_df : pd.DataFrame, output of pg.pairwise_tests()
+    label : str, used in filename if filename not provided
+    out_dir : str, directory to save TSV
+    filename : str, optional override for output filename
+    """
+    cols = [c for c in ['Contrast', 'region', 'hemisphere', 'learning_stage', 'A', 'B']
+            if c in pg_df.columns]
+    table = pg_df[cols + ['T', 'dof', 'p-unc', 'p-corr']].copy()
+    table = table.rename(columns={'T': 't', 'dof': 'df', 'p-unc': 'p', 'p-corr': 'p_fdr'})
+    table['stat_str'] = table.apply(
+        lambda r: stat_str('t', int(r['df']), r['t'], r['p']), axis=1)
+    table['p_fdr_str'] = table['p_fdr'].apply(fmt_p)
+
+    fname = filename or f'posthoc_{label}.tsv'
+    table.to_csv(os.path.join(out_dir, fname), sep='\t', index=False, float_format='%.4f')
+    return table
+
+
+def export_ttests(records, label, out_dir, filename=None):
+    """
+    Convert a list of ttest_1samp or ttest_rel results to a clean DataFrame and save as TSV.
+    Applies FDR correction across all tests in the table.
+
+    Each record should have:
+        label (str), t (float), df (int), p (float)
+    plus any grouping columns you want to keep (e.g. region, contrast)
+
+    Example
+    -------
+    records = []
+    for region, data in roi_df.groupby('region'):
+        t, p = ttest_1samp(data['beta'], 0)
+        records.append({'region': region, 't': t, 'df': len(data) - 1, 'p': p})
+    export_ttests(records, 'sound_baseline', stats_out_dir)
+    """
+    from statsmodels.stats.multitest import multipletests
+
+    table = pd.DataFrame(records)
+    _, p_fdr = multipletests(table['p'], method='fdr_bh')[:2]
+    table['p_fdr'] = p_fdr
+    table['stat_str'] = table.apply(
+        lambda r: stat_str('t', int(r['df']), r['t'], r['p']), axis=1)
+    table['p_fdr_str'] = table['p_fdr'].apply(fmt_p)
+
+    fname = filename or f'ttests_{label}.tsv'
+    table.to_csv(os.path.join(out_dir, fname), sep='\t', index=False, float_format='%.4f')
+    return table
 
 
 def fmt_pingouin_anova(aov_df, term_col: str = 'Source') -> dict[str, str]:
