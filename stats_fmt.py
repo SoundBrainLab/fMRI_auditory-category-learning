@@ -106,13 +106,21 @@ def export_posthoc(pg_df, label, out_dir, filename=None):
     out_dir : str, directory to save TSV
     filename : str, optional override for output filename
     """
+    from numpy import nan
     cols = [c for c in ['Contrast', 'region', 'hemisphere', 'learning_stage', 'A', 'B']
             if c in pg_df.columns]
-    table = pg_df[cols + ['T', 'dof', 'p-unc', 'p-corr']].copy()
-    table = table.rename(columns={'T': 't', 'dof': 'df', 'p-unc': 'p', 'p-corr': 'p_fdr'})
-    table['stat_str'] = table.apply(
-        lambda r: stat_str('t', int(r['df']), r['t'], r['p']), axis=1)
-    table['p_fdr_str'] = table['p_fdr'].apply(fmt_p)
+    try:
+        table = pg_df[cols + ['T', 'dof', 'p-unc', 'p-corr']].copy()
+        table = table.rename(columns={'T': 't', 'dof': 'df', 'p-unc': 'p', 'p-corr': 'p_fdr'})
+        table['stat_str'] = table.apply(
+            lambda r: stat_str('t', int(r['df']), r['t'], r['p']), axis=1)
+        table['p_fdr_str'] = table['p_fdr'].apply(fmt_p)
+    except KeyError:
+        table = pg_df[cols + ['T', 'dof', 'p-unc']].copy()
+        table = table.rename(columns={'T': 't', 'dof': 'df', 'p-unc': 'p'})
+        table['stat_str'] = table.apply(
+            lambda r: stat_str('t', int(r['df']), r['t'], r['p']), axis=1)
+        table['p_fdr_str'] = nan        
 
     fname = filename or f'posthoc_{label}.tsv'
     table.to_csv(os.path.join(out_dir, fname), sep='\t', index=False, float_format='%.4f')
@@ -137,8 +145,8 @@ def export_ttests(records, label, out_dir, filename=None):
     export_ttests(records, 'sound_baseline', stats_out_dir)
     """
     from statsmodels.stats.multitest import multipletests
-
-    table = pd.DataFrame(records)
+    from pandas import DataFrame
+    table = DataFrame(records)
     _, p_fdr = multipletests(table['p'], method='fdr_bh')[:2]
     table['p_fdr'] = p_fdr
     table['stat_str'] = table.apply(
