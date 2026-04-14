@@ -114,13 +114,14 @@ def export_posthoc(pg_df, label, out_dir, filename=None):
         table = table.rename(columns={'T': 't', 'dof': 'df', 'p-unc': 'p', 'p-corr': 'p_fdr'})
         table['stat_str'] = table.apply(
             lambda r: stat_str('t', int(r['df']), r['t'], r['p']), axis=1)
-        table['p_fdr_str'] = table['p_fdr'].apply(fmt_p)
+        table['stat_str_fdr'] = table.apply(
+            lambda r: stat_str_fdr('t', int(r['df']), r['t'], r['p'], r['p_fdr']), axis=1)
     except KeyError:
         table = pg_df[cols + ['T', 'dof', 'p-unc']].copy()
         table = table.rename(columns={'T': 't', 'dof': 'df', 'p-unc': 'p'})
         table['stat_str'] = table.apply(
             lambda r: stat_str('t', int(r['df']), r['t'], r['p']), axis=1)
-        table['p_fdr_str'] = nan        
+        table['stat_str_fdr'] = nan        
 
     fname = filename or f'posthoc_{label}.tsv'
     table.to_csv(os.path.join(out_dir, fname), sep='\t', index=False, float_format='%.4f')
@@ -151,11 +152,32 @@ def export_ttests(records, label, out_dir, filename=None):
     table['p_fdr'] = p_fdr
     table['stat_str'] = table.apply(
         lambda r: stat_str('t', int(r['df']), r['t'], r['p']), axis=1)
-    table['p_fdr_str'] = table['p_fdr'].apply(fmt_p)
+    table['stat_str_fdr'] = table.apply(
+        lambda r: stat_str_fdr('t', int(r['df']), r['t'], r['p'], r['p_fdr']), axis=1)
 
     fname = filename or f'ttests_{label}.tsv'
     table.to_csv(os.path.join(out_dir, fname), sep='\t', index=False, float_format='%.4f')
     return table
+
+
+def stat_str_fdr(stat_type, *args):
+    """
+    Like stat_str but appends a FDR-corrected p-value.
+    Last argument is always p_fdr.
+
+    Examples
+    --------
+    stat_str_fdr('t', 11, 2.345, 0.038, 0.045)   # "t(11) = 2.35, p = .038, p_FDR = .045"
+    stat_str_fdr('F', 2, 22, 4.12, 0.031, 0.048) # "F(2, 22) = 4.12, p = .031, p_FDR = .048"
+    """
+    *stat_args, p_fdr = args
+    # strip the p-value from stat_str, replace with FDR q
+    stat_part = stat_str(stat_type, *stat_args).rsplit(',', 1)[0]
+    if p_fdr < 0.001:
+        q_str = "q < .001"
+    else:
+        q_str = f"q = {p_fdr:.3f}".replace("0.", ".")
+    return f"{stat_part}, {q_str}"
 
 
 def fmt_pingouin_anova(aov_df, term_col: str = 'Source') -> dict[str, str]:
