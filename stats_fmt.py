@@ -109,7 +109,7 @@ def export_anova(aov, label, out_dir, filename=None):
         lambda r: stat_str('F', int(r['df_num']), int(r['df_den']), r['F'], r['p']), axis=1)
     table = table[['source', 'F', 'df_num', 'df_den', 'p', 'stat_str']]
     table['F'] = table['F'].map('{:.2f}'.format)
-    table['p'] = table['p'].map('{:.3f}'.format)
+    table['p'] = table['p'].map(lambda x: fmt_p(float(x)) if x is not None else x)
 
     fname = filename or f'anova_{label}.tsv'
     table.to_csv(os.path.join(out_dir, fname), sep='\t', index=False)
@@ -146,9 +146,9 @@ def export_posthoc(pg_df, label, out_dir, filename=None):
         table['stat_str_fdr'] = nan        
 
     table['t'] = table['t'].map('{:.2f}'.format)
-    table['p'] = table['p'].map('{:.3f}'.format)
+    table['p'] = table['p'].map(lambda x: fmt_p(float(x)) if x is not None else x)
     if 'p_fdr' in table.columns:
-        table['p_fdr'] = table['p_fdr'].map('{:.3f}'.format)
+        table['p_fdr'] = table['p_fdr'].map(lambda x: fmt_p(float(x)) if x is not None else x)
 
     fname = filename or f'posthoc_{label}.tsv'
     table.to_csv(os.path.join(out_dir, fname), sep='\t', index=False)
@@ -183,8 +183,8 @@ def export_ttests(records, label, out_dir, filename=None):
         lambda r: stat_str_fdr('t', int(r['df']), r['t'], r['p'], r['p_fdr']), axis=1)
 
     table['t'] = table['t'].map('{:.2f}'.format)
-    table['p'] = table['p'].map('{:.3f}'.format)
-    table['p_fdr'] = table['p_fdr'].map('{:.3f}'.format)
+    table['p'] = table['p'].map(lambda x: fmt_p(float(x)) if x is not None else x)
+    table['p_fdr'] = table['p_fdr'].map(lambda x: fmt_p(float(x)) if x is not None else x)
 
     fname = filename or f'ttests_{label}.tsv'
     table.to_csv(os.path.join(out_dir, fname), sep='\t', index=False)
