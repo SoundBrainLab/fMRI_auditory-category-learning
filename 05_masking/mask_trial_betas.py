@@ -74,8 +74,21 @@ roi_dict_MNI_dseg = {'L-Caud': 35, 'L-Put': 36, #'L-Pall': 37, 'L-Accumb': 41,
                      'R-STGa': 118, 'R-STGp': 120, 'R-ParsOp': 112, 'R-ParsTri': 110,
                      #'R-SMGa': 138, 'R-SMGp': 140, 'R-Ang': 142, 
                     }
-roi_dict_MNI_sg_subcort = {'L-CN': 1, 'L-SOC': 3, 'L-IC': 5, 'L-MGN': 7, 
+roi_dict_MNI_sg_subcort = {'L-CN': 1, 'L-SOC': 3, 'L-IC': 5, 'L-MGN': 7,
                            'R-CN': 2, 'R-SOC': 4, 'R-IC': 6, 'R-MGN': 8, }
+roi_dict_MNI_pfc = {
+    'L-FP'   : 101,  'R-FP'   : 102,  # Frontal Pole
+    'L-SFG'  : 105,  'R-SFG'  : 106,  # Superior Frontal Gyrus
+    'L-MFG'  : 107,  'R-MFG'  : 108,  # Middle Frontal Gyrus
+    'L-IFGt' : 109,  'R-IFGt' : 110,  # IFG pars triangularis
+    'L-IFGo' : 111,  'R-IFGo' : 112,  # IFG pars opercularis
+    'L-PreCG': 113,  'R-PreCG': 114,  # Precentral Gyrus
+    'L-FMC'  : 149,  'R-FMC'  : 150,  # Frontal Medial Cortex
+    'L-PCG'  : 155,  'R-PCG'  : 156,  # Paracingulate Gyrus
+    'L-ACC'  : 157,  'R-ACC'  : 158,  # Cingulate Gyrus anterior
+    'L-OFC'  : 165,  'R-OFC'  : 166,  # Frontal Orbital Cortex
+    'L-FO'   : 181,  'R-FO'   : 182,  # Frontal Operculum
+}
 roi_dict_tian_S3 = {}
 tian_sc_S3_roi_list = ['HIP-head-m-rh','HIP-head-l-rh','HIP-body-m-rh','HIP-body-l-rh',
                         'AMY-SM-rh','AMY-CL-rh',
@@ -115,9 +128,11 @@ def mask_fmri(fmri_niimgs, mask_filename, fwhm):
     return fmri_masked, masker
 
 if atlas_label == 'subcort-aud':
-    roi_list = list(roi_dict_MNI_sg_subcort.keys()) 
+    roi_list = list(roi_dict_MNI_sg_subcort.keys())
 elif atlas_label == 'dseg':
     roi_list = list(roi_dict_MNI_dseg.keys())
+elif atlas_label == 'dseg-pfc':
+    roi_list = list(roi_dict_MNI_pfc.keys())
 elif atlas_label == 'tian-S3':
     roi_list = list(roi_dict_tian_S3.keys())
 print(roi_list)

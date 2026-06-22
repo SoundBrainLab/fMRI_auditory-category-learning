@@ -64,13 +64,26 @@ roi_dict_MNI_dseg = {'L-Caud': 35, 'L-Put': 36, 'L-Pall': 37, 'L-Accumb': 41,
                      'R-Lat-Ventricle': 4, 'R-Supracalcarine': 194,
                      'R-SMGa': 138, 'R-SMGp': 140, 'R-Ang': 142, 
                     }
-roi_dict_MNI_motor = {'L-Caud': 35, 'L-Put': 36, 
-                      'R-Caud': 46, 'R-Put': 47, 
+roi_dict_MNI_motor = {'L-Caud': 35, 'L-Put': 36,
+                      'R-Caud': 46, 'R-Put': 47,
                       'L-Precentral': 113, 'R-Precentral': 114,
                       'L-Postcentral': 133, 'R-Postcentral': 134,
                       'L-SMA': 151, 'R-SMA': 152,
                       'CerebMidb': 255,
                       }
+roi_dict_MNI_pfc = {
+    'L-FP'   : 101,  'R-FP'   : 102,  # Frontal Pole
+    'L-SFG'  : 105,  'R-SFG'  : 106,  # Superior Frontal Gyrus
+    'L-MFG'  : 107,  'R-MFG'  : 108,  # Middle Frontal Gyrus
+    'L-IFGt' : 109,  'R-IFGt' : 110,  # IFG pars triangularis
+    'L-IFGo' : 111,  'R-IFGo' : 112,  # IFG pars opercularis
+    'L-PreCG': 113,  'R-PreCG': 114,  # Precentral Gyrus
+    'L-FMC'  : 149,  'R-FMC'  : 150,  # Frontal Medial Cortex
+    'L-PCG'  : 155,  'R-PCG'  : 156,  # Paracingulate Gyrus
+    'L-ACC'  : 157,  'R-ACC'  : 158,  # Cingulate Gyrus anterior
+    'L-OFC'  : 165,  'R-OFC'  : 166,  # Frontal Orbital Cortex
+    'L-FO'   : 181,  'R-FO'   : 182,  # Frontal Operculum
+}
 roi_dict_T1w_aseg = {'L-VentralDC': 28, 'L-Caud': 11, 'L-Put': 12, 
                      'L-HG': 1034, 'L-STG': 1030, 'L-ParsOp': 1018, 
                      'L-ParsTri': 1020, 'L-SFG': 1028, 'Brainstem': 16, 
@@ -194,13 +207,20 @@ elif space_label == 'MNI152NLin2009cAsym' and atlas_label == 'carpet_dseg':
     sub_mask_dir = os.path.join(nilearn_dir, 'masks', 'sub-%s'%sub_id, 
                                 'space-%s'%space_label, 'masks-dseg')  
     roi_dict = roi_dict_MNI_dseg
-elif space_label == 'MNI152NLin2009cAsym' and atlas_label == 'carpet_motor': 
+elif space_label == 'MNI152NLin2009cAsym' and atlas_label == 'carpet_motor':
     atlas_fpath = os.path.join('/bgfs/bchandrasekaran/krs228/data/',
-                               'reference/', 
-                               'tpl-MNI152NLin2009cAsym_res-01_desc-carpet_dseg.nii.gz')  
-    sub_mask_dir = os.path.join(nilearn_dir, 'masks', 'sub-%s'%sub_id, 
-                                'space-%s'%space_label, 'masks-dseg-motor')  
+                               'reference/',
+                               'tpl-MNI152NLin2009cAsym_res-01_desc-carpet_dseg.nii.gz')
+    sub_mask_dir = os.path.join(nilearn_dir, 'masks', 'sub-%s'%sub_id,
+                                'space-%s'%space_label, 'masks-dseg-motor')
     roi_dict = roi_dict_MNI_motor
+elif space_label == 'MNI152NLin2009cAsym' and atlas_label == 'carpet_pfc':
+    atlas_fpath = os.path.join('/bgfs/bchandrasekaran/krs228/data/',
+                               'reference/',
+                               'tpl-MNI152NLin2009cAsym_res-01_desc-carpet_dseg.nii.gz')
+    sub_mask_dir = os.path.join(nilearn_dir, 'masks', 'sub-%s'%sub_id,
+                                'space-%s'%space_label, 'masks-dseg-pfc')
+    roi_dict = roi_dict_MNI_pfc
 elif space_label == 'MNI152NLin2009cAsym' and atlas_label == 'subcort_aud':
     atlas_fpath = os.path.join('/bgfs/bchandrasekaran/krs228/data/',
                                'reference/MNI_space/atlases',
