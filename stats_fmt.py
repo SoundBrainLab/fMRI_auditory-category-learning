@@ -203,11 +203,13 @@ def export_pg_anova(aov_pg, label, out_dir, filename=None):
     out_dir : str, directory to save TSV
     filename : str, optional override for output filename
     """
-    table = aov_pg[['Source', 'ddof1', 'ddof2', 'F', 'p-unc',
-                     'p-GG-corr', 'np2']].copy()
+    eta_col = 'np2' if 'np2' in aov_pg.columns else 'ng2'
+    cols = ['Source', 'ddof1', 'ddof2', 'F', 'p-unc', 'p-GG-corr', eta_col]
+    table = aov_pg[[c for c in cols if c in aov_pg.columns]].copy()
     table = table.rename(columns={'Source': 'source', 'ddof1': 'df_num',
                                   'ddof2': 'df_den', 'p-unc': 'p_unc',
-                                  'p-GG-corr': 'p_gg', 'np2': 'eta_p2'})
+                                  'p-GG-corr': 'p_gg',
+                                  eta_col: 'eta_p2'})
     p_report = table['p_gg'].where(table['p_gg'].notna(), table['p_unc'])
     table['stat_str'] = table.apply(
         lambda r: stat_str('F', int(r['df_num']), int(r['df_den']), r['F'],
