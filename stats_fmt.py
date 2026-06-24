@@ -191,6 +191,36 @@ def export_ttests(records, label, out_dir, filename=None):
     return table
 
 
+def export_pg_anova(aov_pg, label, out_dir, filename=None):
+    """
+    Convert a pingouin rm_anova DataFrame to a clean TSV.
+    Reports GG-corrected p-value (p-GG-corr) when available, else p-unc.
+
+    Parameters
+    ----------
+    aov_pg : pd.DataFrame, output of pg.rm_anova(detailed=True)
+    label : str, used in filename if filename not provided
+    out_dir : str, directory to save TSV
+    filename : str, optional override for output filename
+    """
+    table = aov_pg[['Source', 'ddof1', 'ddof2', 'F', 'p-unc',
+                     'p-GG-corr', 'np2']].copy()
+    table = table.rename(columns={'Source': 'source', 'ddof1': 'df_num',
+                                  'ddof2': 'df_den', 'p-unc': 'p_unc',
+                                  'p-GG-corr': 'p_gg', 'np2': 'eta_p2'})
+    p_report = table['p_gg'].where(table['p_gg'].notna(), table['p_unc'])
+    table['stat_str'] = table.apply(
+        lambda r: stat_str('F', int(r['df_num']), int(r['df_den']), r['F'],
+                           p_report[r.name]), axis=1)
+    table['F'] = table['F'].map('{:.2f}'.format)
+    table['eta_p2'] = table['eta_p2'].map(lambda x: f'{x:.2f}' if x is not None else x)
+    table['p_unc'] = table['p_unc'].map(lambda x: fmt_p(float(x)) if x is not None else x)
+    table['p_gg'] = table['p_gg'].map(lambda x: fmt_p(float(x)) if x is not None else x)
+    fname = filename or f'anova_pg_{label}.tsv'
+    table.to_csv(os.path.join(out_dir, fname), sep='\t', index=False)
+    return table
+
+
 def fmt_pingouin_anova(aov_df, term_col: str = 'Source') -> dict[str, str]:
     """
     Convert a pingouin ANOVA DataFrame to a dict of formatted strings keyed by term name.
