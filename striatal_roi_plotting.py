@@ -85,8 +85,9 @@ def plot_striatal_roi_stat(
     hemi_suffixes = ('lh', 'rh')
 
     fig, axes = plt.subplots(len(structures), len(hemi_suffixes),
-                              figsize=(3 * len(hemi_suffixes), 3 * len(structures)),
-                              squeeze=False, dpi=300)
+                              figsize=(3 * len(hemi_suffixes), 1.8 * len(structures)),
+                              squeeze=False, dpi=300,
+                              gridspec_kw={'hspace': 0.05, 'wspace': 0.1})
 
     for row, structure in enumerate(structures):
         base_names = structure_groups[structure]
@@ -117,11 +118,9 @@ def plot_striatal_roi_stat(
                 ax.text(np.mean(contour[:, 0]), np.mean(contour[:, 1]), base_name,
                         ha='center', va='center', fontsize=6, color='black')
 
-            ax.set_aspect('equal')
+            ax.set_aspect('auto')
+            ax.margins(0.15)
             ax.autoscale()
-            margin = 3
-            ax.set_xlim(ax.get_xlim()[0] - margin, ax.get_xlim()[1] + margin)
-            ax.set_ylim(ax.get_ylim()[0] - margin, ax.get_ylim()[1] + margin)
             ax.invert_xaxis()
             ax.axis('off')
 
