@@ -127,6 +127,21 @@ def project_roi_stats_to_surface(
     return out
 
 
+def _dominant_view_for_roi(coords_infl, roi_vertices, hemi):
+    """Classify an ROI as 'lateral' or 'medial' from its vertex positions.
+
+    The lateral surface of a hemisphere bulges away from the midline (more
+    negative x for the left hemisphere, more positive x for the right), while
+    medial regions sit close to the midline. Comparing an ROI's mean x to the
+    whole hemisphere's mean x gives a robust, atlas-agnostic classification
+    that matches the camera angles nilearn uses for 'lateral'/'medial' views.
+    """
+    relative_x = coords_infl[roi_vertices, 0].mean() - coords_infl[:, 0].mean()
+    if hemi == 'left':
+        return 'lateral' if relative_x < 0 else 'medial'
+    return 'lateral' if relative_x > 0 else 'medial'
+
+
 def plot_roi_surface_stat(
     stat_dict: Dict[str, float],
     mask_path_dict: Dict[str, str],
@@ -136,12 +151,15 @@ def plot_roi_surface_stat(
     title: Optional[str] = None,
     add_labels: bool = True,
     views=('lateral', 'medial'),
+    dpi: int = 300,
 ):
     """Render per-ROI group statistics on the fsaverage surface.
 
     Produces a grid with one row per view (lateral/medial, or just lateral
     if the ROI set has no medial regions) and one column per hemisphere,
     with a single shared symmetric colorbar and black ROI boundary contours.
+    Each ROI's name is only labeled on the view (lateral/medial) it actually
+    faces, per `_dominant_view_for_roi`.
     """
     surf_data = project_roi_stats_to_surface(stat_dict, mask_path_dict, fsaverage=fsaverage)
 
@@ -150,7 +168,7 @@ def plot_roi_surface_stat(
     vmin, vmax = -vlim, vlim
 
     nrows = len(views)
-    fig = plt.figure(figsize=(10, 4.5 * nrows))
+    fig = plt.figure(figsize=(10, 4.5 * nrows), dpi=dpi)
     panels = [(hemi, view) for view in views for hemi in ('left', 'right')]
 
     for i, (hemi, view) in enumerate(panels):
@@ -184,7 +202,8 @@ def plot_roi_surface_stat(
                 figure=fig,
             )
 
-            if add_labels and roi_vertices.any():
+            if (add_labels and roi_vertices.any()
+                    and _dominant_view_for_roi(data['coords_infl'], roi_vertices, hemi) == view):
                 cx, cy, cz = data['coords_infl'][roi_vertices].mean(axis=0)
                 ax.text(cx, cy, cz, region_hemi, fontsize=7, fontweight='bold',
                         ha='center', va='center', color='black')
