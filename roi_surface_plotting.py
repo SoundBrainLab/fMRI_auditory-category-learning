@@ -135,12 +135,13 @@ def plot_roi_surface_stat(
     vlim: Optional[float] = None,
     title: Optional[str] = None,
     add_labels: bool = True,
+    views=('lateral', 'medial'),
 ):
     """Render per-ROI group statistics on the fsaverage surface.
 
-    Produces a 2x2 grid: rows are hemispheres (left/right), columns are
-    views (lateral/medial), with a single shared symmetric colorbar and
-    black ROI boundary contours.
+    Produces a grid with one row per view (lateral/medial, or just lateral
+    if the ROI set has no medial regions) and one column per hemisphere,
+    with a single shared symmetric colorbar and black ROI boundary contours.
     """
     surf_data = project_roi_stats_to_surface(stat_dict, mask_path_dict, fsaverage=fsaverage)
 
@@ -148,12 +149,12 @@ def plot_roi_surface_stat(
         vlim = max(abs(v) for v in stat_dict.values())
     vmin, vmax = -vlim, vlim
 
-    fig = plt.figure(figsize=(10, 9))
-    panels = [('left', 'lateral'), ('left', 'medial'),
-              ('right', 'lateral'), ('right', 'medial')]
+    nrows = len(views)
+    fig = plt.figure(figsize=(10, 4.5 * nrows))
+    panels = [(hemi, view) for view in views for hemi in ('left', 'right')]
 
     for i, (hemi, view) in enumerate(panels):
-        ax = fig.add_subplot(2, 2, i + 1, projection='3d')
+        ax = fig.add_subplot(nrows, 2, i + 1, projection='3d')
         data = surf_data[hemi]
 
         plotting.plot_surf_stat_map(
