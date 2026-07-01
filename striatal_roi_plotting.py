@@ -121,7 +121,10 @@ def plot_striatal_roi_stat(
             ax.set_aspect('auto')
             ax.margins(0.15)
             ax.autoscale()
-            ax.invert_xaxis()
+            # Mirror left vs. right hemisphere panels so they face each other
+            # rather than both displaying the same anterior-posterior direction.
+            if hemi_suffix == 'lh':
+                ax.invert_xaxis()
             ax.axis('off')
 
             if row == 0:
