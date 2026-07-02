@@ -44,7 +44,7 @@ def plot_striatal_roi_stat_yabplot(
     vlim: Optional[float] = None,
     views: Sequence[str] = ('left_lateral', 'right_lateral', 'superior', 'anterior'),
     layout: Optional[Tuple[int, int]] = None,
-    zoom: float = 2.2,
+    zoom: float = 1.5,
     cbar_label: str = 'group t-statistic',
     title: Optional[str] = None,
 ):
