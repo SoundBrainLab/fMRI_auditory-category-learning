@@ -1,0 +1,8 @@
+source	F	df_num	df_den	p	stat_str
+hemisphere	2.24	1.0	11.0	p = .163	F(1, 11) = 2.24, p = .163
+learning_stage	3.97	2.0	22.0	p = .034	F(2, 22) = 3.97, p = .034
+region	2.65	5.0	55.0	p = .033	F(5, 55) = 2.65, p = .033
+hemisphere:learning_stage	0.58	2.0	22.0	p = .567	F(2, 22) = 0.58, p = .567
+hemisphere:region	1.42	5.0	55.0	p = .233	F(5, 55) = 1.42, p = .233
+learning_stage:region	1.67	10.0	110.0	p = .098	F(10, 110) = 1.67, p = .098
+hemisphere:learning_stage:region	0.90	10.0	110.0	p = .537	F(10, 110) = 0.90, p = .537

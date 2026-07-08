@@ -1,0 +1,4 @@
+Contrast	A	B	t	df	p	p_fdr	stat_str	stat_str_fdr
+learning_stage	early	final	2.50	11.0	p = .029	p = .088	t(11) = 2.50, p = .029	t(11) = 2.50, q = .088
+learning_stage	early	middle	1.67	11.0	p = .124	p = .186	t(11) = 1.67, p = .124	t(11) = 1.67, q = .186
+learning_stage	final	middle	-1.01	11.0	p = .332	p = .332	t(11) = -1.01, p = .332	t(11) = -1.01, q = .332

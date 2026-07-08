@@ -1,0 +1,4 @@
+source	df_num	df_den	F	p_unc	p_gg	epsilon	eta_p2	stat_str
+learning_stage	2	22	3.97	p = .034	p = .042	0.857	0.06	F(1.71, 18.85) = 3.97, p = .042, ε = 0.86
+region	5	55	2.65	p = .033	p = .088	0.435	0.07	F(2.18, 23.95) = 2.65, p = .088, ε = 0.44
+learning_stage * region	10	110	1.67	p = .098	p = .199	0.271	0.05	F(2.71, 29.80) = 1.67, p = .199, ε = 0.27
