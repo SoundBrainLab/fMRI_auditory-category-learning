@@ -14,9 +14,12 @@ Usage:
 """
 
 
-def fmt_p(p: float) -> str:
+def fmt_p(p):
     """Format a p-value to 3 decimal places, APA style (no leading zero).
-    Values below .001 reported as 'p < .001'."""
+    Values below .001 reported as 'p < .001'. Returns 'n/a' for None/NaN."""
+    if p is None or p != p:  # NaN check: NaN != NaN
+        return "n/a"
+    p = float(p)
     if p < 0.001:
         return "p < .001"
     return f"p = {p:.3f}".replace("0.", ".")
@@ -146,9 +149,9 @@ def export_posthoc(pg_df, label, out_dir, filename=None):
         table['stat_str_fdr'] = nan        
 
     table['t'] = table['t'].map('{:.2f}'.format)
-    table['p'] = table['p'].map(lambda x: fmt_p(float(x)) if x is not None else x)
+    table['p'] = table['p'].map(fmt_p)
     if 'p_fdr' in table.columns:
-        table['p_fdr'] = table['p_fdr'].map(lambda x: fmt_p(float(x)) if x is not None else x)
+        table['p_fdr'] = table['p_fdr'].map(fmt_p)
 
     fname = filename or f'posthoc_{label}.tsv'
     table.to_csv(os.path.join(out_dir, fname), sep='\t', index=False)
@@ -183,8 +186,10 @@ def export_ttests(records, label, out_dir, filename=None):
         lambda r: stat_str_fdr('t', int(r['df']), r['t'], r['p'], r['p_fdr']), axis=1)
 
     table['t'] = table['t'].map('{:.2f}'.format)
-    table['p'] = table['p'].map(lambda x: fmt_p(float(x)) if x is not None else x)
-    table['p_fdr'] = table['p_fdr'].map(lambda x: fmt_p(float(x)) if x is not None else x)
+    # Format every float column whose name starts with 'p' (catches p, p_fdr, p_val_fdr, etc.)
+    for col in list(table.columns):
+        if col.startswith('p') and hasattr(table[col], 'dtype') and str(table[col].dtype).startswith('float'):
+            table[col] = table[col].map(fmt_p)
 
     fname = filename or f'ttests_{label}.tsv'
     table.to_csv(os.path.join(out_dir, fname), sep='\t', index=False)
@@ -194,7 +199,8 @@ def export_ttests(records, label, out_dir, filename=None):
 def export_pg_anova(aov_pg, label, out_dir, filename=None):
     """
     Convert a pingouin rm_anova DataFrame to a clean TSV.
-    Reports GG-corrected p-value (p-GG-corr) when available, else p-unc.
+    When GG correction was applied (eps < 1), reports GG-adjusted dfs and epsilon.
+    Falls back to uncorrected dfs and p-unc when correction is not needed.
 
     Parameters
     ----------
@@ -203,21 +209,40 @@ def export_pg_anova(aov_pg, label, out_dir, filename=None):
     out_dir : str, directory to save TSV
     filename : str, optional override for output filename
     """
+    import math
     eta_col = 'np2' if 'np2' in aov_pg.columns else 'ng2'
-    cols = ['Source', 'ddof1', 'ddof2', 'F', 'p-unc', 'p-GG-corr', eta_col]
+    cols = ['Source', 'ddof1', 'ddof2', 'F', 'p-unc', 'p-GG-corr', 'eps', eta_col]
     table = aov_pg[[c for c in cols if c in aov_pg.columns]].copy()
     table = table.rename(columns={'Source': 'source', 'ddof1': 'df_num',
                                   'ddof2': 'df_den', 'p-unc': 'p_unc',
-                                  'p-GG-corr': 'p_gg',
+                                  'p-GG-corr': 'p_gg', 'eps': 'epsilon',
                                   eta_col: 'eta_p2'})
     p_report = table['p_gg'].where(table['p_gg'].notna(), table['p_unc'])
-    table['stat_str'] = table.apply(
-        lambda r: stat_str('F', int(r['df_num']), int(r['df_den']), r['F'],
-                           p_report[r.name]), axis=1)
+
+    def _stat_str_row(r):
+        p = p_report[r.name]
+        eps = r.get('epsilon', float('nan'))
+        gg_applied = ('p_gg' in r and r['p_gg'] == r['p_gg']  # not NaN
+                      and 'epsilon' in r and eps == eps and eps < 0.999)
+        if gg_applied:
+            df1 = r['df_num'] * eps
+            df2 = r['df_den'] * eps
+            return (f"F({df1:.2f}, {df2:.2f}) = {r['F']:.2f}, "
+                    f"{fmt_p(float(p))}, ε = {eps:.2f}")
+        return stat_str('F', int(r['df_num']), int(r['df_den']), r['F'], float(p))
+
+    table['stat_str'] = table.apply(_stat_str_row, axis=1)
     table['F'] = table['F'].map('{:.2f}'.format)
-    table['eta_p2'] = table['eta_p2'].map(lambda x: f'{x:.2f}' if x is not None else x)
-    table['p_unc'] = table['p_unc'].map(lambda x: fmt_p(float(x)) if x is not None else x)
-    table['p_gg'] = table['p_gg'].map(lambda x: fmt_p(float(x)) if x is not None else x)
+    table['eta_p2'] = table['eta_p2'].map(
+        lambda x: f'{x:.2f}' if (x == x and x is not None) else x)
+    table['p_unc'] = table['p_unc'].map(
+        lambda x: fmt_p(float(x)) if (x == x and x is not None) else x)
+    if 'p_gg' in table.columns:
+        table['p_gg'] = table['p_gg'].map(
+            lambda x: fmt_p(float(x)) if (x == x and x is not None) else x)
+    if 'epsilon' in table.columns:
+        table['epsilon'] = table['epsilon'].map(
+            lambda x: f'{x:.3f}' if (x == x and x is not None) else x)
     fname = filename or f'anova_pg_{label}.tsv'
     table.to_csv(os.path.join(out_dir, fname), sep='\t', index=False)
     return table
