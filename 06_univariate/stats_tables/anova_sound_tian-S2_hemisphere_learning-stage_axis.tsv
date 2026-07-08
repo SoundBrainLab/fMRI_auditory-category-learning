@@ -1,0 +1,8 @@
+source	F	df_num	df_den	p	stat_str
+hemisphere	0.27	1.0	11.0	p = .611	F(1, 11) = 0.27, p = .611
+learning_stage	3.33	2.0	22.0	p = .055	F(2, 22) = 3.33, p = .055
+Axis	11.37	2.0	22.0	p < .001	F(2, 22) = 11.37, p < .001
+hemisphere:learning_stage	0.15	2.0	22.0	p = .860	F(2, 22) = 0.15, p = .860
+hemisphere:Axis	3.17	2.0	22.0	p = .062	F(2, 22) = 3.17, p = .062
+learning_stage:Axis	1.21	4.0	44.0	p = .320	F(4, 44) = 1.21, p = .320
+hemisphere:learning_stage:Axis	1.67	4.0	44.0	p = .175	F(4, 44) = 1.67, p = .175

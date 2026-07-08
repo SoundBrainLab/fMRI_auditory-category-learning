@@ -1,0 +1,7 @@
+Contrast	A	B	t	df	p	p_fdr	stat_str	stat_str_fdr
+region	NAc-core	NAc-shell	3.25	11.0	p = .008	p = .039	t(11) = 3.25, p = .008	t(11) = 3.25, q = .039
+region	NAc-core	pPUT	2.79	11.0	p = .018	p = .066	t(11) = 2.79, p = .018	t(11) = 2.79, q = .066
+region	NAc-shell	aPUT	-6.11	11.0	p < .001	p < .001	t(11) = -6.11, p < .001	t(11) = -6.11, q < .001
+region	aCAU	aPUT	-2.32	11.0	p = .040	p = .101	t(11) = -2.32, p = .040	t(11) = -2.32, q = .101
+region	aPUT	pCAU	2.37	11.0	p = .037	p = .101	t(11) = 2.37, p = .037	t(11) = 2.37, q = .101
+region	aPUT	pPUT	9.75	11.0	p < .001	p < .001	t(11) = 9.75, p < .001	t(11) = 9.75, q < .001

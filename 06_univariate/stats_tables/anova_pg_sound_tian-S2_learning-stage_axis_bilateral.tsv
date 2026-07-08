@@ -1,0 +1,4 @@
+source	df_num	df_den	F	p_unc	p_gg	eta_p2	stat_str
+learning_stage	2	22	3.33	p = .055	p = .075	0.08	F(2, 22) = 3.33, p = .075
+Axis	2	22	11.37	p < .001	p = .001	0.09	F(2, 22) = 11.37, p = .001
+learning_stage * Axis	4	44	1.21	p = .320	p = .306	0.01	F(4, 44) = 1.21, p = .306

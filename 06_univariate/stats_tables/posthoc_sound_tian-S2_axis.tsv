@@ -1,0 +1,4 @@
+Contrast	A	B	t	df	p	p_fdr	stat_str	stat_str_fdr
+Axis	Caudal	Rostral	-5.58	11.0	p < .001	p < .001	t(11) = -5.58, p < .001	t(11) = -5.58, q < .001
+Axis	Caudal	Ventral	-0.95	11.0	p = .362	p = .362	t(11) = -0.95, p = .362	t(11) = -0.95, q = .362
+Axis	Rostral	Ventral	3.67	11.0	p = .004	p = .006	t(11) = 3.67, p = .004	t(11) = 3.67, q = .006

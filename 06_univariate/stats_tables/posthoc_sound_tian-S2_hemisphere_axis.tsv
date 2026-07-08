@@ -1,0 +1,11 @@
+Contrast	hemisphere	A	B	t	df	p	p_fdr	stat_str	stat_str_fdr
+hemisphere	-	lh	rh	-0.52	11.0	p = .611	p = nan	t(11) = -0.52, p = .611	t(11) = -0.52, q = nan
+Axis	-	Caudal	Rostral	-5.58	11.0	p < .001	p < .001	t(11) = -5.58, p < .001	t(11) = -5.58, q < .001
+Axis	-	Caudal	Ventral	-0.95	11.0	p = .362	p = .362	t(11) = -0.95, p = .362	t(11) = -0.95, q = .362
+Axis	-	Rostral	Ventral	3.67	11.0	p = .004	p = .006	t(11) = 3.67, p = .004	t(11) = 3.67, q = .006
+hemisphere * Axis	lh	Caudal	Rostral	-4.05	11.0	p = .002	p = .004	t(11) = -4.05, p = .002	t(11) = -4.05, q = .004
+hemisphere * Axis	lh	Caudal	Ventral	0.14	11.0	p = .890	p = .890	t(11) = 0.14, p = .890	t(11) = 0.14, q = .890
+hemisphere * Axis	lh	Rostral	Ventral	4.10	11.0	p = .002	p = .004	t(11) = 4.10, p = .002	t(11) = 4.10, q = .004
+hemisphere * Axis	rh	Caudal	Rostral	-5.55	11.0	p < .001	p = .001	t(11) = -5.55, p < .001	t(11) = -5.55, q = .001
+hemisphere * Axis	rh	Caudal	Ventral	-1.79	11.0	p = .101	p = .121	t(11) = -1.79, p = .101	t(11) = -1.79, q = .121
+hemisphere * Axis	rh	Rostral	Ventral	2.74	11.0	p = .019	p = .029	t(11) = 2.74, p = .019	t(11) = 2.74, q = .029

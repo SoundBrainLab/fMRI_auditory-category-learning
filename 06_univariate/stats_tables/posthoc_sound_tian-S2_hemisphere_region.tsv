@@ -1,0 +1,47 @@
+Contrast	hemisphere	A	B	t	df	p	p_fdr	stat_str	stat_str_fdr
+hemisphere	-	lh	rh	-0.52	11.0	p = .611	p = nan	t(11) = -0.52, p = .611	t(11) = -0.52, q = nan
+region	-	NAc-core	NAc-shell	3.25	11.0	p = .008	p = .039	t(11) = 3.25, p = .008	t(11) = 3.25, q = .039
+region	-	NAc-core	aCAU	1.00	11.0	p = .341	p = .393	t(11) = 1.00, p = .341	t(11) = 1.00, q = .393
+region	-	NAc-core	aPUT	-2.15	11.0	p = .054	p = .117	t(11) = -2.15, p = .054	t(11) = -2.15, q = .117
+region	-	NAc-core	pCAU	1.20	11.0	p = .256	p = .384	t(11) = 1.20, p = .256	t(11) = 1.20, q = .384
+region	-	NAc-core	pPUT	2.79	11.0	p = .018	p = .066	t(11) = 2.79, p = .018	t(11) = 2.79, q = .066
+region	-	NAc-shell	aCAU	-1.79	11.0	p = .101	p = .190	t(11) = -1.79, p = .101	t(11) = -1.79, q = .190
+region	-	NAc-shell	aPUT	-6.11	11.0	p < .001	p < .001	t(11) = -6.11, p < .001	t(11) = -6.11, q < .001
+region	-	NAc-shell	pCAU	-1.04	11.0	p = .319	p = .393	t(11) = -1.04, p = .319	t(11) = -1.04, q = .393
+region	-	NAc-shell	pPUT	0.04	11.0	p = .970	p = .970	t(11) = 0.04, p = .970	t(11) = 0.04, q = .970
+region	-	aCAU	aPUT	-2.32	11.0	p = .040	p = .101	t(11) = -2.32, p = .040	t(11) = -2.32, q = .101
+region	-	aCAU	pCAU	0.81	11.0	p = .437	p = .469	t(11) = 0.81, p = .437	t(11) = 0.81, q = .469
+region	-	aCAU	pPUT	1.63	11.0	p = .131	p = .219	t(11) = 1.63, p = .131	t(11) = 1.63, q = .219
+region	-	aPUT	pCAU	2.37	11.0	p = .037	p = .101	t(11) = 2.37, p = .037	t(11) = 2.37, q = .101
+region	-	aPUT	pPUT	9.75	11.0	p < .001	p < .001	t(11) = 9.75, p < .001	t(11) = 9.75, q < .001
+region	-	pCAU	pPUT	1.02	11.0	p = .330	p = .393	t(11) = 1.02, p = .330	t(11) = 1.02, q = .393
+hemisphere * region	lh	NAc-core	NAc-shell	3.39	11.0	p = .006	p = .026	t(11) = 3.39, p = .006	t(11) = 3.39, q = .026
+hemisphere * region	lh	NAc-core	aCAU	0.61	11.0	p = .556	p = .642	t(11) = 0.61, p = .556	t(11) = 0.61, q = .642
+hemisphere * region	lh	NAc-core	aPUT	-4.89	11.0	p < .001	p = .003	t(11) = -4.89, p < .001	t(11) = -4.89, q = .003
+hemisphere * region	lh	NAc-core	pCAU	0.33	11.0	p = .745	p = .771	t(11) = 0.33, p = .745	t(11) = 0.33, q = .771
+hemisphere * region	lh	NAc-core	pPUT	1.72	11.0	p = .114	p = .228	t(11) = 1.72, p = .114	t(11) = 1.72, q = .228
+hemisphere * region	lh	NAc-shell	aCAU	-1.43	11.0	p = .181	p = .302	t(11) = -1.43, p = .181	t(11) = -1.43, q = .302
+hemisphere * region	lh	NAc-shell	aPUT	-6.26	11.0	p < .001	p < .001	t(11) = -6.26, p < .001	t(11) = -6.26, q < .001
+hemisphere * region	lh	NAc-shell	pCAU	-1.01	11.0	p = .335	p = .479	t(11) = -1.01, p = .335	t(11) = -1.01, q = .479
+hemisphere * region	lh	NAc-shell	pPUT	-0.79	11.0	p = .448	p = .560	t(11) = -0.79, p = .448	t(11) = -0.79, q = .560
+hemisphere * region	lh	aCAU	aPUT	-3.53	11.0	p = .005	p = .024	t(11) = -3.53, p = .005	t(11) = -3.53, q = .024
+hemisphere * region	lh	aCAU	pCAU	-0.03	11.0	p = .976	p = .976	t(11) = -0.03, p = .976	t(11) = -0.03, q = .976
+hemisphere * region	lh	aCAU	pPUT	0.64	11.0	p = .538	p = .642	t(11) = 0.64, p = .538	t(11) = 0.64, q = .642
+hemisphere * region	lh	aPUT	pCAU	2.37	11.0	p = .037	p = .111	t(11) = 2.37, p = .037	t(11) = 2.37, q = .111
+hemisphere * region	lh	aPUT	pPUT	9.26	11.0	p < .001	p < .001	t(11) = 9.26, p < .001	t(11) = 9.26, q < .001
+hemisphere * region	lh	pCAU	pPUT	0.48	11.0	p = .640	p = .712	t(11) = 0.48, p = .640	t(11) = 0.48, q = .712
+hemisphere * region	rh	NAc-core	NAc-shell	2.61	11.0	p = .024	p = .080	t(11) = 2.61, p = .024	t(11) = 2.61, q = .080
+hemisphere * region	rh	NAc-core	aCAU	1.15	11.0	p = .273	p = .431	t(11) = 1.15, p = .273	t(11) = 1.15, q = .431
+hemisphere * region	rh	NAc-core	aPUT	-0.41	11.0	p = .692	p = .741	t(11) = -0.41, p = .692	t(11) = -0.41, q = .741
+hemisphere * region	rh	NAc-core	pCAU	1.82	11.0	p = .096	p = .206	t(11) = 1.82, p = .096	t(11) = 1.82, q = .206
+hemisphere * region	rh	NAc-core	pPUT	2.87	11.0	p = .015	p = .057	t(11) = 2.87, p = .015	t(11) = 2.87, q = .057
+hemisphere * region	rh	NAc-shell	aCAU	-1.82	11.0	p = .096	p = .206	t(11) = -1.82, p = .096	t(11) = -1.82, q = .206
+hemisphere * region	rh	NAc-shell	aPUT	-5.21	11.0	p < .001	p = .002	t(11) = -5.21, p < .001	t(11) = -5.21, q = .002
+hemisphere * region	rh	NAc-shell	pCAU	-0.93	11.0	p = .374	p = .488	t(11) = -0.93, p = .374	t(11) = -0.93, q = .488
+hemisphere * region	rh	NAc-shell	pPUT	0.94	11.0	p = .366	p = .488	t(11) = 0.94, p = .366	t(11) = 0.94, q = .488
+hemisphere * region	rh	aCAU	aPUT	-1.05	11.0	p = .316	p = .474	t(11) = -1.05, p = .316	t(11) = -1.05, q = .474
+hemisphere * region	rh	aCAU	pCAU	1.56	11.0	p = .147	p = .276	t(11) = 1.56, p = .147	t(11) = 1.56, q = .276
+hemisphere * region	rh	aCAU	pPUT	2.22	11.0	p = .049	p = .132	t(11) = 2.22, p = .049	t(11) = 2.22, q = .132
+hemisphere * region	rh	aPUT	pCAU	1.99	11.0	p = .072	p = .181	t(11) = 1.99, p = .072	t(11) = 1.99, q = .181
+hemisphere * region	rh	aPUT	pPUT	8.29	11.0	p < .001	p < .001	t(11) = 8.29, p < .001	t(11) = 8.29, q < .001
+hemisphere * region	rh	pCAU	pPUT	1.50	11.0	p = .161	p = .284	t(11) = 1.50, p = .161	t(11) = 1.50, q = .284

@@ -1,0 +1,11 @@
+Contrast	hemisphere	A	B	t	df	p	p_fdr	stat_str	stat_str_fdr
+hemisphere	-	L	R	1.45	11.0	p = .175	p = nan	t(11) = 1.45, p = .175	t(11) = 1.45, q = nan
+learning_stage	-	early	final	-0.91	11.0	p = .384	p = .606	t(11) = -0.91, p = .384	t(11) = -0.91, q = .606
+learning_stage	-	early	middle	0.05	11.0	p = .957	p = .957	t(11) = 0.05, p = .957	t(11) = 0.05, q = .957
+learning_stage	-	final	middle	0.87	11.0	p = .404	p = .606	t(11) = 0.87, p = .404	t(11) = 0.87, q = .606
+hemisphere * learning_stage	L	early	final	-0.11	11.0	p = .913	p = .913	t(11) = -0.11, p = .913	t(11) = -0.11, q = .913
+hemisphere * learning_stage	L	early	middle	0.41	11.0	p = .688	p = .889	t(11) = 0.41, p = .688	t(11) = 0.41, q = .889
+hemisphere * learning_stage	L	final	middle	0.52	11.0	p = .613	p = .889	t(11) = 0.52, p = .613	t(11) = 0.52, q = .889
+hemisphere * learning_stage	R	early	final	-1.52	11.0	p = .157	p = .828	t(11) = -1.52, p = .157	t(11) = -1.52, q = .828
+hemisphere * learning_stage	R	early	middle	-0.34	11.0	p = .741	p = .889	t(11) = -0.34, p = .741	t(11) = -0.34, q = .889
+hemisphere * learning_stage	R	final	middle	1.15	11.0	p = .276	p = .828	t(11) = 1.15, p = .276	t(11) = 1.15, q = .828

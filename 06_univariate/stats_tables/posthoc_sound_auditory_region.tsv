@@ -1,0 +1,12 @@
+Contrast	A	B	t	df	p	p_fdr	stat_str	stat_str_fdr
+region	HG	ParsTri	4.71	11.0	p < .001	p = .003	t(11) = 4.71, p < .001	t(11) = 4.71, q = .003
+region	PP	PT	-3.88	11.0	p = .003	p = .007	t(11) = -3.88, p = .003	t(11) = -3.88, q = .007
+region	PP	ParsTri	6.73	11.0	p < .001	p < .001	t(11) = 6.73, p < .001	t(11) = 6.73, q < .001
+region	PT	ParsOp	3.71	11.0	p = .003	p = .008	t(11) = 3.71, p = .003	t(11) = 3.71, q = .008
+region	PT	ParsTri	6.62	11.0	p < .001	p < .001	t(11) = 6.62, p < .001	t(11) = 6.62, q < .001
+region	PT	STGp	2.45	11.0	p = .032	p = .068	t(11) = 2.45, p = .032	t(11) = 2.45, q = .068
+region	ParsOp	ParsTri	4.43	11.0	p = .001	p = .004	t(11) = 4.43, p = .001	t(11) = 4.43, q = .004
+region	ParsOp	STGa	-3.90	11.0	p = .002	p = .007	t(11) = -3.90, p = .002	t(11) = -3.90, q = .007
+region	ParsOp	STGp	-2.36	11.0	p = .038	p = .072	t(11) = -2.36, p = .038	t(11) = -2.36, q = .072
+region	ParsTri	STGa	-7.49	11.0	p < .001	p < .001	t(11) = -7.49, p < .001	t(11) = -7.49, q < .001
+region	ParsTri	STGp	-8.12	11.0	p < .001	p < .001	t(11) = -8.12, p < .001	t(11) = -8.12, q < .001
