@@ -1,4 +1,4 @@
-source	df_num	df_den	F	p_unc	p_gg	eta_p2	stat_str
-learning_stage	2	22	3.33	p = .055	p = .075	0.08	F(2, 22) = 3.33, p = .075
-Axis	2	22	11.37	p < .001	p = .001	0.09	F(2, 22) = 11.37, p = .001
-learning_stage * Axis	4	44	1.21	p = .320	p = .306	0.01	F(4, 44) = 1.21, p = .306
+source	df_num	df_den	F	p_unc	p_gg	epsilon	eta_p2	stat_str
+learning_stage	2	22	3.33	p = .055	p = .075	0.715	0.08	F(1.43, 15.72) = 3.33, p = .075, ε = 0.71
+Axis	2	22	11.37	p < .001	p = .001	0.823	0.09	F(1.65, 18.11) = 11.37, p = .001, ε = 0.82
+learning_stage * Axis	4	44	1.21	p = .320	p = .306	0.326	0.01	F(1.31, 14.36) = 1.21, p = .306, ε = 0.33

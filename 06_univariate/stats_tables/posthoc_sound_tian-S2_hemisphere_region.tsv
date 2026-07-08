@@ -1,5 +1,5 @@
 Contrast	hemisphere	A	B	t	df	p	p_fdr	stat_str	stat_str_fdr
-hemisphere	-	lh	rh	-0.52	11.0	p = .611	p = nan	t(11) = -0.52, p = .611	t(11) = -0.52, q = nan
+hemisphere	-	lh	rh	-0.52	11.0	p = .611	n/a	t(11) = -0.52, p = .611	t(11) = -0.52, q = nan
 region	-	NAc-core	NAc-shell	3.25	11.0	p = .008	p = .039	t(11) = 3.25, p = .008	t(11) = 3.25, q = .039
 region	-	NAc-core	aCAU	1.00	11.0	p = .341	p = .393	t(11) = 1.00, p = .341	t(11) = 1.00, q = .393
 region	-	NAc-core	aPUT	-2.15	11.0	p = .054	p = .117	t(11) = -2.15, p = .054	t(11) = -2.15, q = .117

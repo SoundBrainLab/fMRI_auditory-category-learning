@@ -1,4 +1,4 @@
-source	df_num	df_den	F	p_unc	p_gg	eta_p2	stat_str
-learning_stage	2	22	3.33	p = .055	p = .075	0.06	F(2, 22) = 3.33, p = .075
-region	5	55	5.90	p < .001	p = .006	0.12	F(5, 55) = 5.90, p = .006
-learning_stage * region	10	110	0.71	p = .715	p = .531	0.01	F(10, 110) = 0.71, p = .531
+source	df_num	df_den	F	p_unc	p_gg	epsilon	eta_p2	stat_str
+learning_stage	2	22	3.33	p = .055	p = .075	0.715	0.06	F(1.43, 15.72) = 3.33, p = .075, ε = 0.71
+region	5	55	5.90	p < .001	p = .006	0.457	0.12	F(2.29, 25.14) = 5.90, p = .006, ε = 0.46
+learning_stage * region	10	110	0.71	p = .715	p = .531	0.249	0.01	F(2.49, 27.43) = 0.71, p = .531, ε = 0.25

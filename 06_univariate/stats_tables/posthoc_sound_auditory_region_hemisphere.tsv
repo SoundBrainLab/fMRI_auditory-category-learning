@@ -20,7 +20,7 @@ region	-	ParsOp	STGp	-2.36	11.0	p = .038	p = .072	t(11) = -2.36, p = .038	t(11) 
 region	-	ParsTri	STGa	-7.49	11.0	p < .001	p < .001	t(11) = -7.49, p < .001	t(11) = -7.49, q < .001
 region	-	ParsTri	STGp	-8.12	11.0	p < .001	p < .001	t(11) = -8.12, p < .001	t(11) = -8.12, q < .001
 region	-	STGa	STGp	0.78	11.0	p = .453	p = .500	t(11) = 0.78, p = .453	t(11) = 0.78, q = .500
-hemisphere	-	L	R	1.45	11.0	p = .175	p = nan	t(11) = 1.45, p = .175	t(11) = 1.45, q = nan
+hemisphere	-	L	R	1.45	11.0	p = .175	n/a	t(11) = 1.45, p = .175	t(11) = 1.45, q = nan
 region * hemisphere	HG	L	R	0.83	11.0	p = .425	p = .425	t(11) = 0.83, p = .425	t(11) = 0.83, q = .425
 region * hemisphere	PP	L	R	-1.07	11.0	p = .307	p = .358	t(11) = -1.07, p = .307	t(11) = -1.07, q = .358
 region * hemisphere	PT	L	R	2.95	11.0	p = .013	p = .046	t(11) = 2.95, p = .013	t(11) = 2.95, q = .046

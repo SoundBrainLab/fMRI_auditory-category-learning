@@ -1,5 +1,5 @@
 Contrast	hemisphere	A	B	t	df	p	p_fdr	stat_str	stat_str_fdr
-hemisphere	-	L	R	1.45	11.0	p = .175	p = nan	t(11) = 1.45, p = .175	t(11) = 1.45, q = nan
+hemisphere	-	L	R	1.45	11.0	p = .175	n/a	t(11) = 1.45, p = .175	t(11) = 1.45, q = nan
 learning_stage	-	early	final	-0.91	11.0	p = .384	p = .606	t(11) = -0.91, p = .384	t(11) = -0.91, q = .606
 learning_stage	-	early	middle	0.05	11.0	p = .957	p = .957	t(11) = 0.05, p = .957	t(11) = 0.05, q = .957
 learning_stage	-	final	middle	0.87	11.0	p = .404	p = .606	t(11) = 0.87, p = .404	t(11) = 0.87, q = .606
