@@ -1,6 +1,6 @@
 # Auditory category learning in striatum and cortex using 7T functional MRI
 
-Processing and analyzing tone-learning fMRI data collected at the University of Pittsburgh's 7T MRI Center.
+Processing and analyzing tone-learning fMRI data collected at the University of Pittsburgh's 7T MRI Center. For diffusion MRI tractography code, please see [this repository](https://github.com/sitek/DAC1-corticostriatal-connectivity).
 
 ## Manuscript details
 Currently in revision. Preprint to come shortly!
@@ -32,9 +32,4 @@ Data will be uploaded to OpenNeuro.
 
 ### Univariate analysis: `./06_univariate/`
 1. Run `univariate_analysis.py`
-2. Run `group_level.ipynb` for group-level GLM and output maps/figures
-
-### Representational similarity analysis: `./07_rsa/`
-1. Create event-specific beta estimates
-2. Run region-based RSA using atlas masks (see [masking](#Masking))
-3. Compute group-level RSA statistics for cortical and striatal networks
+2. Run `group_level_ROI.ipynb` for group-level GLM and output maps/figures
