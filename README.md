@@ -50,10 +50,18 @@ managed through conda.
    across subjects. Tian S3 has been retired in favor of Tian S2.
 
 ### Univariate analysis: `./06_univariate/`
-1. Run `univariate_analysis.py` (confounds are loaded via
-   `nilearn.interfaces.fmriprep.load_confounds_strategy` with the `scrubbing`
-   strategy -- FD 0.9mm / DVARS 1.5 -- rather than a fixed motion-only
-   regressor list)
+1. Run `univariate_glm.py` (one consolidated script for subject-level GLMs,
+   replacing the three previous near-duplicate scripts). Confounds are loaded
+   via `nilearn.interfaces.fmriprep.load_confounds_strategy` with the
+   `scrubbing` strategy (FD 0.9mm / DVARS 1.5) rather than a fixed
+   motion-only regressor list; every run is kept regardless of how much data
+   survives scrubbing (n=12 means every run counts), but per-run
+   volumes-retained stats are logged to
+   `derivatives/nilearn/qc/sub-*_confound-scrubbing-qc.csv` for review.
+   `--grouping=none` fits all runs together in one GLM (see
+   `run_univariate_analysis_denoised_fb.sh`); `--grouping=grouped` fits
+   separate GLMs per early/middle/late run-pair to look at learning-stage
+   effects (see `run_univariate_groupedruns_denoised.sh`).
 2. Run `group_level.ipynb` for group-level GLM and output maps/figures
 
 ### Representational similarity analysis: `./07_rsa/`
