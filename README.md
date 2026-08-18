@@ -8,6 +8,12 @@ Currently in revision. Preprint to come shortly!
 ## Data availability
 Data will be uploaded to OpenNeuro.
 
+## Environment
+Python dependencies are tracked in `environment.yml` (conda). This pipeline only
+runs on the Pitt CRC cluster; external tools (FreeSurfer, FSL, AFNI, ANTs,
+MRtrix3, Singularity) are loaded via `module add` on the cluster rather than
+managed through conda.
+
 ## Processing pipeline
 
 ### Dicom conversion: `./01_dicom_conversion/`
@@ -19,8 +25,13 @@ Data will be uploaded to OpenNeuro.
 1. Run `dwi_denoise` on newly converted BIDS-formatted NIfTI files
 
 ### MRI preprocessing: `./03_fmriprep/`
-1. Preprocess anatomical and functional MRI with `run_fmriprep.sh` 
-> (Note: this runs using a Singularity image, so may need to create that first)
+1. Preprocess anatomical and functional MRI with `run_fmriprep_denoised.sh`
+   (fMRIPrep 22.1.1 -- the version used for the originally submitted manuscript)
+   or `run_fmriprep_denoised_25.2.5.sh` (fMRIPrep 25.2.5, current LTS; used for
+   the revision going forward). Each writes to its own versioned derivatives
+   directory (`derivatives/denoised_fmriprep-<version>/`) so both coexist.
+> (Note: these run using a Singularity image, so may need to build that first --
+> see the commented `singularity build` line at the top of each script)
 
 ### Behavior Behavioral data conversion: `./04_behavior/`
 1. Run `convert_behav_to_bids.py` to get psychopy outputs into BIDS-compatible format
@@ -29,9 +40,20 @@ Data will be uploaded to OpenNeuro.
 ### Masking: `./05_masking/`
 1. Create grey matter mask for searchlight using `make_gm_mask.py`
 2. Create participant-specific region-of-interest masks
+3. For the 25.2.5-derivatives pipeline, ROI stats are computed in native T1w
+   space rather than MNI152NLin2009cAsym (avoids interpolation/partial-volume
+   blur on small subcortical ROIs). Run `warp_atlases_to_T1w.sh` first to warp
+   the Tian S2 striatal parcellation, subcortical auditory-pathway atlas, and
+   `carpet_dseg` atlas into each subject's native space, then
+   `make_atlas_region_masks.py --space=T1w`. Whole-brain/gradient figures
+   still use the MNI-space pipeline, since those need a shared voxel grid
+   across subjects. Tian S3 has been retired in favor of Tian S2.
 
 ### Univariate analysis: `./06_univariate/`
-1. Run `univariate_analysis.py`
+1. Run `univariate_analysis.py` (confounds are loaded via
+   `nilearn.interfaces.fmriprep.load_confounds_strategy` with the `scrubbing`
+   strategy -- FD 0.9mm / DVARS 1.5 -- rather than a fixed motion-only
+   regressor list)
 2. Run `group_level.ipynb` for group-level GLM and output maps/figures
 
 ### Representational similarity analysis: `./07_rsa/`
