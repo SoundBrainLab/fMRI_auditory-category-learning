@@ -68,9 +68,10 @@ fmriprep_dir = args.fmriprep_dir
 # based on: https://nilearn.github.io/auto_examples/04_glm_first_level/
 # plot_bids_features.html#sphx-glr-auto-examples-04-glm-first-level-plot-bids-features-py
 
-def prep_models_and_args(subject_id=None, task_id=None, fwhm=None, bidsroot=None, 
+def prep_models_and_args(subject_id=None, task_id=None, fwhm=None, bidsroot=None,
                          deriv_dir=None, event_type=None, t_r=None, t_acq=None, space_label='T1w'):
     from nilearn.glm.first_level import first_level_from_bids
+    from nilearn.interfaces.fmriprep import load_confounds_strategy
     data_dir = bidsroot
 
     task_label = task_id
@@ -79,31 +80,43 @@ def prep_models_and_args(subject_id=None, task_id=None, fwhm=None, bidsroot=None
     # correct the fmriprep-given slice reference (middle slice, or 0.5)
     # to account for sparse acquisition (silent gap during auditory presentation paradigm)
     # fmriprep is explicitly based on slice timings, while nilearn is based on t_r
-    # and since images are only collected during a portion of the overall t_r 
+    # and since images are only collected during a portion of the overall t_r
     # (which includes the silent gap), we need to account for this
     slice_time_ref = 0.5 * t_acq / t_r
 
     print(data_dir, task_label, space_label)
 
     models, models_run_imgs, \
-            models_events, models_confounds = first_level_from_bids(data_dir, task_label, 
+            models_events, _ = first_level_from_bids(data_dir, task_label,
                                                                     space_label, [subject_id],
                                                                     smoothing_fwhm=fwhm,
                                                                     derivatives_folder=deriv_dir,
                                                                     slice_time_ref=slice_time_ref)
 
-    # fill n/a with 0
-    [[mc.fillna(0, inplace=True) for mc in sublist] for sublist in models_confounds]
-
-    # define which confounds to keep as nuisance regressors
-    conf_keep_list = ['framewise_displacement',
-                    #'a_comp_cor_00', 'a_comp_cor_01', 
-                    #'a_comp_cor_02', 'a_comp_cor_03', 
-                    #'a_comp_cor_04', 'a_comp_cor_05', 
-                    #'a_comp_cor_06', 'a_comp_cor_07', 
-                    #'a_comp_cor_08', 'a_comp_cor_09', 
-                    'trans_x', 'trans_y', 'trans_z', 
-                    'rot_x','rot_y', 'rot_z']
+    # load confounds with FD/DVARS-based scrubbing (motion + compcor regressors
+    # bundled automatically), replacing the old manual confound-column list
+    # (which had aCompCor disabled and no motion scrubbing/censoring). Mirrors
+    # the validated setup in sitek/SSP's univariate_fmri/univariate_first-level.py
+    min_retained_frac = 0.5
+    models_confounds = []
+    models_sample_masks = []
+    for run_imgs in models_run_imgs:
+        run_confounds, run_sample_masks = load_confounds_strategy(
+            img_files=run_imgs,
+            denoise_strategy='scrubbing',
+            fd_threshold=0.9,
+            std_dvars_threshold=1.5,
+        )
+        for rx, (conf, mask) in enumerate(zip(run_confounds, run_sample_masks)):
+            n_vols = len(conf)
+            n_retained = n_vols if mask is None else len(mask)
+            retained_frac = n_retained / n_vols
+            if retained_frac < min_retained_frac:
+                print('WARNING: run %d retains only %.0f%% of volumes after '
+                      'scrubbing (< %.0f%% threshold)' % (
+                          rx, 100 * retained_frac, 100 * min_retained_frac))
+        models_confounds.append(run_confounds)
+        models_sample_masks.append(run_sample_masks)
 
     ''' create events '''
     for sx, sub_events in enumerate(models_events):        
@@ -142,12 +155,27 @@ def prep_models_and_args(subject_id=None, task_id=None, fwhm=None, bidsroot=None
         stim_list = sorted([str(s) for s in run_events['trial_type'].unique() if str(s) not in ['nan', 'None']])
     
     #model_and_args = zip(models, models_run_imgs, models_events, models_confounds)
-    return stim_list, models, models_run_imgs, models_events, models_confounds, conf_keep_list
+    return stim_list, models, models_run_imgs, models_events, models_confounds, models_sample_masks
+
+
+def _filter_low_quality_runs(imgs, events, confounds, sample_masks, min_retained_frac=0.5):
+    ''' drop runs that retain too little data after scrubbing before fitting '''
+    keep_idx = []
+    for rx, (conf, mask) in enumerate(zip(confounds, sample_masks)):
+        n_vols = len(conf)
+        n_retained = n_vols if mask is None else len(mask)
+        if (n_retained / n_vols) >= min_retained_frac:
+            keep_idx.append(rx)
+        else:
+            print('excluding run %d: below %.0f%% volumes-retained threshold after scrubbing' % (
+                rx, 100 * min_retained_frac))
+    return ([imgs[i] for i in keep_idx], [events[i] for i in keep_idx],
+            [confounds[i] for i in keep_idx], [sample_masks[i] for i in keep_idx])
 
 
 # ### Across-runs GLM
 def nilearn_glm_across_runs(stim_list, task_label, models, models_run_imgs, \
-                            models_events, models_confounds, conf_keep_list, space_label):
+                            models_events, models_confounds, models_sample_masks, space_label):
     from nilearn.reporting import make_glm_report
     for midx in range(len(models)):
         contrast_label = 'fb_correct - fb_wrong'
@@ -158,15 +186,15 @@ def nilearn_glm_across_runs(stim_list, task_label, models, models_run_imgs, \
         imgs = models_run_imgs[midx]
         events = models_events[midx]
         confounds = models_confounds[midx]
+        sample_masks = models_sample_masks[midx]
 
-        # set limited confounds
-        print('selecting confounds')
-        confounds_ltd = [confounds[cx][conf_keep_list] for cx in range(len(confounds))]
+        imgs, events, confounds, sample_masks = _filter_low_quality_runs(
+            imgs, events, confounds, sample_masks)
 
         #try:
         # fit the GLM
         print('fitting GLM')
-        model.fit(imgs, events, confounds_ltd);
+        model.fit(imgs, events, confounds, sample_masks=sample_masks);
 
         # compute the contrast of interest
         print('computing contrast of interest')
@@ -225,16 +253,16 @@ def nilearn_glm_across_runs(stim_list, task_label, models, models_run_imgs, \
 print('Running subject ', subject_id)
 # Univariate analysis: MNI space, 3 mm, across-run GLM
 stim_list, models, models_run_imgs, models_events, \
-           models_confounds, conf_keep_list = prep_models_and_args(subject_id, 
-                                                                   task_label, 
-                                                                   fwhm, bidsroot, 
-                                                                   fmriprep_dir, 
+           models_confounds, models_sample_masks = prep_models_and_args(subject_id,
+                                                                   task_label,
+                                                                   fwhm, bidsroot,
+                                                                   fmriprep_dir,
                                                                    event_type,
-                                                                   t_r, t_acq, 
+                                                                   t_r, t_acq,
                                                                    space_label)
 # Across-run GLM
 zmap_fpath, statmap_fpath, \
-            contrast_label = nilearn_glm_across_runs(stim_list, task_label, 
-                                                     models, models_run_imgs, 
-                                                     models_events, models_confounds, 
-                                                     conf_keep_list, space_label)
+            contrast_label = nilearn_glm_across_runs(stim_list, task_label,
+                                                     models, models_run_imgs,
+                                                     models_events, models_confounds,
+                                                     models_sample_masks, space_label)

@@ -1,0 +1,40 @@
+# STARTER FILE -- NOT YET VERIFIED AGAINST THE CLUSTER.
+#
+# This package list was derived by grepping every `import`/`from` statement
+# across this repo's .py scripts and .ipynb notebooks -- it's a complete
+# list of third-party dependencies actually used, but the version pins
+# below are unverified floors/guesses, not a real snapshot.
+#
+# This pipeline only runs on the Pitt CRC cluster (bgfs paths), which
+# this tool has no access to. To get a real snapshot, run this on the
+# cluster in whichever conda env is actually used for 05_masking/,
+# 06_univariate/, and 07_rsa/:
+#   conda env export --no-builds > environment.yml
+# and replace this file with that output (keeping the name field below).
+# If pip-installed rather than conda, `pip freeze > requirements.txt` and
+# adapt the pip section instead.
+name: fmri-auditory-category-learning
+channels:
+  - conda-forge
+dependencies:
+  - python=3.10
+  - numpy>=1.26
+  - pandas>=2.2
+  - scipy>=1.12
+  - matplotlib>=3.8
+  - seaborn
+  - plotly
+  - nibabel>=5.2
+  - nilearn>=0.10.3  # load_confounds_strategy (Workstream 7) needs this or newer
+  - pybids>=0.16
+  - pingouin>=0.6
+  - statsmodels
+  - scikit-learn
+  - scikit-image
+  - jupyter
+  - pip
+  - pip:
+      - rsatoolbox
+      - nltools
+      - xnat
+      # - yabplot  # local/custom plotting package -- confirm install source (git URL or local path) on the cluster
