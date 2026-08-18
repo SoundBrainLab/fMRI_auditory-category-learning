@@ -192,15 +192,38 @@ func_maps = sorted(glob(fmriprep_dir+f'/sub-{sub_id}/func/'+
                         f'*space-{space_label}*bold.nii.gz'))
 func_example_fpath = func_maps[0]
 
-if space_label == 'T1w' and atlas_label == 'aparc': 
+if space_label == 'T1w' and atlas_label == 'aparc':
     atlas_fpath = os.path.join(fmriprep_dir, 'sub-%s'%sub_id, 'anat',
                                 'sub-%s_desc-%saseg_dseg.nii.gz'%(sub_id, atlas_label))
 
 
-    sub_mask_dir = os.path.join(nilearn_dir, 'masks', 'sub-%s'%sub_id, 
-                                'space-%s'%space_label, 'masks-aparc') 
+    sub_mask_dir = os.path.join(nilearn_dir, 'masks', 'sub-%s'%sub_id,
+                                'space-%s'%space_label, 'masks-aparc')
     roi_dict = roi_dict_T1w_aseg
-elif space_label == 'MNI152NLin2009cAsym' and atlas_label == 'carpet_dseg': 
+elif space_label == 'T1w' and atlas_label == 'tian_S2':
+    # atlas pre-warped into this subject's native T1w space via
+    # 05_masking/warp_atlases_to_T1w.sh (antsApplyTransforms, GenericLabel)
+    atlas_fpath = os.path.join(nilearn_dir, 'masks', 'sub-%s'%sub_id,
+                               'space-T1w', 'atlas-native',
+                               'sub-%s_space-T1w_atlas-tianS2.nii.gz'%sub_id)
+    sub_mask_dir = os.path.join(nilearn_dir, 'masks', 'sub-%s'%sub_id,
+                                'space-%s'%space_label, 'masks-tian-S2')
+    roi_dict = roi_dict_tian_S2
+elif space_label == 'T1w' and atlas_label == 'subcort_aud':
+    atlas_fpath = os.path.join(nilearn_dir, 'masks', 'sub-%s'%sub_id,
+                               'space-T1w', 'atlas-native',
+                               'sub-%s_space-T1w_atlas-subcortaud.nii.gz'%sub_id)
+    sub_mask_dir = os.path.join(nilearn_dir, 'masks', 'sub-%s'%sub_id,
+                                'space-%s'%space_label, 'masks-subcort-aud')
+    roi_dict = roi_dict_MNI_sg_subcort
+elif space_label == 'T1w' and atlas_label == 'carpet_dseg':
+    atlas_fpath = os.path.join(nilearn_dir, 'masks', 'sub-%s'%sub_id,
+                               'space-T1w', 'atlas-native',
+                               'sub-%s_space-T1w_atlas-carpetdseg.nii.gz'%sub_id)
+    sub_mask_dir = os.path.join(nilearn_dir, 'masks', 'sub-%s'%sub_id,
+                                'space-%s'%space_label, 'masks-dseg')
+    roi_dict = roi_dict_MNI_dseg
+elif space_label == 'MNI152NLin2009cAsym' and atlas_label == 'carpet_dseg':
     atlas_fpath = os.path.join('/bgfs/bchandrasekaran/krs228/data/',
                                'reference/', #tpl-MNI152NLin2009cAsym/',
                                'tpl-MNI152NLin2009cAsym_res-01_desc-carpet_dseg.nii.gz')  
