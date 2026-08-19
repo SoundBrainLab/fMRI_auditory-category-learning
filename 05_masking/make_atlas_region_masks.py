@@ -266,7 +266,9 @@ elif space_label == 'MNI152NLin2009cAsym' and atlas_label == 'tian_S2':
                                 'space-%s'%space_label, 'masks-tian-S2') 
     roi_dict = roi_dict_tian_S2
 else:
-    print('mismatch between space label and atlas label')
+    print(f'mismatch between space label ({space_label}) and atlas label ({atlas_label}) '
+          f'-- no branch handles this combination, see the elif chain above for what is supported')
+    sys.exit(1)
 if not os.path.exists(sub_mask_dir):
     os.makedirs(sub_mask_dir)
 

@@ -59,7 +59,7 @@ CANDIDATE_MODELS = (
     ['CON_%d' % i for i in range(1, 6)] +
     ['SPC', 'RAN']
 )
-STAGE_MAP = {1: 'early', 2: 'early', 3: 'middle', 4: 'middle', 5: 'late', 6: 'late'}
+STAGE_MAP = {1: 'early', 2: 'early', 3: 'middle', 4: 'middle', 5: 'final', 6: 'final'}
 
 
 def parse_allfits(allfits_str):
@@ -82,14 +82,39 @@ def load_non_mandarin_subjects(bidsroot):
 def load_model_fits(fits_fpath, models=CANDIDATE_MODELS, bic_min=-50, bic_max=500):
     ''' long-format dataframe: subject, run, model, bic, valid.
     valid=False rows have a BIC outside [bic_min, bic_max] -- treated
-    as a failed/non-converged fit, not a real comparison point. '''
+    as a failed/non-converged fit, not a real comparison point.
+
+    Run number comes from the numeric suffix of `subject` (e.g.
+    "FLT02_03" -> run 3), NOT the `Block` column -- every row seen so
+    far has Block == 'block1' identically, so it can't encode run
+    number and is ignored. If the real file ever has more than one
+    distinct Block value, that assumption may be wrong; this prints a
+    warning rather than silently trusting it either way.
+
+    Malformed rows (subject with no '_run' suffix, unparseable/missing
+    AllFits) are skipped with a warning rather than crashing the whole
+    load -- real data from this fitting procedure is already known to
+    have at least one badly-behaved row (see module docstring). '''
     df = pd.read_csv(fits_fpath, sep='\t')
 
+    if 'Block' in df.columns and df['Block'].nunique() > 1:
+        print(f"WARNING: 'Block' column has {df['Block'].nunique()} distinct values "
+              f"({sorted(df['Block'].unique())}) -- this script ignores it and infers "
+              f"run number from the subject column suffix instead. Verify that's still "
+              f"correct before trusting the results.")
+
     rows = []
+    n_skipped = 0
     for _, row in df.iterrows():
-        subject, run = row['subject'].rsplit('_', 1)
-        run = int(run)
-        allfits = parse_allfits(row['AllFits'])
+        try:
+            subject, run = row['subject'].rsplit('_', 1)
+            run = int(run)
+            allfits = parse_allfits(row['AllFits'])
+        except (ValueError, AttributeError, TypeError) as e:
+            print(f"WARNING: skipping malformed row (subject={row.get('subject')!r}): {e}")
+            n_skipped += 1
+            continue
+
         for model in models:
             if model not in allfits:
                 continue
@@ -97,6 +122,9 @@ def load_model_fits(fits_fpath, models=CANDIDATE_MODELS, bic_min=-50, bic_max=50
             valid = bic_min <= bic <= bic_max
             rows.append({'subject': subject, 'run': run, 'model': model,
                         'bic': bic, 'valid': valid})
+
+    if n_skipped:
+        print(f"WARNING: skipped {n_skipped} malformed row(s) out of {len(df)} total")
 
     return pd.DataFrame(rows)
 
@@ -127,32 +155,52 @@ def compute_spc_relative_bic(long_df):
     ''' per subject-run, delta = BIC_SPC - min(BIC of other candidate
     models), using only valid fits. Negative = SPC fits relatively
     better than the best alternative that run. Rows where SPC or every
-    alternative is invalid are dropped, not imputed. '''
+    alternative is invalid are dropped, not imputed. Runs outside
+    STAGE_MAP's expected {1..6} (e.g. a stray practice/aborted run left
+    in the file) are skipped with a warning rather than crashing. '''
     rows = []
+    n_unmapped = 0
     for (subject, run), g in long_df.groupby(['subject', 'run']):
+        stage = STAGE_MAP.get(run)
+        if stage is None:
+            n_unmapped += 1
+            continue
         spc_row = g[(g['model'] == 'SPC') & g['valid']]
         others = g[(g['model'] != 'SPC') & g['valid']]
         if spc_row.empty or others.empty:
             continue
         spc_bic = spc_row['bic'].iloc[0]
         best_other_bic = others['bic'].min()
-        rows.append({'subject': subject, 'run': run,
-                    'stage': STAGE_MAP[run],
+        rows.append({'subject': subject, 'run': run, 'stage': stage,
                     'spc_bic': spc_bic, 'best_other_bic': best_other_bic,
                     'delta_bic': spc_bic - best_other_bic})
+    if n_unmapped:
+        print(f"WARNING: skipped {n_unmapped} subject-run(s) with a run number "
+              f"outside STAGE_MAP's expected {{1..6}} -- check for stray/aborted runs")
     return pd.DataFrame(rows)
 
 
 def compute_early_late_trend(delta_df):
-    ''' per-subject mean delta_bic in the early vs. late stage, and the
-    late-minus-early change -- more negative change means SPC's
+    ''' per-subject mean delta_bic in the early vs. final stage, and the
+    final-minus-early change -- more negative change means SPC's
     relative fit improved with learning, which is the actual
     "increasing procedural reliance" claim (not raw win-count).
-    Subjects missing either stage entirely are dropped. '''
+    Subjects missing either stage entirely are dropped. Raises if that
+    leaves no subjects at all, rather than silently returning an empty
+    result that downstream stats would turn into misleading NaNs. '''
+    if delta_df.empty:
+        raise ValueError('compute_early_late_trend: delta_df is empty -- no valid '
+                         'SPC-vs-competitor comparisons were computed at all')
     stage_means = (delta_df.groupby(['subject', 'stage'])['delta_bic']
                             .mean().unstack('stage'))
-    stage_means = stage_means.dropna(subset=['early', 'late'])
-    stage_means['late_minus_early'] = stage_means['late'] - stage_means['early']
+    for stage in ('early', 'final'):
+        if stage not in stage_means.columns:
+            stage_means[stage] = np.nan
+    stage_means = stage_means.dropna(subset=['early', 'final'])
+    if stage_means.empty:
+        raise ValueError('compute_early_late_trend: no subject has both an early- and '
+                         'final-stage valid SPC comparison -- cannot compute a trend')
+    stage_means['late_minus_early'] = stage_means['final'] - stage_means['early']
     return stage_means.reset_index()
 
 
@@ -191,7 +239,7 @@ def run_model_comparison(fits_fpath, bidsroot, out_dir, bic_min=-50, bic_max=500
 
     summary = pd.DataFrame([{
         'n_subjects': len(values),
-        'mean_late_minus_early_delta_bic': float(np.mean(values)) if len(values) else float('nan'),
+        'mean_late_minus_early_delta_bic': float(np.mean(values)),
         'original_t': loso['original_t'],
         'original_p': loso['original_p'],
         'loso_folds_preserved': loso['n_preserved'],

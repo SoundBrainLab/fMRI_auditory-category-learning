@@ -20,6 +20,8 @@ def leave_one_out_stability(values, alpha=0.05):
     doubted. '''
     values = np.asarray(values, dtype=float)
     n = len(values)
+    if n < 2:
+        raise ValueError(f'leave_one_out_stability: need at least 2 subjects, got {n}')
     orig_t, orig_p = stats.ttest_1samp(values, 0)
     orig_sign = np.sign(orig_t)
 
@@ -41,6 +43,8 @@ def exact_sign_flip_permutation_test(values):
     not just a limitation. '''
     values = np.asarray(values, dtype=float)
     n = len(values)
+    if n < 2:
+        raise ValueError(f'exact_sign_flip_permutation_test: need at least 2 subjects, got {n}')
     if n > 20:
         raise ValueError('exact enumeration infeasible above ~20 subjects; use Monte Carlo instead')
 
@@ -63,6 +67,8 @@ def bootstrap_ci(values, n_boot=10000, ci=0.95, rng=None):
     assumptions at n=12. '''
     rng = np.random.default_rng() if rng is None else rng
     values = np.asarray(values, dtype=float)
+    if len(values) < 2:
+        raise ValueError(f'bootstrap_ci: need at least 2 subjects, got {len(values)}')
     boot_means = np.array([np.mean(rng.choice(values, size=len(values), replace=True))
                            for _ in range(n_boot)])
     alpha = 1 - ci
