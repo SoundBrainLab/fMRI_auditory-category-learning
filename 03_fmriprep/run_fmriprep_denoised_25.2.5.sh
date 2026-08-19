@@ -1,6 +1,6 @@
 #!/bin/bash
 #SBATCH --time=3-00
-#SBATCH --mem=54G
+#SBATCH --mem=64G
 #SBATCH --cpus-per-task=8
 
 # Preprocess single-subject FLT data using fmriprep

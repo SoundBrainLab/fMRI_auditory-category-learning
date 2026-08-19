@@ -194,12 +194,47 @@ def prep_models_and_args(subject_id=None, task_id=None, fwhm=None, bidsroot=None
     return stim_list, models, models_run_imgs, models_events, models_confounds, models_sample_masks
 
 
+def _compute_and_save_contrast(model, contrast_label, contrast_desc, task_label,
+                               space_label, bidsroot, out_subdirs):
+    ''' compute one contrast on an already-fit model and save z-map, beta-map,
+    and an html report. Shared by both grouping modes' single-contrast paths
+    (across-runs feedback branch, and every grouped-runs contrast) so the
+    save format only needs to change in one place. No variance map -- not
+    used downstream, and grouped-runs never saved one either. '''
+    from nilearn.reporting import make_glm_report
+
+    print('computing contrast of interest')
+    summary_statistics = model.compute_contrast(contrast_label, output_type='all')
+    zmap = summary_statistics['z_score']
+    statmap = summary_statistics['effect_size']
+
+    nilearn_sub_dir = os.path.join(bidsroot, 'derivatives', 'nilearn',
+                                   'level-1_fwhm-%.02f'%model.smoothing_fwhm,
+                                   'sub-%s_space-%s'%(model.subject_label, space_label),
+                                   *out_subdirs)
+    os.makedirs(nilearn_sub_dir, exist_ok=True)
+
+    analysis_prefix = 'sub-%s_task-%s_fwhm-%.02f_space-%s_contrast-%s'%(
+        model.subject_label, task_label, model.smoothing_fwhm, space_label, contrast_desc)
+
+    zmap_fpath = os.path.join(nilearn_sub_dir, analysis_prefix+'_map-zscore.nii.gz')
+    nib.save(zmap, zmap_fpath)
+
+    statmap_fpath = os.path.join(nilearn_sub_dir, analysis_prefix+'_map-beta.nii.gz')
+    nib.save(statmap, statmap_fpath)
+
+    report_fpath = os.path.join(nilearn_sub_dir, analysis_prefix+'_report.html')
+    report = make_glm_report(model=model, contrasts=contrast_label)
+    report.save_as_html(report_fpath)
+
+    print(f'saved z/beta maps + report to {nilearn_sub_dir}')
+    return zmap_fpath, statmap_fpath
+
+
 # ### Grouping: none -- fit all runs together in a single GLM
 def nilearn_glm_across_runs(stim_list, task_label, models, models_run_imgs,
                             models_events, models_confounds, models_sample_masks,
                             space_label, event_type, bidsroot):
-    from nilearn.reporting import make_glm_report
-
     bidsderiv_sub_dir = None
     for midx in range(len(models)):
         model = models[midx]
@@ -218,40 +253,8 @@ def nilearn_glm_across_runs(stim_list, task_label, models, models_run_imgs,
             # the format previously produced by
             # univariate_analysis_fb-correct-vs-wrong.py, which
             # run_univariate_analysis_denoised_fb.sh already depends on)
-            contrast_label = 'fb_correct - fb_wrong'
-            contrast_desc = 'fb-correct-vs-wrong'
-
-            print('computing contrast of interest')
-            summary_statistics = model.compute_contrast(contrast_label, output_type='all')
-            zmap = summary_statistics['z_score']
-            statmap = summary_statistics['effect_size']
-            varmap = summary_statistics['effect_variance']
-
-            nilearn_sub_dir = os.path.join(bidsroot, 'derivatives', 'nilearn',
-                                           'level-1_fwhm-%.02f'%model.smoothing_fwhm,
-                                           'sub-%s_space-%s'%(model.subject_label, space_label),
-                                           'run-all')
-            os.makedirs(nilearn_sub_dir, exist_ok=True)
-
-            analysis_prefix = 'sub-%s_task-%s_fwhm-%.02f_space-%s_contrast-%s'%(
-                model.subject_label, task_label, model.smoothing_fwhm, space_label, contrast_desc)
-
-            zmap_fpath = os.path.join(nilearn_sub_dir, analysis_prefix+'_map-zscore.nii.gz')
-            nib.save(zmap, zmap_fpath)
-            print('saved z map to ', zmap_fpath)
-
-            statmap_fpath = os.path.join(nilearn_sub_dir, analysis_prefix+'_map-beta.nii.gz')
-            nib.save(statmap, statmap_fpath)
-            print('saved beta map to ', statmap_fpath)
-
-            varmap_fpath = os.path.join(nilearn_sub_dir, analysis_prefix+'_map-var.nii.gz')
-            nib.save(varmap, varmap_fpath)
-            print('saved variance map to ', varmap_fpath)
-
-            report_fpath = os.path.join(nilearn_sub_dir, analysis_prefix+'_report.html')
-            report = make_glm_report(model=model, contrasts=contrast_label)
-            report.save_as_html(report_fpath)
-            print('saved report to ', report_fpath)
+            _compute_and_save_contrast(model, 'fb_correct - fb_wrong', 'fb-correct-vs-wrong',
+                                       task_label, space_label, bidsroot, ('run-all',))
         else:
             # one contrast per condition, but a single save_glm_to_bids call
             # handles the whole stim_list at once (it accepts a list of
@@ -280,8 +283,6 @@ def nilearn_glm_across_runs(stim_list, task_label, models, models_run_imgs,
 def nilearn_glm_grouped_runs(stim_list, task_label, models, models_run_imgs,
                             models_events, models_confounds, models_sample_masks,
                             space_label, event_type, bidsroot):
-    from nilearn.reporting import make_glm_report
-
     #run_group_dict = {'firsthalf': [0, 1, 2],
     #                  'secondhalf': [3, 4, 5]}
     run_group_dict = {'earlythird': [0, 1],
@@ -323,46 +324,11 @@ def nilearn_glm_grouped_runs(stim_list, task_label, models, models_run_imgs,
                         contrast_label = stim
                         contrast_desc  = stim
 
-                    # compute the contrast of interest
-                    print('computing contrast of interest')
-                    summary_statistics = model.compute_contrast(contrast_label, output_type='all')
-                    zmap = summary_statistics['z_score']
-                    statmap = summary_statistics['effect_size']
-
-                    # save z map
-                    print('saving z-map')
-                    nilearn_sub_dir = os.path.join(bidsroot, 'derivatives', 'nilearn',
-                                                   'level-1_fwhm-%.02f'%model.smoothing_fwhm,
-                                                   'sub-%s_space-%s'%(model.subject_label, space_label),
-                                                   'grouped_runs', run_group)
-                    os.makedirs(nilearn_sub_dir, exist_ok=True)
-
-                    analysis_prefix = 'sub-%s_task-%s_fwhm-%.02f_space-%s_contrast-%s'%(model.subject_label,
-                                                                                        task_label,
-                                                                                        model.smoothing_fwhm,
-                                                                                        space_label,
-                                                                                        contrast_desc)
-                    zmap_fpath = os.path.join(nilearn_sub_dir,
-                                            analysis_prefix+'_map-zscore.nii.gz')
-                    nib.save(zmap, zmap_fpath)
-                    print('saved z map to ', zmap_fpath)
-
-                    # also save beta maps
-                    statmap_fpath = os.path.join(nilearn_sub_dir,
-                                                analysis_prefix+'_map-beta.nii.gz')
-                    nib.save(statmap, statmap_fpath)
-                    print('saved beta map to ', statmap_fpath)
-
-                    # save report
-                    print('saving report')
-                    report_fpath = os.path.join(nilearn_sub_dir,
-                                                analysis_prefix+'_report.html')
-                    report = make_glm_report(model=model,
-                                            contrasts=contrast_label)
-                    report.save_as_html(report_fpath)
-                    print('saved report to ', report_fpath)
-            except Exception:
-                print('could not run for ', run_group)
+                    zmap_fpath, statmap_fpath = _compute_and_save_contrast(
+                        model, contrast_label, contrast_desc, task_label,
+                        space_label, bidsroot, ('grouped_runs', run_group))
+            except Exception as e:
+                print(f'could not run {run_group}: {e}')
     return zmap_fpath, statmap_fpath, contrast_label
 
 
