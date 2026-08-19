@@ -78,3 +78,22 @@ managed through conda.
 1. Create event-specific beta estimates
 2. Run region-based RSA using atlas masks (see [masking](#Masking))
 3. Compute group-level RSA statistics for cortical and striatal networks
+
+### Behavioral modeling: `./08_behavioral-modeling/`
+The SPC/decision-bound model-fitting code itself lives outside this repo; this
+directory works from its output. `model_comparison.py` runs the formal
+model comparison Reviewer #1 asked for -- were the alternative models (UDX,
+UDY, CON, SPC, RAN; CJH1/CJH2 excluded, see script docstring) ever
+statistically compared, and does SPC's fit specifically improve relative to
+the best competitor from early to late learning stage. Reads the subject-run
+BIC results file directly (no new fitting needed) and restricts to the
+non-Mandarin analyzed sample via `participants.tsv`. All paths are required
+CLI arguments -- nothing is hardcoded, since the results file lives on the
+cluster.
+
+## Shared utilities
+`stats_fmt.py` (statistics-table formatting) and `resampling_stats.py`
+(leave-one-out/permutation/bootstrap checks, used by both
+`06_univariate/robustness_checks.py` and
+`08_behavioral-modeling/model_comparison.py`) live at the repo root and are
+imported directly by scripts/notebooks in the numbered subdirectories.
