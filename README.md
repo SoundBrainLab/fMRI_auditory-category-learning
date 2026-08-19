@@ -3,7 +3,9 @@
 Processing and analyzing tone-learning fMRI data collected at the University of Pittsburgh's 7T MRI Center.
 
 ## Manuscript details
-Currently in revision. Preprint to come shortly!
+Currently in revision. Preprint to come shortly! See [`REVISION_PLAN.md`](REVISION_PLAN.md)
+for the full revision plan, progress log, and per-workstream status (branch:
+`manuscript-revision`).
 
 ## Data availability
 Data will be uploaded to OpenNeuro.
