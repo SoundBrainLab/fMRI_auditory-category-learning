@@ -16,31 +16,50 @@ paper's headline claim, not every ROI/hemisphere/contrast -- doing that
 would recreate the multiple-comparisons problem these checks exist to
 address.
 
-Input: a long-format CSV with one row per participant x region x
-hemisphere x learning_stage x event_type, and a `beta` column -- the
-same schema group_level_all_ROI.ipynb already builds for its
-AnovaRM/pairwise_tests calls (columns: participant_id, region,
-hemisphere, learning_stage, event_type, beta). That notebook has
-several near-duplicate analysis blocks (likely per-network iterations),
-so exporting the right one to CSV needs to be wired up by hand once
-real data exists -- this script does not assume where that export
-happens, only what its output looks like.
+Input: a long-format, TAB-separated table with one row per participant x
+region x hemisphere x learning_stage, and a `beta` column. This is not
+a guess -- group_level_all_ROI.ipynb already writes exactly this file
+for the striatal/feedback analysis (its cell 213), via:
+    out_fname = f'univariate-results_network-{network_name}_contrast-{contrast_label}.tsv'
+    roi_df_long.to_csv(os.path.join(group_out_dir, out_fname), sep='\t', ...)
+which resolves (network_name='tian-S2', contrast_label='fb-correct-vs-wrong')
+to:
+    derivatives/nilearn/group_fwhm-0.00/univariate-results_network-tian-S2_contrast-fb-correct-vs-wrong.tsv
+No new export needs to be added to the notebook -- this file already
+gets written whenever that section runs. Columns confirmed by reading
+the notebook: participant_id, region (e.g. aCAU/pCAU/aPUT/pPUT/
+NAc-core/NAc-shell), hemisphere (lh/rh), learning_stage (values are
+'early'/'middle'/'final' -- NOT 'earlythird' etc., which is only used
+in the GLM output folder structure, not this dataframe), beta. No
+event_type column is needed or expected, since the file is already
+scoped to one contrast; pass --event_type only if working from a
+different, combined-contrast CSV that has one.
+
+One thing to confirm once real data is available, not assumed here:
+the notebook restricts this section to `sub_list_nman` (non-Mandarin
+native speakers) rather than the full participant list, so n may be
+smaller than the manuscript's overall n=12 -- the checks below adapt to
+however many subjects are actually in the file either way.
 
 Example: python robustness_checks.py \
-    --csv=derivatives/nilearn/group_level/roi_values_long.csv \
-    --event_type=feedback --region_a=aCAU --region_b=aPUT \
-    --out=derivatives/nilearn/group_level/robustness_summary.csv
+    --csv=derivatives/nilearn/group_fwhm-0.00/univariate-results_network-tian-S2_contrast-fb-correct-vs-wrong.tsv \
+    --sep=tab --region_a=aCAU --region_b=aPUT \
+    --out=derivatives/nilearn/group_fwhm-0.00/robustness_summary.csv
 '''
 
-STAGE_ORDER = ['earlythird', 'middlethird', 'latethird']
-TREND_WEIGHTS = np.array([-1, 0, 1])  # linear contrast across early/middle/late
+STAGE_ORDER = ['early', 'middle', 'final']
+TREND_WEIGHTS = np.array([-1, 0, 1])  # linear contrast across early/middle/final
 
 
-def load_subject_region_stage_means(csv_fpath, event_type, regions):
+def load_subject_region_stage_means(csv_fpath, regions, event_type=None, sep=','):
     ''' one mean beta per participant x region x learning_stage,
-    averaging over hemisphere '''
-    df = pd.read_csv(csv_fpath)
-    df = df[(df['event_type'] == event_type) & (df['region'].isin(regions))]
+    averaging over hemisphere. `event_type` filtering only applies if
+    that column is present -- the real per-contrast TSVs written by
+    group_level_all_ROI.ipynb don't have one (see module docstring). '''
+    df = pd.read_csv(csv_fpath, sep=sep)
+    if event_type is not None and 'event_type' in df.columns:
+        df = df[df['event_type'] == event_type]
+    df = df[df['region'].isin(regions)]
     return (df.groupby(['participant_id', 'region', 'learning_stage'])['beta']
               .mean()
               .reset_index())
@@ -152,10 +171,11 @@ def bootstrap_ci(values, n_boot=10000, ci=0.95, rng=None):
             'n_boot': n_boot}
 
 
-def run_robustness_checks(csv_fpath, event_type, region_a, region_b, out_fpath,
-                          n_perms=10000, n_boot=10000, seed=0):
+def run_robustness_checks(csv_fpath, region_a, region_b, out_fpath, event_type=None,
+                          sep=',', n_perms=10000, n_boot=10000, seed=0):
     rng = np.random.default_rng(seed)
-    means_df = load_subject_region_stage_means(csv_fpath, event_type, [region_a, region_b])
+    means_df = load_subject_region_stage_means(csv_fpath, [region_a, region_b],
+                                               event_type=event_type, sep=sep)
 
     trend_a = compute_subject_trends(means_df, region_a)
     trend_b = compute_subject_trends(means_df, region_b)
@@ -202,11 +222,14 @@ if __name__ == '__main__':
         description='Robustness/permutation checks on the anterior caudate vs. '
                     'putamen feedback learning-stage effect',
         epilog=('Example: python robustness_checks.py '
-                '--csv=derivatives/nilearn/group_level/roi_values_long.csv '
-                '--event_type=feedback --region_a=aCAU --region_b=aPUT '
-                '--out=derivatives/nilearn/group_level/robustness_summary.csv'))
-    parser.add_argument('--csv', help='long-format ROI beta CSV, see module docstring for schema', type=str)
-    parser.add_argument('--event_type', help='e.g. feedback or sound', type=str, default='feedback')
+                '--csv=derivatives/nilearn/group_fwhm-0.00/univariate-results_network-tian-S2_contrast-fb-correct-vs-wrong.tsv '
+                '--sep=tab --region_a=aCAU --region_b=aPUT '
+                '--out=derivatives/nilearn/group_fwhm-0.00/robustness_summary.csv'))
+    parser.add_argument('--csv', help='long-format ROI beta table, see module docstring for schema', type=str)
+    parser.add_argument('--sep', help="field separator: 'tab' for the real .tsv files, or a literal "
+                        "character like ',' (default: ',')", type=str, default=',')
+    parser.add_argument('--event_type', help='only needed for a combined-contrast CSV that has an '
+                        'event_type column; the real per-contrast .tsv files do not', type=str, default=None)
     parser.add_argument('--region_a', help='first region label, e.g. aCAU', type=str, default='aCAU')
     parser.add_argument('--region_b', help='second region label, e.g. aPUT', type=str, default='aPUT')
     parser.add_argument('--out', help='output summary CSV path', type=str)
@@ -215,5 +238,7 @@ if __name__ == '__main__':
     parser.add_argument('--seed', help='random seed for Monte Carlo/bootstrap', type=int, default=0)
     args = parser.parse_args()
 
-    run_robustness_checks(args.csv, args.event_type, args.region_a, args.region_b,
-                          args.out, n_perms=args.n_perms, n_boot=args.n_boot, seed=args.seed)
+    sep = '\t' if args.sep == 'tab' else args.sep
+    run_robustness_checks(args.csv, args.region_a, args.region_b, args.out,
+                          event_type=args.event_type, sep=sep,
+                          n_perms=args.n_perms, n_boot=args.n_boot, seed=args.seed)
