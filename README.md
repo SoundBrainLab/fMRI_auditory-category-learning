@@ -63,6 +63,14 @@ managed through conda.
    separate GLMs per early/middle/late run-pair to look at learning-stage
    effects (see `run_univariate_groupedruns_denoised.sh`).
 2. Run `group_level.ipynb` for group-level GLM and output maps/figures
+3. `robustness_checks.py` runs leave-one-subject-out, exact/Monte Carlo
+   permutation, and bootstrap-CI checks on the anterior caudate vs. putamen
+   feedback learning-stage effect -- the paper's headline claim, checked
+   deliberately narrowly rather than across every ROI. Expects a long-format
+   per-subject/per-ROI beta CSV (schema documented in the script's module
+   docstring); exporting that CSV from `group_level_all_ROI.ipynb` is not yet
+   wired up (that notebook has several near-duplicate analysis blocks and
+   needs to be run to identify the right one).
 
 ### Representational similarity analysis: `./07_rsa/`
 1. Create event-specific beta estimates
