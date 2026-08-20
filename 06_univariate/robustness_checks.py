@@ -25,9 +25,9 @@ a guess -- group_level_all_ROI.ipynb already writes exactly this file
 for the striatal/feedback analysis (its cell 213), via:
     out_fname = f'univariate-results_network-{network_name}_contrast-{contrast_label}.tsv'
     roi_df_long.to_csv(os.path.join(group_out_dir, out_fname), sep='\t', ...)
-which resolves (network_name='tian-S2', contrast_label='fb-correct-vs-wrong')
+which resolves (network_name='tian-S2', contrast_label='fbcorrectvswrong')
 to:
-    derivatives/nilearn/group_fwhm-0.00/univariate-results_network-tian-S2_contrast-fb-correct-vs-wrong.tsv
+    derivatives/nilearn/group_fwhm-0.00/univariate-results_network-tian-S2_contrast-fbcorrectvswrong.tsv
 No new export needs to be added to the notebook -- this file already
 gets written whenever that section runs. Columns confirmed by reading
 the notebook: participant_id, region (e.g. aCAU/pCAU/aPUT/pPUT/
@@ -45,7 +45,7 @@ smaller than the manuscript's overall n=12 -- the checks below adapt to
 however many subjects are actually in the file either way.
 
 Example: python robustness_checks.py \
-    --csv=derivatives/nilearn/group_fwhm-0.00/univariate-results_network-tian-S2_contrast-fb-correct-vs-wrong.tsv \
+    --csv=derivatives/nilearn/group_fwhm-0.00/univariate-results_network-tian-S2_contrast-fbcorrectvswrong.tsv \
     --sep=tab --region_a=aCAU --region_b=aPUT \
     --out=derivatives/nilearn/group_fwhm-0.00/robustness_summary.csv
 '''
@@ -164,7 +164,7 @@ if __name__ == '__main__':
         description='Robustness/permutation checks on the anterior caudate vs. '
                     'putamen feedback learning-stage effect',
         epilog=('Example: python robustness_checks.py '
-                '--csv=derivatives/nilearn/group_fwhm-0.00/univariate-results_network-tian-S2_contrast-fb-correct-vs-wrong.tsv '
+                '--csv=derivatives/nilearn/group_fwhm-0.00/univariate-results_network-tian-S2_contrast-fbcorrectvswrong.tsv '
                 '--sep=tab --region_a=aCAU --region_b=aPUT '
                 '--out=derivatives/nilearn/group_fwhm-0.00/robustness_summary.csv'))
     parser.add_argument('--csv', help='long-format ROI beta table, see module docstring for schema', type=str)
