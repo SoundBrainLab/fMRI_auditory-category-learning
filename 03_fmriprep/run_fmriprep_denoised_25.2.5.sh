@@ -6,34 +6,28 @@
 # Preprocess single-subject FLT data using fmriprep
 # in a Singularity container
 # Updated to fmriprep 25.2.5 (current LTS line, support through Oct 2029)
-# to pick up fieldmap/SDC masking fixes (23.2.0) and brain-mask
-# dilation fixes (24.0.0) since the 22.1.1 run.
-# Runs to a SEPARATE output tree from the 22.1.1 derivatives -- do not
-# point this at the same out_dir/work_dir as run_fmriprep_denoised.sh.
-# Confirm 25.2.5 is still the latest 25.2.x LTS patch before building
-# the container; bump fmriprep_version below if a newer patch exists.
 
 module add freesurfer
 module add fsl
 module add afni
 module add ants
-module add singularity/3.8.3
+module add singularity
 
 #conda activate py3
 
 # define paths
-software_path=/bgfs/bchandrasekaran/krs228/software/
-project_path=/bgfs/bchandrasekaran/krs228/data/FLT/
+software_path=/ix1/bchandrasekaran/krs228/software/
+project_path=/ix1/bchandrasekaran/krs228/data/FLT/
 data_dir=$project_path/data_denoised/
 
 fmriprep_version=25.2.5
 analysis_desc="denoised_fmriprep-$fmriprep_version"
-work_dir=/bgfs/bchandrasekaran/krs228/work/${analysis_desc}
+work_dir=/ix1/bchandrasekaran/krs228/work/${analysis_desc}
 out_dir=$data_dir/derivatives/${analysis_desc}/
 
 # singularity
 sing_dir=$software_path/singularity_images/
-sing_img=$sing_dir/${fmriprep_version}.simg
+sing_img=$sing_dir/fmriprep-${fmriprep_version}.simg
 
 # define inputs
 fs_license=$software_path/license.txt
@@ -68,4 +62,4 @@ singularity run --cleanenv -B /bgfs:/bgfs $sing_img \
   -vv \
   --mem $mem \
   --nprocs $nprocs --omp-nthreads $omp_n \
-  --output-spaces T1w func fsnative MNI152NLin2009cAsym
+  --output-spaces T1w fsnative MNI152NLin2009cAsym
