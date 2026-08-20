@@ -172,6 +172,14 @@ def prep_models_and_args(subject_id=None, task_id=None, fwhm=None, bidsroot=None
     ''' create events '''
     for sx, sub_events in enumerate(models_events):
         for mx, run_events in enumerate(sub_events):
+            # drop rows where the event didn't actually occur on that trial
+            # (e.g. feedback isn't delivered on a missed-response trial, so
+            # its row is present in events.tsv with onset left blank) --
+            # nilearn's design-matrix builder rejects any NaN onset outright,
+            # regardless of event_type, so this has to happen before any of
+            # the relabeling below
+            run_events = run_events.dropna(subset=['onset']).reset_index(drop=True)
+
             # stimulus events
             if event_type == 'stimulus':
                 name_groups = run_events.groupby('trial_type')['trial_type']
