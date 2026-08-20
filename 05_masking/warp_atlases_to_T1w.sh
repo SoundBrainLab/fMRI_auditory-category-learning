@@ -22,8 +22,8 @@ module add ants
 
 sub=$1
 
-fmriprep_dir=/bgfs/bchandrasekaran/krs228/data/FLT/data_denoised/derivatives/denoised_fmriprep-25.2.5/
-nilearn_dir=/bgfs/bchandrasekaran/krs228/data/FLT/data_denoised/derivatives/nilearn/
+fmriprep_dir=/ix1/bchandrasekaran/krs228/data/FLT/data_denoised/derivatives/denoised_fmriprep-25.2.5/
+nilearn_dir=/ix1/bchandrasekaran/krs228/data/FLT/data_denoised/derivatives/nilearn/
 
 anat_dir=$fmriprep_dir/sub-${sub}/anat
 t1w_ref=$anat_dir/sub-${sub}_desc-preproc_T1w.nii.gz
@@ -36,7 +36,8 @@ out_dir=$nilearn_dir/masks/sub-${sub}/space-T1w/atlas-native
 mkdir -p $out_dir
 
 # Tian S2 striatal parcellation
-tian_s2_atlas=/bgfs/bchandrasekaran/krs228/data/reference/subcortex/Group-Parcellation/7T/Tian_Subcortex_S2_7T.nii
+echo "Transforming Tian S2 7T striatal parcellation"
+tian_s2_atlas=/ix1/bchandrasekaran/krs228/data/reference/subcortex/Group-Parcellation/7T/Tian_Subcortex_S2_7T.nii
 antsApplyTransforms -d 3 \
   -i $tian_s2_atlas \
   -r $t1w_ref \
@@ -46,7 +47,8 @@ antsApplyTransforms -d 3 \
 
 # subcortical auditory pathway (cochlear nucleus / superior olivary
 # complex / inferior colliculus / medial geniculate nucleus)
-subcort_aud_atlas=/bgfs/bchandrasekaran/krs228/data/reference/MNI_space/atlases/sub-bigbrain_MNI_conjunction_rois.nii.gz
+echo "Transforming Sitek-Gulban subcortical auditory atlas"
+subcort_aud_atlas=/ix1/bchandrasekaran/krs228/data/reference/MNI_space/atlases/sub-bigbrain_MNI_conjunction_rois.nii.gz
 antsApplyTransforms -d 3 \
   -i $subcort_aud_atlas \
   -r $t1w_ref \
@@ -55,7 +57,8 @@ antsApplyTransforms -d 3 \
   -o $out_dir/sub-${sub}_space-T1w_atlas-subcortaud.nii.gz
 
 # cortical+subcortical carpet_dseg
-carpet_dseg_atlas=/bgfs/bchandrasekaran/krs228/data/reference/tpl-MNI152NLin2009cAsym_res-01_desc-carpet_dseg.nii.gz
+echo "Transforming carpet_dseg"
+carpet_dseg_atlas=/ix1/bchandrasekaran/krs228/data/reference/tpl-MNI152NLin2009cAsym_res-01_desc-carpet_dseg.nii.gz
 antsApplyTransforms -d 3 \
   -i $carpet_dseg_atlas \
   -r $t1w_ref \

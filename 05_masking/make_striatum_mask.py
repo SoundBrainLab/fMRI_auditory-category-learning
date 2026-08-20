@@ -63,11 +63,6 @@ def generate_mask(subject_id, bidsroot, func_example_fpath, sub_mask_dir, space_
     return out_fpath
 
 ''' run function '''
-# NOTE: previously hardcoded to derivatives/denoised_fmriprep-22.1.1 and
-# masks-tian-S3, independent of the --fmriprep_dir arg this script
-# already accepts. Fixed to use the passed-in fmriprep_dir (so this works
-# against whichever fMRIPrep version's derivatives are being processed,
-# e.g. denoised_fmriprep-25.2.5) and masks-tian-S2 (Tian S3 retired).
 fmriprep_func_dir = os.path.join(fmriprep_dir, f'sub-{subject_id}', 'func')
 
 func_example_fpath = sorted(glob(fmriprep_func_dir+f'/*{space_label}*bold.nii.gz'))[0]

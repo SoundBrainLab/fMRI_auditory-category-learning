@@ -55,6 +55,7 @@ omp_n=4
 singularity run --cleanenv -B /bgfs:/bgfs $sing_img \
   $data_dir $out_dir participant \
   --participant-label $sub \
+  --task tonecat \
   --fs-license-file $fs_license \
   --work-dir $work_dir \
   --skip-bids-validation \

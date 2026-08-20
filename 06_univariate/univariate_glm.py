@@ -122,16 +122,19 @@ def prep_models_and_args(subject_id=None, task_id=None, fwhm=None, bidsroot=None
     # fmriprep is explicitly based on slice timings, while nilearn is based on t_r
     # and since images are only collected during a portion of the overall t_r
     # (which includes the silent gap), we need to account for this
+    # BUT it's also included in the header, so maybe we don't need this. 2026-08-20
     slice_time_ref = 0.5 * t_acq / t_r
+    
 
     print(data_dir, task_label, space_label)
 
     models, models_run_imgs, \
             models_events, _ = first_level_from_bids(data_dir, task_label,
-                                                                    space_label, [subject_id],
-                                                                    smoothing_fwhm=fwhm,
-                                                                    derivatives_folder=deriv_dir,
-                                                                    slice_time_ref=slice_time_ref)
+                                                     space_label, [subject_id],
+                                                     smoothing_fwhm=fwhm,
+                                                     derivatives_folder=deriv_dir,
+                                                    #slice_time_ref=slice_time_ref
+                                                    )
 
     # load confounds with FD/DVARS-based scrubbing (motion + compcor regressors
     # bundled automatically), replacing the old manual confound-column list
