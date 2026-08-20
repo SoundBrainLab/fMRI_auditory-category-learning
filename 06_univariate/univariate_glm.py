@@ -1,15 +1,8 @@
 import os
 import sys
-import json
 import argparse
 
-import numpy as np
 import pandas as pd
-import matplotlib.pyplot as plt
-import nibabel as nib
-
-from glob import glob
-from nilearn import plotting
 
 ''' Set up and interpret command line arguments '''
 parser = argparse.ArgumentParser(
@@ -193,51 +186,27 @@ def prep_models_and_args(subject_id=None, task_id=None, fwhm=None, bidsroot=None
         # create stimulus list from updated events.tsv file
         stim_list = sorted([str(s) for s in run_events['trial_type'].unique() if str(s) not in ['nan', 'None']])
 
+    # feedback is modeled as a single differential contrast rather than one
+    # contrast per condition -- express that as a {contrast_id: contrast_def}
+    # dict here so save_glm_to_bids's `contrasts` argument (which accepts
+    # either a list of expressions or an id->expression dict) is the only
+    # thing that varies by event_type; the GLM-fitting code downstream
+    # doesn't need to know event_type exists. `fbcorrectvswrong` (rather
+    # than a dashed label) is used as the id since it survives BIDS
+    # entity-value sanitization unchanged.
+    if event_type == 'feedback':
+        stim_list = {'fbcorrectvswrong': 'fb_correct - fb_wrong'}
+
     #model_and_args = zip(models, models_run_imgs, models_events, models_confounds)
     return stim_list, models, models_run_imgs, models_events, models_confounds, models_sample_masks
-
-
-def _compute_and_save_contrast(model, contrast_label, contrast_desc, task_label,
-                               space_label, bidsroot, out_subdirs):
-    ''' compute one contrast on an already-fit model and save z-map, beta-map,
-    and an html report. Shared by both grouping modes' single-contrast paths
-    (across-runs feedback branch, and every grouped-runs contrast) so the
-    save format only needs to change in one place. No variance map -- not
-    used downstream, and grouped-runs never saved one either. '''
-    from nilearn.reporting import make_glm_report
-
-    print('computing contrast of interest')
-    summary_statistics = model.compute_contrast(contrast_label, output_type='all')
-    zmap = summary_statistics['z_score']
-    statmap = summary_statistics['effect_size']
-
-    nilearn_sub_dir = os.path.join(bidsroot, 'derivatives', 'nilearn',
-                                   'level-1_fwhm-%.02f'%model.smoothing_fwhm,
-                                   'sub-%s_space-%s'%(model.subject_label, space_label),
-                                   *out_subdirs)
-    os.makedirs(nilearn_sub_dir, exist_ok=True)
-
-    analysis_prefix = 'sub-%s_task-%s_fwhm-%.02f_space-%s_contrast-%s'%(
-        model.subject_label, task_label, model.smoothing_fwhm, space_label, contrast_desc)
-
-    zmap_fpath = os.path.join(nilearn_sub_dir, analysis_prefix+'_map-zscore.nii.gz')
-    nib.save(zmap, zmap_fpath)
-
-    statmap_fpath = os.path.join(nilearn_sub_dir, analysis_prefix+'_map-beta.nii.gz')
-    nib.save(statmap, statmap_fpath)
-
-    report_fpath = os.path.join(nilearn_sub_dir, analysis_prefix+'_report.html')
-    report = make_glm_report(model=model, contrasts=contrast_label)
-    report.save_as_html(report_fpath)
-
-    print(f'saved z/beta maps + report to {nilearn_sub_dir}')
-    return zmap_fpath, statmap_fpath
 
 
 # ### Grouping: none -- fit all runs together in a single GLM
 def nilearn_glm_across_runs(stim_list, task_label, models, models_run_imgs,
                             models_events, models_confounds, models_sample_masks,
                             space_label, event_type, bidsroot):
+    from nilearn.glm import save_glm_to_bids
+
     bidsderiv_sub_dir = None
     for midx in range(len(models)):
         model = models[midx]
@@ -251,34 +220,25 @@ def nilearn_glm_across_runs(stim_list, task_label, models, models_run_imgs,
         print('fitting GLM')
         model.fit(imgs, events, confounds, sample_masks=sample_masks)
 
-        if event_type == 'feedback':
-            # single hardcoded contrast; manual save + html report (matches
-            # the format previously produced by
-            # univariate_analysis_fb-correct-vs-wrong.py, which
-            # run_univariate_analysis_denoised_fb.sh already depends on)
-            _compute_and_save_contrast(model, 'fb_correct - fb_wrong', 'fb-correct-vs-wrong',
-                                       task_label, space_label, bidsroot, ('run-all',))
-        else:
-            # one contrast per condition, but a single save_glm_to_bids call
-            # handles the whole stim_list at once (it accepts a list of
-            # contrast definitions) instead of looping compute_contrast +
-            # manual saving ourselves per stimulus
-            from nilearn.interfaces.bids import save_glm_to_bids
+        # one contrast per condition, but a single save_glm_to_bids call
+        # handles the whole stim_list at once (it accepts a list or dict of
+        # contrast definitions -- see prep_models_and_args for how feedback's
+        # single differential contrast fits into that) instead of looping
+        # compute_contrast + manual saving ourselves per stimulus
+        print('computing and saving contrasts for all conditions')
+        bidsderiv_sub_dir = os.path.join(bidsroot, 'derivatives', 'nilearn',
+                                         'bids-deriv_level-1_fwhm-%.02f'%model.smoothing_fwhm,
+                                         f'sub-{model.subject_label}_space-{space_label}',
+                                         f'run-all_event-{event_type}')
+        os.makedirs(bidsderiv_sub_dir, exist_ok=True)
 
-            print('computing and saving contrasts for all conditions')
-            bidsderiv_sub_dir = os.path.join(bidsroot, 'derivatives', 'nilearn',
-                                             'bids-deriv_level-1_fwhm-%.02f'%model.smoothing_fwhm,
-                                             f'sub-{model.subject_label}_space-{space_label}',
-                                             f'run-all_event-{event_type}')
-            os.makedirs(bidsderiv_sub_dir, exist_ok=True)
-
-            out_prefix = f"sub-{model.subject_label}_task-{task_label}_fwhm-{model.smoothing_fwhm}"
-            save_glm_to_bids(model,
-                             contrasts=stim_list,
-                             out_dir=bidsderiv_sub_dir,
-                             prefix=out_prefix,
-                            )
-            print(f'Saved model outputs to {bidsderiv_sub_dir}')
+        out_prefix = f"sub-{model.subject_label}_task-{task_label}_fwhm-{model.smoothing_fwhm}"
+        save_glm_to_bids(model,
+                         contrasts=stim_list,
+                         out_dir=bidsderiv_sub_dir,
+                         prefix=out_prefix,
+                        )
+        print(f'Saved model outputs to {bidsderiv_sub_dir}')
     return bidsderiv_sub_dir
 
 
@@ -286,18 +246,16 @@ def nilearn_glm_across_runs(stim_list, task_label, models, models_run_imgs,
 def nilearn_glm_grouped_runs(stim_list, task_label, models, models_run_imgs,
                             models_events, models_confounds, models_sample_masks,
                             space_label, event_type, bidsroot):
+    from nilearn.glm import save_glm_to_bids
+
     #run_group_dict = {'firsthalf': [0, 1, 2],
     #                  'secondhalf': [3, 4, 5]}
     run_group_dict = {'earlythird': [0, 1],
                       'middlethird': [2, 3],
                       'latethird': [4, 5]}
 
-    zmap_fpath = statmap_fpath = contrast_label = None
+    bidsderiv_sub_dir = None
     for midx in range(len(models)):
-        # only run a single contrast if feedback condition
-        if event_type == 'feedback':
-            stim_list = ['fb-correct-vs-wrong']
-
         model = models[midx]
         imgs = models_run_imgs[midx]
         events = models_events[midx]
@@ -319,20 +277,23 @@ def nilearn_glm_grouped_runs(stim_list, task_label, models, models_run_imgs,
                 model.fit(imgs_grouped, events_grouped, confounds_grouped,
                           sample_masks=sample_masks_grouped)
 
-                for sx, stim in enumerate(stim_list):
-                    if event_type == 'feedback':
-                        contrast_label = 'fb_correct - fb_wrong'
-                        contrast_desc  = stim
-                    else:
-                        contrast_label = stim
-                        contrast_desc  = stim
+                print('computing and saving contrasts for all conditions')
+                bidsderiv_sub_dir = os.path.join(bidsroot, 'derivatives', 'nilearn',
+                                                 'bids-deriv_level-1_fwhm-%.02f'%model.smoothing_fwhm,
+                                                 f'sub-{model.subject_label}_space-{space_label}',
+                                                 f'{run_group}_event-{event_type}')
+                os.makedirs(bidsderiv_sub_dir, exist_ok=True)
 
-                    zmap_fpath, statmap_fpath = _compute_and_save_contrast(
-                        model, contrast_label, contrast_desc, task_label,
-                        space_label, bidsroot, ('grouped_runs', run_group))
+                out_prefix = f"sub-{model.subject_label}_task-{task_label}_fwhm-{model.smoothing_fwhm}"
+                save_glm_to_bids(model,
+                                 contrasts=stim_list,
+                                 out_dir=bidsderiv_sub_dir,
+                                 prefix=out_prefix,
+                                )
+                print(f'Saved model outputs to {bidsderiv_sub_dir}')
             except Exception as e:
                 print(f'could not run {run_group}: {e}')
-    return zmap_fpath, statmap_fpath, contrast_label
+    return bidsderiv_sub_dir
 
 
 ''' run the pipeline '''
