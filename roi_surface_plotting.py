@@ -182,7 +182,7 @@ def plot_roi_surface_stat(
             view=view,
             bg_map=data['sulc'],
             bg_on_data=True,
-            darkness=0.5,
+            #darkness=0.5, # removed from nilearn 0.13
             cmap=cmap,
             vmin=vmin,
             vmax=vmax,

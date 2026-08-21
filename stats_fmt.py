@@ -119,7 +119,7 @@ def export_anova(aov, label, out_dir, filename=None):
 def export_posthoc(pg_df, label, out_dir, filename=None):
     """
     Convert a pg.pairwise_tests result to a clean DataFrame and save as TSV.
-    Expects p-corr column (FDR-corrected) already present from padjust='fdr'.
+    Expects p_corr column (FDR-corrected) already present from padjust='fdr'.
 
     Parameters
     ----------
@@ -132,15 +132,15 @@ def export_posthoc(pg_df, label, out_dir, filename=None):
     cols = [c for c in ['Contrast', 'region', 'hemisphere', 'learning_stage', 'A', 'B']
             if c in pg_df.columns]
     try:
-        table = pg_df[cols + ['T', 'dof', 'p-unc', 'p-corr']].copy()
-        table = table.rename(columns={'T': 't', 'dof': 'df', 'p-unc': 'p', 'p-corr': 'p_fdr'})
+        table = pg_df[cols + ['T', 'dof', 'p_unc', 'p_corr']].copy()
+        table = table.rename(columns={'T': 't', 'dof': 'df', 'p_unc': 'p', 'p_corr': 'p_fdr'})
         table['stat_str'] = table.apply(
             lambda r: stat_str('t', int(r['df']), r['t'], r['p']), axis=1)
         table['stat_str_fdr'] = table.apply(
             lambda r: stat_str_fdr('t', int(r['df']), r['t'], r['p'], r['p_fdr']), axis=1)
     except KeyError:
-        table = pg_df[cols + ['T', 'dof', 'p-unc']].copy()
-        table = table.rename(columns={'T': 't', 'dof': 'df', 'p-unc': 'p'})
+        table = pg_df[cols + ['T', 'dof', 'p_unc']].copy()
+        table = table.rename(columns={'T': 't', 'dof': 'df', 'p_unc': 'p'})
         table['stat_str'] = table.apply(
             lambda r: stat_str('t', int(r['df']), r['t'], r['p']), axis=1)
         table['stat_str_fdr'] = nan        
@@ -194,7 +194,7 @@ def export_ttests(records, label, out_dir, filename=None):
 def export_pg_anova(aov_pg, label, out_dir, filename=None):
     """
     Convert a pingouin rm_anova DataFrame to a clean TSV.
-    Reports GG-corrected p-value (p-GG-corr) when available, else p-unc.
+    Reports GG-corrected p-value (p_GG_corr) when available, else p_unc.
 
     Parameters
     ----------
@@ -204,20 +204,20 @@ def export_pg_anova(aov_pg, label, out_dir, filename=None):
     filename : str, optional override for output filename
     """
     eta_col = 'np2' if 'np2' in aov_pg.columns else 'ng2'
-    cols = ['Source', 'ddof1', 'ddof2', 'F', 'p-unc', 'p-GG-corr', eta_col]
+    cols = ['Source', 'ddof1', 'ddof2', 'F', 'p_unc', 'p_GG_corr', eta_col]
     table = aov_pg[[c for c in cols if c in aov_pg.columns]].copy()
     table = table.rename(columns={'Source': 'source', 'ddof1': 'df_num',
-                                  'ddof2': 'df_den', 'p-unc': 'p_unc',
-                                  'p-GG-corr': 'p_gg',
+                                  'ddof2': 'df_den', 'p_unc': 'p_unc',
+                                  'p_GG_corr': 'p_GG_corr',
                                   eta_col: 'eta_p2'})
-    p_report = table['p_gg'].where(table['p_gg'].notna(), table['p_unc'])
+    p_report = table['p_GG_corr'].where(table['p_GG_corr'].notna(), table['p_unc'])
     table['stat_str'] = table.apply(
         lambda r: stat_str('F', int(r['df_num']), int(r['df_den']), r['F'],
                            p_report[r.name]), axis=1)
     table['F'] = table['F'].map('{:.2f}'.format)
     table['eta_p2'] = table['eta_p2'].map(lambda x: f'{x:.2f}' if x is not None else x)
     table['p_unc'] = table['p_unc'].map(lambda x: fmt_p(float(x)) if x is not None else x)
-    table['p_gg'] = table['p_gg'].map(lambda x: fmt_p(float(x)) if x is not None else x)
+    table['p_GG_corr'] = table['p_GG_corr'].map(lambda x: fmt_p(float(x)) if x is not None else x)
     fname = filename or f'anova_pg_{label}.tsv'
     table.to_csv(os.path.join(out_dir, fname), sep='\t', index=False)
     return table
@@ -248,6 +248,6 @@ def fmt_pingouin_anova(aov_df, term_col: str = 'Source') -> dict[str, str]:
         df2_key = 'ddof2' if 'ddof2' in row else ('DF2' if 'DF2' in row else None)
         df2 = int(row[df2_key]) if df2_key else '?'
         F = row.get('F', float('nan'))
-        p = row.get('p-unc', row.get('p-GG-corr', float('nan')))
+        p = row.get('p_unc', row.get('p_GG_corr', float('nan')))
         out[name] = stat_str('F', df1, df2, F, p)
     return out
