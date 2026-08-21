@@ -277,9 +277,9 @@ def nilearn_glm_grouped_runs(stim_list, task_label, models, models_run_imgs,
 
     #run_group_dict = {'firsthalf': [0, 1, 2],
     #                  'secondhalf': [3, 4, 5]}
-    run_group_dict = {'earlythird': [0, 1],
-                      'middlethird': [2, 3],
-                      'latethird': [4, 5]}
+    run_group_dict = {'early': [0, 1],
+                      'middle': [2, 3],
+                      'final': [4, 5]}
 
     bidsderiv_sub_dir = None
     for midx in range(len(models)):
