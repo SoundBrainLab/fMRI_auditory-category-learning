@@ -52,7 +52,7 @@ omp_n=4
 #singularity build $sing_img docker://nipreps/fmriprep:25.2.5
 
 # run fmriprep
-singularity run --cleanenv -B /bgfs:/bgfs $sing_img \
+singularity run --cleanenv -B /ix1:/ix1 $sing_img \
   $data_dir $out_dir participant \
   --participant-label $sub \
   --task tonecat \

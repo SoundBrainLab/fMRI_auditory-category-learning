@@ -7,7 +7,7 @@ from glob import glob
 from sklearn.metrics import confusion_matrix, ConfusionMatrixDisplay
 from seaborn import heatmap
 
-project_dir = os.path.join('/bgfs/bchandrasekaran/krs228/data/', 'FLT/')
+project_dir = os.path.join('/ix1/bchandrasekaran/krs228/data/', 'FLT/')
 
 bidsroot = os.path.join(project_dir, 'data_denoised')
 deriv_dir = os.path.join(bidsroot, 'derivatives')

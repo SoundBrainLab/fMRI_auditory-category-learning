@@ -94,7 +94,7 @@ pattern_descriptors = {'tone': ['T1', 'T1', 'T1', 'T1',
 '''
 # ### Stimulus RDMs
 print('loading stimulus dissimilarity matrices')
-stim_rdm_dir = os.path.join('/bgfs/bchandrasekaran/ngg12/',
+stim_rdm_dir = os.path.join('/ix1/bchandrasekaran/ngg12/',
                             '16tone/analysis_scripts/RDMs_kevin')
 
 stim_rdms = sorted(glob(stim_rdm_dir+'/STIM*PCA*'))

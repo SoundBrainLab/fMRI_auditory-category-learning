@@ -3,7 +3,7 @@
 
 module load mrtrix3
 
-data_dir=/bgfs/bchandrasekaran/krs228/data/FLT/data_denoised/
+data_dir=/ix1/bchandrasekaran/krs228/data/FLT/data_denoised/
 func_dir=$data_dir/${1}/func/
 
 for func_path in $func_dir/*.nii.gz; do

@@ -182,7 +182,6 @@ def plot_roi_surface_stat(
             view=view,
             bg_map=data['sulc'],
             bg_on_data=True,
-            #darkness=0.5, # removed from nilearn 0.13
             cmap=cmap,
             vmin=vmin,
             vmax=vmax,
@@ -193,14 +192,22 @@ def plot_roi_surface_stat(
         )
 
         for region_hemi, roi_vertices in data['roi_vertices'].items():
-            plotting.plot_surf_contours(
-                surf_mesh=(data['coords_infl'], data['faces_infl']),
-                roi_map=roi_vertices.astype(int),
-                levels=[1],
-                colors=['black'],
-                axes=ax,
-                figure=fig,
-            )
+            try:
+                plotting.plot_surf_contours(
+                    surf_mesh=(data['coords_infl'], data['faces_infl']),
+                    roi_map=roi_vertices.astype(int),
+                    levels=[1],
+                    colors=['black'],
+                    axes=ax,
+                    figure=fig,
+                )
+            except ValueError as e:
+                # some ROIs project onto too few/scattered vertices at this
+                # coverage_thresh to form a closed boundary on the mesh --
+                # skip just the outline for this one region rather than
+                # losing the whole figure (the stat-map coloring above is
+                # unaffected)
+                print(f"could not draw contour for '{region_hemi}' ({hemi} {view}): {e}")
 
             if (add_labels and roi_vertices.any()
                     and _dominant_view_for_roi(data['coords_infl'], roi_vertices, hemi) == view):

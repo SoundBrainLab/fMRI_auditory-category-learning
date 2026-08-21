@@ -22,9 +22,12 @@ parser.add_argument("--space", help="space label",
                     type=str)
 parser.add_argument("--fwhm", help="spatial smoothing full-width half-max", 
                     type=float)
-parser.add_argument("--atlas_label", 
+parser.add_argument("--atlas_label",
                     help=("name of custom atlas label (options: "
-                          " `subcort_aud`, `carpet_dseg`, `aparc`, `tian_s3', `carpet_motor`"), 
+                          " `subcort_aud`, `carpet_dseg`, `carpet_pfc`, `aparc`, "
+                          "`tian_S2`, `tian_S3`, `carpet_motor` -- not every "
+                          "atlas_label/space combination is supported, see the "
+                          "elif chain in this script)"),
                     type=str)
 parser.add_argument("--bidsroot", 
                     help="top-level directory of the BIDS dataset", 
@@ -223,43 +226,54 @@ elif space_label == 'T1w' and atlas_label == 'carpet_dseg':
     sub_mask_dir = os.path.join(nilearn_dir, 'masks', 'sub-%s'%sub_id,
                                 'space-%s'%space_label, 'masks-dseg')
     roi_dict = roi_dict_MNI_dseg
+elif space_label == 'T1w' and atlas_label == 'carpet_pfc':
+    # same pre-warped carpet_dseg atlas as the T1w carpet_dseg branch above
+    # -- PFC is just a different label subset (roi_dict_MNI_pfc) pulled out
+    # of the same file, mirroring how the MNI carpet_pfc branch below reuses
+    # the MNI carpet_dseg atlas file
+    atlas_fpath = os.path.join(nilearn_dir, 'masks', 'sub-%s'%sub_id,
+                               'space-T1w', 'atlas-native',
+                               'sub-%s_space-T1w_atlas-carpetdseg.nii.gz'%sub_id)
+    sub_mask_dir = os.path.join(nilearn_dir, 'masks', 'sub-%s'%sub_id,
+                                'space-%s'%space_label, 'masks-dseg-pfc')
+    roi_dict = roi_dict_MNI_pfc
 elif space_label == 'MNI152NLin2009cAsym' and atlas_label == 'carpet_dseg':
-    atlas_fpath = os.path.join('/bgfs/bchandrasekaran/krs228/data/',
+    atlas_fpath = os.path.join('/ix1/bchandrasekaran/krs228/data/',
                                'reference/', #tpl-MNI152NLin2009cAsym/',
                                'tpl-MNI152NLin2009cAsym_res-01_desc-carpet_dseg.nii.gz')  
     sub_mask_dir = os.path.join(nilearn_dir, 'masks', 'sub-%s'%sub_id, 
                                 'space-%s'%space_label, 'masks-dseg')  
     roi_dict = roi_dict_MNI_dseg
 elif space_label == 'MNI152NLin2009cAsym' and atlas_label == 'carpet_motor':
-    atlas_fpath = os.path.join('/bgfs/bchandrasekaran/krs228/data/',
+    atlas_fpath = os.path.join('/ix1/bchandrasekaran/krs228/data/',
                                'reference/',
                                'tpl-MNI152NLin2009cAsym_res-01_desc-carpet_dseg.nii.gz')
     sub_mask_dir = os.path.join(nilearn_dir, 'masks', 'sub-%s'%sub_id,
                                 'space-%s'%space_label, 'masks-dseg-motor')
     roi_dict = roi_dict_MNI_motor
 elif space_label == 'MNI152NLin2009cAsym' and atlas_label == 'carpet_pfc':
-    atlas_fpath = os.path.join('/bgfs/bchandrasekaran/krs228/data/',
+    atlas_fpath = os.path.join('/ix1/bchandrasekaran/krs228/data/',
                                'reference/',
                                'tpl-MNI152NLin2009cAsym_res-01_desc-carpet_dseg.nii.gz')
     sub_mask_dir = os.path.join(nilearn_dir, 'masks', 'sub-%s'%sub_id,
                                 'space-%s'%space_label, 'masks-dseg-pfc')
     roi_dict = roi_dict_MNI_pfc
 elif space_label == 'MNI152NLin2009cAsym' and atlas_label == 'subcort_aud':
-    atlas_fpath = os.path.join('/bgfs/bchandrasekaran/krs228/data/',
+    atlas_fpath = os.path.join('/ix1/bchandrasekaran/krs228/data/',
                                'reference/MNI_space/atlases',
                                'sub-bigbrain_MNI_conjunction_rois.nii.gz')
     sub_mask_dir = os.path.join(nilearn_dir, 'masks', 'sub-%s'%sub_id, 
                                 'space-%s'%space_label, 'masks-subcort-aud') 
     roi_dict = roi_dict_MNI_sg_subcort
 elif space_label == 'MNI152NLin2009cAsym' and atlas_label == 'tian_S3':
-    atlas_fpath = os.path.join('/bgfs/bchandrasekaran/krs228/data/',
+    atlas_fpath = os.path.join('/ix1/bchandrasekaran/krs228/data/',
                                'reference/subcortex/Group-Parcellation/7T',
                                'Tian_Subcortex_S3_7T.nii')
     sub_mask_dir = os.path.join(nilearn_dir, 'masks', 'sub-%s'%sub_id, 
                                 'space-%s'%space_label, 'masks-tian-S3') 
     roi_dict = roi_dict_tian_S3
 elif space_label == 'MNI152NLin2009cAsym' and atlas_label == 'tian_S2':
-    atlas_fpath = os.path.join('/bgfs/bchandrasekaran/krs228/data/',
+    atlas_fpath = os.path.join('/ix1/bchandrasekaran/krs228/data/',
                                'reference/subcortex/Group-Parcellation/7T',
                                'Tian_Subcortex_S2_7T.nii')
     sub_mask_dir = os.path.join(nilearn_dir, 'masks', 'sub-%s'%sub_id, 

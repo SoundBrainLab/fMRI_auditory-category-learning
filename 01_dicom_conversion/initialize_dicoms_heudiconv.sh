@@ -8,8 +8,8 @@
 module add dcm2niix
 
 # define paths
-data_dir=/bgfs/bchandrasekaran/krs228/data/FLT/
-software_dir=/bgfs/bchandrasekaran/krs228/software/
+data_dir=/ix1/bchandrasekaran/krs228/data/FLT/
+software_dir=/ix1/bchandrasekaran/krs228/software/
 
 sub=$1
 

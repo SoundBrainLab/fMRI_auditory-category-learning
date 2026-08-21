@@ -3,7 +3,7 @@
 
 # atlas options: 'tian-S3', 'dseg', 'subcort-aud'
 # model options: 'stimulus_per_run_LSS', 'run-all_LSS'
-bidsroot=/bgfs/bchandrasekaran/krs228/data/FLT/data_denoised/
+bidsroot=/ix1/bchandrasekaran/krs228/data/FLT/data_denoised/
 #for model in stimulus_per_run_LSS run-all_LSS; do
 model=run-all_LSS
 for atlas in tian-S3 dseg subcort-aud; do

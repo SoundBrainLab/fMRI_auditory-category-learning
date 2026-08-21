@@ -26,7 +26,7 @@ if len(sys.argv) < 2:
 subject_id = args.sub
 task_id = args.task
 
-project_dir = os.path.abspath('/bgfs/bchandrasekaran/krs228/data/FLT/')
+project_dir = os.path.abspath('/ix1/bchandrasekaran/krs228/data/FLT/')
 behav_dir   = os.path.join(project_dir, 'sourcedata', 'behav_files', 'CHA-IBR/')
 
 # bids task names

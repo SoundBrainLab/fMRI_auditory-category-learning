@@ -10,7 +10,7 @@ session=xnat.connect('https://xnat.mrrc.upmc.edu/', user='sitek', verify=False)
 
 # pick this project
 project = session.projects['CHA-IBR']
-dicom_dir = '/bgfs/bchandrasekaran/krs228/data/FLT/sourcedata/dicoms/'
+dicom_dir = '/ix1/bchandrasekaran/krs228/data/FLT/sourcedata/dicoms/'
 
 # UPDATE WITH DESIRED SUBJECT
 subject_id = 'FLT00'

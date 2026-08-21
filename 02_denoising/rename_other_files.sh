@@ -2,7 +2,7 @@
 # after creating `_acq-dwidenoise` data,
 # need to rename other files in the `func/` directory
 
-data_dir=/bgfs/bchandrasekaran/krs228/data/FLT/data_denoised/
+data_dir=/ix1/bchandrasekaran/krs228/data/FLT/data_denoised/
 func_dir=$data_dir/${1}/func/
 
 # bold.json

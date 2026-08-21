@@ -3,7 +3,7 @@
 
 # atlas options: 'tian-S2', 'tian-S3', 'dseg', 'subcort-aud', 'dseg-pfc'
 # model options: 'stimulus_per_run_LSS', 'run-all_LSS', 'per_run_LSA_confound-compcor_event-stimulus'
-bidsroot=/bgfs/bchandrasekaran/krs228/data/FLT/data_denoised/
+bidsroot=/ix1/bchandrasekaran/krs228/data/FLT/data_denoised/
 
 #for model in stimulus_per_run_LSS run-all_LSS; do
 model=per_run_LSS_confound-compcor_event-stimulus

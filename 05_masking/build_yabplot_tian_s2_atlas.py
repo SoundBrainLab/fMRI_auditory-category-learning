@@ -15,7 +15,7 @@ since it parses CLI args and exits at import time if none are given).
 import os
 import yabplot as yab
 
-TIAN_S2_NII = ('/bgfs/bchandrasekaran/krs228/data/reference/subcortex/'
+TIAN_S2_NII = ('/ix1/bchandrasekaran/krs228/data/reference/subcortex/'
                'Group-Parcellation/7T/Tian_Subcortex_S2_7T.nii')
 OUT_DIR = os.path.join(os.path.dirname(__file__), 'yabplot_atlases', 'tian_S2')
 
