@@ -2,11 +2,11 @@
 """
 Build a yabplot custom subcortical atlas from the Tian Subcortex S2 atlas.
 
-Run once, in a Python 3.11 environment with yabplot installed
-(`pip install yabplot`), on the cluster where the reference atlas file
-lives. The output directory (small .vtk mesh files) can then be synced to
-any machine for plotting with yab.plot_subcortical(custom_atlas_path=...)
--- yabplot itself is not needed again after that.
+Run once, in the main env (has yabplot as of the Python 3.11 bump), on
+the cluster where the reference atlas file lives. The output directory
+(small .vtk mesh files) can then be synced to any machine for plotting
+with yab.plot_subcortical(custom_atlas_path=...) -- yabplot itself is
+not needed again after that.
 
 Region id/name mapping is copied from `roi_dict_tian_S2` in
 make_atlas_region_masks.py (that script can't be imported directly here

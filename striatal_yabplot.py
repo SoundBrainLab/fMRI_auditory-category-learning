@@ -9,10 +9,11 @@ Plot striatal (Tian S2) ROI statistics with yabplot's 3D subcortical
 rendering, as an alternative to striatal_roi_plotting.py's 2D contour
 schematic.
 
-Requires yabplot (`pip install yabplot`, needs Python 3.11) and a
-pre-built custom Tian S2 atlas -- see build_yabplot_tian_s2_atlas.py in
-05_masking/, which must be run once (on the cluster, where the reference
-Tian atlas file lives) before this module is usable.
+Requires yabplot (in the main env's environment.yml as of the Python 3.11
+bump) and a pre-built custom Tian S2 atlas -- see
+build_yabplot_tian_s2_atlas.py in 05_masking/, which must be run once (on
+the cluster, where the reference Tian atlas file lives) before this
+module is usable.
 
 Usage:
     from striatal_yabplot import plot_striatal_roi_stat_yabplot
