@@ -2,70 +2,24 @@
 
 import os
 import sys
-import json
 import argparse
 import numpy as np
 import nibabel as nib
 from glob import glob
 
-parser = argparse.ArgumentParser(
-                description='Create subject-specific grey matter mask',
-                epilog=('Example: python make_gm_mask.py --sub=FLT02 '
-                        ' --space=MNI152NLin2009cAsym --fwhm=1.5 '
-                        ' --atlas_label=subcort_aud '
-                        ' --bidsroot=/PATH/TO/BIDS/DIR/ ' 
-                        ' --fmriprep_dir=/PATH/TO/FMRIPREP/DIR/'))
-
-parser.add_argument("--sub", help="participant id", 
-                    type=str)
-parser.add_argument("--space", help="space label", 
-                    type=str)
-parser.add_argument("--fwhm", help="spatial smoothing full-width half-max", 
-                    type=float)
-parser.add_argument("--atlas_label",
-                    help=("name of custom atlas label (options: "
-                          " `subcort_aud`, `carpet_dseg`, `carpet_pfc`, `aparc`, "
-                          "`tian_S2`, `tian_S3`, `carpet_motor` -- not every "
-                          "atlas_label/space combination is supported, see the "
-                          "elif chain in this script)"),
-                    type=str)
-parser.add_argument("--bidsroot", 
-                    help="top-level directory of the BIDS dataset", 
-                    type=str)
-parser.add_argument("--fmriprep_dir", 
-                    help="directory of the fMRIprep preprocessed dataset", 
-                    type=str)
-args = parser.parse_args()
-
-if len(sys.argv) < 2:
-    parser.print_help()
-    print(' ')
-    sys.exit(1)
-    
-sub_id      = args.sub
-space_label =args.space
-fwhm        = args.fwhm
-atlas_label = args.atlas_label
-bidsroot    = args.bidsroot
-fmriprep_dir = args.fmriprep_dir
-
-''' define other inputs '''
-deriv_dir = os.path.join(bidsroot, 'derivatives')
-nilearn_dir = os.path.join(deriv_dir, 'nilearn')
-
 ''' define atlas region dictionaries '''
-roi_dict_MNI_dseg = {'L-Caud': 35, 'L-Put': 36, 'L-Pall': 37, 'L-Accumb': 41, 
-                     'L-HG': 189, 'L-PP': 187, 
-                     'L-PT': 191, 'L-STGa': 117, 'L-STGp': 119, 
-                     'L-ParsOp': 111, 'L-ParsTri': 109, 
+roi_dict_MNI_dseg = {'L-Caud': 35, 'L-Put': 36, 'L-Pall': 37, 'L-Accumb': 41,
+                     'L-HG': 189, 'L-PP': 187,
+                     'L-PT': 191, 'L-STGa': 117, 'L-STGp': 119,
+                     'L-ParsOp': 111, 'L-ParsTri': 109,
                      'L-SMGa': 137, 'L-SMGp': 139, 'L-Ang': 141,
                      'L-Lat-Ventricle': 3, 'L-Supracalcarine': 193,
-                     'R-Caud': 46, 'R-Put': 47, 'R-Pall': 48, 'R-Accumb': 45, 
-                     'R-HG': 190, 'R-PP': 188, 
-                     'R-PT': 192, 'R-STGa': 118, 'R-STGp': 120, 
-                     'R-ParsOp': 112, 'R-ParsTri': 110, 
+                     'R-Caud': 46, 'R-Put': 47, 'R-Pall': 48, 'R-Accumb': 45,
+                     'R-HG': 190, 'R-PP': 188,
+                     'R-PT': 192, 'R-STGa': 118, 'R-STGp': 120,
+                     'R-ParsOp': 112, 'R-ParsTri': 110,
                      'R-Lat-Ventricle': 4, 'R-Supracalcarine': 194,
-                     'R-SMGa': 138, 'R-SMGp': 140, 'R-Ang': 142, 
+                     'R-SMGa': 138, 'R-SMGp': 140, 'R-Ang': 142,
                     }
 roi_dict_MNI_motor = {'L-Caud': 35, 'L-Put': 36,
                       'R-Caud': 46, 'R-Put': 47,
@@ -87,13 +41,13 @@ roi_dict_MNI_pfc = {
     'L-OFC'  : 165,  'R-OFC'  : 166,  # Frontal Orbital Cortex
     'L-FO'   : 181,  'R-FO'   : 182,  # Frontal Operculum
 }
-roi_dict_T1w_aseg = {'L-VentralDC': 28, 'L-Caud': 11, 'L-Put': 12, 
-                     'L-HG': 1034, 'L-STG': 1030, 'L-ParsOp': 1018, 
-                     'L-ParsTri': 1020, 'L-SFG': 1028, 'Brainstem': 16, 
-                     'R-VentralDC': 60, 'R-Caud': 50, 'R-Put': 51, 
-                     'R-HG': 2034, 'R-STG': 2030, 'R-ParsOp': 2018, 
+roi_dict_T1w_aseg = {'L-VentralDC': 28, 'L-Caud': 11, 'L-Put': 12,
+                     'L-HG': 1034, 'L-STG': 1030, 'L-ParsOp': 1018,
+                     'L-ParsTri': 1020, 'L-SFG': 1028, 'Brainstem': 16,
+                     'R-VentralDC': 60, 'R-Caud': 50, 'R-Put': 51,
+                     'R-HG': 2034, 'R-STG': 2030, 'R-ParsOp': 2018,
                      'R-ParsTri': 2020, 'R-SFG': 2028, 'CSF': 24}
-roi_dict_MNI_sg_subcort = {'L-CN': 1, 'L-SOC': 3, 'L-IC': 5, 'L-MGN': 7, 
+roi_dict_MNI_sg_subcort = {'L-CN': 1, 'L-SOC': 3, 'L-IC': 5, 'L-MGN': 7,
                            'R-CN': 2, 'R-SOC': 4, 'R-IC': 6, 'R-MGN': 8, }
 
 roi_dict_tian_S2 = {}
@@ -166,127 +120,193 @@ tian_sc_S3_roi_list = ['HIP-head-m-rh','HIP-head-l-rh',
 for rx, roi in enumerate(tian_sc_S3_roi_list):
     roi_dict_tian_S3[roi] = rx+1
 
+
+def resolve_atlas_paths(sub_id, space_label, atlas_label, nilearn_dir, fmriprep_dir=None):
+    ''' resolve (atlas_fpath, sub_mask_dir, roi_dict) for a given subject/space/atlas_label
+    combination -- the single source of truth for which atlas file and label dictionary
+    back each space+atlas_label pair, shared by this script's CLI entry point and by
+    QA/plotting code (e.g. 05_masking/atlas_warp_qa.ipynb) that needs to know exactly
+    what a given mask directory contains without duplicating this mapping. Raises
+    ValueError if the combination isn't supported. '''
+    if space_label == 'T1w' and atlas_label == 'aparc':
+        if fmriprep_dir is None:
+            raise ValueError("atlas_label='aparc' requires fmriprep_dir")
+        atlas_fpath = os.path.join(fmriprep_dir, 'sub-%s'%sub_id, 'anat',
+                                    'sub-%s_desc-%saseg_dseg.nii.gz'%(sub_id, atlas_label))
+        sub_mask_dir = os.path.join(nilearn_dir, 'masks', 'sub-%s'%sub_id,
+                                    'space-%s'%space_label, 'masks-aparc')
+        roi_dict = roi_dict_T1w_aseg
+    elif space_label == 'T1w' and atlas_label == 'tian_S2':
+        # atlas pre-warped into this subject's native T1w space via
+        # 05_masking/warp_atlases_to_T1w.sh (antsApplyTransforms, GenericLabel)
+        atlas_fpath = os.path.join(nilearn_dir, 'masks', 'sub-%s'%sub_id,
+                                   'space-T1w', 'atlas-native',
+                                   'sub-%s_space-T1w_atlas-tianS2.nii.gz'%sub_id)
+        sub_mask_dir = os.path.join(nilearn_dir, 'masks', 'sub-%s'%sub_id,
+                                    'space-%s'%space_label, 'masks-tian-S2')
+        roi_dict = roi_dict_tian_S2
+    elif space_label == 'T1w' and atlas_label == 'subcort_aud':
+        atlas_fpath = os.path.join(nilearn_dir, 'masks', 'sub-%s'%sub_id,
+                                   'space-T1w', 'atlas-native',
+                                   'sub-%s_space-T1w_atlas-subcortaud.nii.gz'%sub_id)
+        sub_mask_dir = os.path.join(nilearn_dir, 'masks', 'sub-%s'%sub_id,
+                                    'space-%s'%space_label, 'masks-subcort-aud')
+        roi_dict = roi_dict_MNI_sg_subcort
+    elif space_label == 'T1w' and atlas_label == 'carpet_dseg':
+        atlas_fpath = os.path.join(nilearn_dir, 'masks', 'sub-%s'%sub_id,
+                                   'space-T1w', 'atlas-native',
+                                   'sub-%s_space-T1w_atlas-carpetdseg.nii.gz'%sub_id)
+        sub_mask_dir = os.path.join(nilearn_dir, 'masks', 'sub-%s'%sub_id,
+                                    'space-%s'%space_label, 'masks-dseg')
+        roi_dict = roi_dict_MNI_dseg
+    elif space_label == 'T1w' and atlas_label == 'carpet_pfc':
+        # same pre-warped carpet_dseg atlas as the T1w carpet_dseg branch above
+        # -- PFC is just a different label subset (roi_dict_MNI_pfc) pulled out
+        # of the same file, mirroring how the MNI carpet_pfc branch below reuses
+        # the MNI carpet_dseg atlas file
+        atlas_fpath = os.path.join(nilearn_dir, 'masks', 'sub-%s'%sub_id,
+                                   'space-T1w', 'atlas-native',
+                                   'sub-%s_space-T1w_atlas-carpetdseg.nii.gz'%sub_id)
+        sub_mask_dir = os.path.join(nilearn_dir, 'masks', 'sub-%s'%sub_id,
+                                    'space-%s'%space_label, 'masks-dseg-pfc')
+        roi_dict = roi_dict_MNI_pfc
+    elif space_label == 'MNI152NLin2009cAsym' and atlas_label == 'carpet_dseg':
+        atlas_fpath = os.path.join('/ix1/bchandrasekaran/krs228/data/',
+                                   'reference/', #tpl-MNI152NLin2009cAsym/',
+                                   'tpl-MNI152NLin2009cAsym_res-01_desc-carpet_dseg.nii.gz')
+        sub_mask_dir = os.path.join(nilearn_dir, 'masks', 'sub-%s'%sub_id,
+                                    'space-%s'%space_label, 'masks-dseg')
+        roi_dict = roi_dict_MNI_dseg
+    elif space_label == 'MNI152NLin2009cAsym' and atlas_label == 'carpet_motor':
+        atlas_fpath = os.path.join('/ix1/bchandrasekaran/krs228/data/',
+                                   'reference/',
+                                   'tpl-MNI152NLin2009cAsym_res-01_desc-carpet_dseg.nii.gz')
+        sub_mask_dir = os.path.join(nilearn_dir, 'masks', 'sub-%s'%sub_id,
+                                    'space-%s'%space_label, 'masks-dseg-motor')
+        roi_dict = roi_dict_MNI_motor
+    elif space_label == 'MNI152NLin2009cAsym' and atlas_label == 'carpet_pfc':
+        atlas_fpath = os.path.join('/ix1/bchandrasekaran/krs228/data/',
+                                   'reference/',
+                                   'tpl-MNI152NLin2009cAsym_res-01_desc-carpet_dseg.nii.gz')
+        sub_mask_dir = os.path.join(nilearn_dir, 'masks', 'sub-%s'%sub_id,
+                                    'space-%s'%space_label, 'masks-dseg-pfc')
+        roi_dict = roi_dict_MNI_pfc
+    elif space_label == 'MNI152NLin2009cAsym' and atlas_label == 'subcort_aud':
+        atlas_fpath = os.path.join('/ix1/bchandrasekaran/krs228/data/',
+                                   'reference/MNI_space/atlases',
+                                   'sub-bigbrain_MNI_conjunction_rois.nii.gz')
+        sub_mask_dir = os.path.join(nilearn_dir, 'masks', 'sub-%s'%sub_id,
+                                    'space-%s'%space_label, 'masks-subcort-aud')
+        roi_dict = roi_dict_MNI_sg_subcort
+    elif space_label == 'MNI152NLin2009cAsym' and atlas_label == 'tian_S3':
+        atlas_fpath = os.path.join('/ix1/bchandrasekaran/krs228/data/',
+                                   'reference/subcortex/Group-Parcellation/7T',
+                                   'Tian_Subcortex_S3_7T.nii')
+        sub_mask_dir = os.path.join(nilearn_dir, 'masks', 'sub-%s'%sub_id,
+                                    'space-%s'%space_label, 'masks-tian-S3')
+        roi_dict = roi_dict_tian_S3
+    elif space_label == 'MNI152NLin2009cAsym' and atlas_label == 'tian_S2':
+        atlas_fpath = os.path.join('/ix1/bchandrasekaran/krs228/data/',
+                                   'reference/subcortex/Group-Parcellation/7T',
+                                   'Tian_Subcortex_S2_7T.nii')
+        sub_mask_dir = os.path.join(nilearn_dir, 'masks', 'sub-%s'%sub_id,
+                                    'space-%s'%space_label, 'masks-tian-S2')
+        roi_dict = roi_dict_tian_S2
+    else:
+        raise ValueError(
+            f'mismatch between space label ({space_label}) and atlas label ({atlas_label}) '
+            f'-- no branch handles this combination, see the elif chain in resolve_atlas_paths()')
+
+    return atlas_fpath, sub_mask_dir, roi_dict
+
+
 ''' mask function '''
 def generate_mask(sub_id, func_example_fpath, atlas_fpath, labelnum, labelname, out_dir, spacelabel):
     from nilearn.image import resample_to_img
-    
+
     atlas_img = nib.load(atlas_fpath)
     atlas_data = atlas_img.get_fdata()
     atlas_affine = atlas_img.affine
-    
+
     mask_data = np.zeros((atlas_data.shape))
     mask_data[np.where(atlas_data == labelnum)] = 1
 
     mask_img = nib.Nifti1Image(mask_data, atlas_affine)
 
-    mask_func_img = resample_to_img(mask_img, func_example_fpath, 
+    mask_func_img = resample_to_img(mask_img, func_example_fpath,
                                     interpolation='nearest',
                                     force_resample=True,
                                     copy_header=False)
-    
-    out_fpath = os.path.join(out_dir, 'sub-%s_space-%s_mask-%s.nii.gz'%(sub_id, space_label, labelname))
+
+    out_fpath = os.path.join(out_dir, 'sub-%s_space-%s_mask-%s.nii.gz'%(sub_id, spacelabel, labelname))
     nib.save(mask_func_img, out_fpath)
     print('saved mask file:', out_fpath)
-    
+
     return out_fpath
 
-''' create atlas region masks '''
-func_maps = sorted(glob(fmriprep_dir+f'/sub-{sub_id}/func/'+
-                        f'*space-{space_label}*bold.nii.gz'))
-func_example_fpath = func_maps[0]
 
-if space_label == 'T1w' and atlas_label == 'aparc':
-    atlas_fpath = os.path.join(fmriprep_dir, 'sub-%s'%sub_id, 'anat',
-                                'sub-%s_desc-%saseg_dseg.nii.gz'%(sub_id, atlas_label))
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser(
+                    description='Create subject-specific grey matter mask',
+                    epilog=('Example: python make_gm_mask.py --sub=FLT02 '
+                            ' --space=MNI152NLin2009cAsym --fwhm=1.5 '
+                            ' --atlas_label=subcort_aud '
+                            ' --bidsroot=/PATH/TO/BIDS/DIR/ '
+                            ' --fmriprep_dir=/PATH/TO/FMRIPREP/DIR/'))
 
+    parser.add_argument("--sub", help="participant id",
+                        type=str)
+    parser.add_argument("--space", help="space label",
+                        type=str)
+    parser.add_argument("--fwhm", help="spatial smoothing full-width half-max",
+                        type=float)
+    parser.add_argument("--atlas_label",
+                        help=("name of custom atlas label (options: "
+                              " `subcort_aud`, `carpet_dseg`, `carpet_pfc`, `aparc`, "
+                              "`tian_S2`, `tian_S3`, `carpet_motor` -- not every "
+                              "atlas_label/space combination is supported, see "
+                              "resolve_atlas_paths() in this script)"),
+                        type=str)
+    parser.add_argument("--bidsroot",
+                        help="top-level directory of the BIDS dataset",
+                        type=str)
+    parser.add_argument("--fmriprep_dir",
+                        help="directory of the fMRIprep preprocessed dataset",
+                        type=str)
+    args = parser.parse_args()
 
-    sub_mask_dir = os.path.join(nilearn_dir, 'masks', 'sub-%s'%sub_id,
-                                'space-%s'%space_label, 'masks-aparc')
-    roi_dict = roi_dict_T1w_aseg
-elif space_label == 'T1w' and atlas_label == 'tian_S2':
-    # atlas pre-warped into this subject's native T1w space via
-    # 05_masking/warp_atlases_to_T1w.sh (antsApplyTransforms, GenericLabel)
-    atlas_fpath = os.path.join(nilearn_dir, 'masks', 'sub-%s'%sub_id,
-                               'space-T1w', 'atlas-native',
-                               'sub-%s_space-T1w_atlas-tianS2.nii.gz'%sub_id)
-    sub_mask_dir = os.path.join(nilearn_dir, 'masks', 'sub-%s'%sub_id,
-                                'space-%s'%space_label, 'masks-tian-S2')
-    roi_dict = roi_dict_tian_S2
-elif space_label == 'T1w' and atlas_label == 'subcort_aud':
-    atlas_fpath = os.path.join(nilearn_dir, 'masks', 'sub-%s'%sub_id,
-                               'space-T1w', 'atlas-native',
-                               'sub-%s_space-T1w_atlas-subcortaud.nii.gz'%sub_id)
-    sub_mask_dir = os.path.join(nilearn_dir, 'masks', 'sub-%s'%sub_id,
-                                'space-%s'%space_label, 'masks-subcort-aud')
-    roi_dict = roi_dict_MNI_sg_subcort
-elif space_label == 'T1w' and atlas_label == 'carpet_dseg':
-    atlas_fpath = os.path.join(nilearn_dir, 'masks', 'sub-%s'%sub_id,
-                               'space-T1w', 'atlas-native',
-                               'sub-%s_space-T1w_atlas-carpetdseg.nii.gz'%sub_id)
-    sub_mask_dir = os.path.join(nilearn_dir, 'masks', 'sub-%s'%sub_id,
-                                'space-%s'%space_label, 'masks-dseg')
-    roi_dict = roi_dict_MNI_dseg
-elif space_label == 'T1w' and atlas_label == 'carpet_pfc':
-    # same pre-warped carpet_dseg atlas as the T1w carpet_dseg branch above
-    # -- PFC is just a different label subset (roi_dict_MNI_pfc) pulled out
-    # of the same file, mirroring how the MNI carpet_pfc branch below reuses
-    # the MNI carpet_dseg atlas file
-    atlas_fpath = os.path.join(nilearn_dir, 'masks', 'sub-%s'%sub_id,
-                               'space-T1w', 'atlas-native',
-                               'sub-%s_space-T1w_atlas-carpetdseg.nii.gz'%sub_id)
-    sub_mask_dir = os.path.join(nilearn_dir, 'masks', 'sub-%s'%sub_id,
-                                'space-%s'%space_label, 'masks-dseg-pfc')
-    roi_dict = roi_dict_MNI_pfc
-elif space_label == 'MNI152NLin2009cAsym' and atlas_label == 'carpet_dseg':
-    atlas_fpath = os.path.join('/ix1/bchandrasekaran/krs228/data/',
-                               'reference/', #tpl-MNI152NLin2009cAsym/',
-                               'tpl-MNI152NLin2009cAsym_res-01_desc-carpet_dseg.nii.gz')  
-    sub_mask_dir = os.path.join(nilearn_dir, 'masks', 'sub-%s'%sub_id, 
-                                'space-%s'%space_label, 'masks-dseg')  
-    roi_dict = roi_dict_MNI_dseg
-elif space_label == 'MNI152NLin2009cAsym' and atlas_label == 'carpet_motor':
-    atlas_fpath = os.path.join('/ix1/bchandrasekaran/krs228/data/',
-                               'reference/',
-                               'tpl-MNI152NLin2009cAsym_res-01_desc-carpet_dseg.nii.gz')
-    sub_mask_dir = os.path.join(nilearn_dir, 'masks', 'sub-%s'%sub_id,
-                                'space-%s'%space_label, 'masks-dseg-motor')
-    roi_dict = roi_dict_MNI_motor
-elif space_label == 'MNI152NLin2009cAsym' and atlas_label == 'carpet_pfc':
-    atlas_fpath = os.path.join('/ix1/bchandrasekaran/krs228/data/',
-                               'reference/',
-                               'tpl-MNI152NLin2009cAsym_res-01_desc-carpet_dseg.nii.gz')
-    sub_mask_dir = os.path.join(nilearn_dir, 'masks', 'sub-%s'%sub_id,
-                                'space-%s'%space_label, 'masks-dseg-pfc')
-    roi_dict = roi_dict_MNI_pfc
-elif space_label == 'MNI152NLin2009cAsym' and atlas_label == 'subcort_aud':
-    atlas_fpath = os.path.join('/ix1/bchandrasekaran/krs228/data/',
-                               'reference/MNI_space/atlases',
-                               'sub-bigbrain_MNI_conjunction_rois.nii.gz')
-    sub_mask_dir = os.path.join(nilearn_dir, 'masks', 'sub-%s'%sub_id, 
-                                'space-%s'%space_label, 'masks-subcort-aud') 
-    roi_dict = roi_dict_MNI_sg_subcort
-elif space_label == 'MNI152NLin2009cAsym' and atlas_label == 'tian_S3':
-    atlas_fpath = os.path.join('/ix1/bchandrasekaran/krs228/data/',
-                               'reference/subcortex/Group-Parcellation/7T',
-                               'Tian_Subcortex_S3_7T.nii')
-    sub_mask_dir = os.path.join(nilearn_dir, 'masks', 'sub-%s'%sub_id, 
-                                'space-%s'%space_label, 'masks-tian-S3') 
-    roi_dict = roi_dict_tian_S3
-elif space_label == 'MNI152NLin2009cAsym' and atlas_label == 'tian_S2':
-    atlas_fpath = os.path.join('/ix1/bchandrasekaran/krs228/data/',
-                               'reference/subcortex/Group-Parcellation/7T',
-                               'Tian_Subcortex_S2_7T.nii')
-    sub_mask_dir = os.path.join(nilearn_dir, 'masks', 'sub-%s'%sub_id, 
-                                'space-%s'%space_label, 'masks-tian-S2') 
-    roi_dict = roi_dict_tian_S2
-else:
-    print(f'mismatch between space label ({space_label}) and atlas label ({atlas_label}) '
-          f'-- no branch handles this combination, see the elif chain above for what is supported')
-    sys.exit(1)
-if not os.path.exists(sub_mask_dir):
-    os.makedirs(sub_mask_dir)
+    if len(sys.argv) < 2:
+        parser.print_help()
+        print(' ')
+        sys.exit(1)
 
-for key, value in roi_dict.items():
-    print('generating {} mask file'.format(key))
-    mask_fpath = generate_mask(sub_id, func_example_fpath, atlas_fpath, 
-                               value, key, sub_mask_dir, space_label)
+    sub_id      = args.sub
+    space_label = args.space
+    fwhm        = args.fwhm
+    atlas_label = args.atlas_label
+    bidsroot    = args.bidsroot
+    fmriprep_dir = args.fmriprep_dir
+
+    ''' define other inputs '''
+    deriv_dir = os.path.join(bidsroot, 'derivatives')
+    nilearn_dir = os.path.join(deriv_dir, 'nilearn')
+
+    ''' create atlas region masks '''
+    func_maps = sorted(glob(fmriprep_dir+f'/sub-{sub_id}/func/'+
+                            f'*space-{space_label}*bold.nii.gz'))
+    func_example_fpath = func_maps[0]
+
+    try:
+        atlas_fpath, sub_mask_dir, roi_dict = resolve_atlas_paths(
+            sub_id, space_label, atlas_label, nilearn_dir, fmriprep_dir=fmriprep_dir)
+    except ValueError as e:
+        print(e)
+        sys.exit(1)
+
+    if not os.path.exists(sub_mask_dir):
+        os.makedirs(sub_mask_dir)
+
+    for key, value in roi_dict.items():
+        print('generating {} mask file'.format(key))
+        mask_fpath = generate_mask(sub_id, func_example_fpath, atlas_fpath,
+                                   value, key, sub_mask_dir, space_label)
