@@ -145,6 +145,15 @@ def prep_models_and_args(subject_id=None, task_id=None, fwhm=None, bidsroot=None
                                                      space_label, [subject_id],
                                                      smoothing_fwhm=fwhm,
                                                      derivatives_folder=deriv_dir,
+                                                     # save_glm_to_bids (used by both
+                                                     # grouping modes) unconditionally
+                                                     # tries to save model-level maps
+                                                     # (R-squared, residuals) that
+                                                     # require this -- without it every
+                                                     # save_glm_to_bids call raises and
+                                                     # gets silently swallowed by
+                                                     # grouped_runs' try/except
+                                                     minimize_memory=False,
                                                     #slice_time_ref=slice_time_ref
                                                     )
 
