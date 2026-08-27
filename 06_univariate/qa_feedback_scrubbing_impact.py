@@ -101,19 +101,22 @@ def main():
     from nilearn.glm.first_level import first_level_from_bids
     from nilearn.interfaces.fmriprep import load_confounds_strategy
 
+    print(f'sub-{args.sub}: discovering runs via first_level_from_bids...', flush=True)
     _, models_run_imgs, models_events, _ = first_level_from_bids(
         args.bidsroot, args.task, args.space, [args.sub],
         derivatives_folder=args.fmriprep_dir)
     run_imgs = models_run_imgs[0]
     run_events_list = models_events[0]
+    print(f'sub-{args.sub}: found {len(run_imgs)} runs', flush=True)
 
     if len(run_imgs) != 6:
         print(f'WARNING: expected 6 runs, found {len(run_imgs)} -- '
-              f'RUN_GROUP_DICT indices below may not mean what you think')
+              f'RUN_GROUP_DICT indices below may not mean what you think', flush=True)
 
     per_run_rows = []
     per_trial_frames = []
     for rx, (imgs, run_events) in enumerate(zip(run_imgs, run_events_list)):
+        print(f'sub-{args.sub}: run {rx} -- loading confounds...', flush=True)
         run_events = run_events.dropna(subset=['onset']).reset_index(drop=True)
 
         run_confounds, run_sample_mask = load_confounds_strategy(
@@ -124,6 +127,7 @@ def main():
         )
         n_vols = len(run_confounds)
         n_retained = n_vols if run_sample_mask is None else len(run_sample_mask)
+        print(f'sub-{args.sub}: run {rx} -- done ({n_retained}/{n_vols} volumes retained)', flush=True)
 
         trial_df = trials_affected_by_scrubbing(
             run_events, run_sample_mask, n_vols, args.t_r, args.hrf_window_trs)
