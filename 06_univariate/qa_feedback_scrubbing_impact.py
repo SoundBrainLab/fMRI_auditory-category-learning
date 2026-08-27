@@ -1,4 +1,5 @@
 import os
+import re
 import sys
 import argparse
 
@@ -28,7 +29,11 @@ Usage:
     python qa_feedback_scrubbing_impact.py --sub=FLT02 --task=tonecat \\
         --space=T1w --t_acq=2 --t_r=3 \\
         --bidsroot=/PATH/TO/BIDS/DIR/ --fmriprep_dir=/PATH/TO/FMRIPREP/DIR/ \\
-        --out_dir=/PATH/TO/OUTPUT/DIR/
+        --variant_tag=scrubbed_model-full
+
+--variant_tag files the output under univariate_glm.py's matching modeling-
+variant directory ({fmriprep_tag}/{variant_tag}/qc/) so it sits alongside the
+GLM outputs it's diagnosing; pass --out_dir instead for a fully custom location.
 '''
 
 # mirrors univariate_glm.py's nilearn_glm_grouped_runs -- keep in sync if that
@@ -43,6 +48,15 @@ RUN_GROUP_DICT = {'early': [0, 1],
 DENOISE_STRATEGY = 'scrubbing'
 FD_THRESHOLD = 0.9
 STD_DVARS_THRESHOLD = 1.5
+
+
+def _fmriprep_tag(fmriprep_dir):
+    ''' mirrors univariate_glm.py's _fmriprep_tag (duplicated, not imported,
+    for the same reason as RUN_GROUP_DICT above) -- extracts 'fmriprep-X.Y.Z'
+    from --fmriprep_dir so this script's output lands in the same
+    {fmriprep_tag}/{variant_tag}/qc/ location univariate_glm.py itself uses. '''
+    match = re.search(r'fmriprep-[\d.]+', os.path.basename(os.path.normpath(fmriprep_dir)))
+    return match.group(0) if match else os.path.basename(os.path.normpath(fmriprep_dir))
 
 
 def trials_affected_by_scrubbing(run_events, sample_mask, n_vols, t_r, hrf_window_trs=2):
@@ -78,7 +92,7 @@ def main():
                 '--task=tonecat --space=T1w --t_acq=2 --t_r=3 '
                 '--bidsroot=/PATH/TO/BIDS/DIR/ '
                 '--fmriprep_dir=/PATH/TO/FMRIPREP/DIR/ '
-                '--out_dir=/PATH/TO/OUTPUT/DIR/'))
+                '--variant_tag=scrubbed_model-full'))
     parser.add_argument('--sub', help='participant id', type=str)
     parser.add_argument('--task', help='task id', type=str)
     parser.add_argument('--space', help='space label', type=str, default='T1w')
@@ -90,13 +104,28 @@ def main():
     parser.add_argument('--bidsroot', help='top-level directory of the BIDS dataset', type=str)
     parser.add_argument('--fmriprep_dir', help='directory of the fMRIprep preprocessed dataset',
                         type=str)
-    parser.add_argument('--out_dir', help='directory to write the per-subject summary CSV to',
-                        type=str, default='.')
+    parser.add_argument('--variant_tag',
+                        help=("which univariate_glm.py modeling-variant directory to file this "
+                             "QA under (see that script's _variant_tag) -- e.g. "
+                             "'scrubbed_model-full', 'collapsed-nuisance', "
+                             "'noscrub_collapsed-nuisance'. Ignored if --out_dir is given "
+                             "explicitly. Default matches the original baseline location"),
+                        type=str, default='scrubbed_model-full')
+    parser.add_argument('--out_dir',
+                        help=('directory to write the per-subject summary CSV to. If omitted, '
+                             'defaults to {bidsroot}/derivatives/nilearn/{fmriprep_tag}/'
+                             '{variant_tag}/qc/, matching where univariate_glm.py files its own '
+                             'confound-scrubbing QC for the same variant'),
+                        type=str, default=None)
     args = parser.parse_args()
 
     if len(sys.argv) < 2:
         parser.print_help()
         sys.exit(1)
+
+    out_dir = args.out_dir or os.path.join(
+        args.bidsroot, 'derivatives', 'nilearn', _fmriprep_tag(args.fmriprep_dir),
+        args.variant_tag, 'qc')
 
     from nilearn.glm.first_level import first_level_from_bids
     from nilearn.interfaces.fmriprep import load_confounds_strategy
@@ -166,9 +195,9 @@ def main():
          f'(any TR in onset..onset+{args.hrf_window_trs} TRs scrubbed), by learning stage')
     print(summary.to_string(index=False))
 
-    os.makedirs(args.out_dir, exist_ok=True)
-    per_run_fpath = os.path.join(args.out_dir, f'sub-{args.sub}_task-{args.task}_feedback-scrubbing-per-run.csv')
-    summary_fpath = os.path.join(args.out_dir, f'sub-{args.sub}_task-{args.task}_feedback-scrubbing-summary.csv')
+    os.makedirs(out_dir, exist_ok=True)
+    per_run_fpath = os.path.join(out_dir, f'sub-{args.sub}_task-{args.task}_feedback-scrubbing-per-run.csv')
+    summary_fpath = os.path.join(out_dir, f'sub-{args.sub}_task-{args.task}_feedback-scrubbing-summary.csv')
     per_run_df.to_csv(per_run_fpath, index=False)
     summary.to_csv(summary_fpath, index=False)
     print(f'\nsaved {per_run_fpath}')

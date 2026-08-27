@@ -13,13 +13,25 @@ trials thin out with learning + scrubbing severity rises over the session,
 compounding worst in the middle/final stages) a general feature of this
 dataset, or specific to that one subject?
 
-Usage:
+Usage (point directly at a qc dir):
     python aggregate_feedback_scrubbing_impact.py \\
-        --qc_dir=/PATH/TO/derivatives/nilearn/fmriprep-25.2.5/qc/ \\
+        --qc_dir=/PATH/TO/derivatives/nilearn/fmriprep-25.2.5/collapsed-nuisance/qc/ \\
         --task=tonecat --min_clean_trials=10
+
+Usage (derive it from the same --fmriprep_dir/--variant_tag qa_feedback_scrubbing_impact.py used):
+    python aggregate_feedback_scrubbing_impact.py \\
+        --bidsroot=/PATH/TO/BIDS/DIR/ --fmriprep_dir=/PATH/TO/FMRIPREP/DIR/ \\
+        --variant_tag=collapsed-nuisance --task=tonecat
 '''
 
 FNAME_RE = re.compile(r'sub-(?P<sub>[^_]+)_task-(?P<task>[^_]+)_feedback-scrubbing-summary\.csv$')
+
+
+def _fmriprep_tag(fmriprep_dir):
+    ''' mirrors univariate_glm.py's _fmriprep_tag (duplicated, not imported,
+    same reasoning as qa_feedback_scrubbing_impact.py). '''
+    match = re.search(r'fmriprep-[\d.]+', os.path.basename(os.path.normpath(fmriprep_dir)))
+    return match.group(0) if match else os.path.basename(os.path.normpath(fmriprep_dir))
 
 
 def load_all_summaries(qc_dir, task):
@@ -46,10 +58,24 @@ def main():
     parser = argparse.ArgumentParser(
         description='Aggregate qa_feedback_scrubbing_impact.py output across subjects',
         epilog=('Example: python aggregate_feedback_scrubbing_impact.py '
-                '--qc_dir=/PATH/TO/derivatives/nilearn/fmriprep-25.2.5/qc/ '
-                '--task=tonecat'))
-    parser.add_argument('--qc_dir', help='directory containing the per-subject summary CSVs',
-                        type=str)
+                '--bidsroot=/PATH/TO/BIDS/DIR/ --fmriprep_dir=/PATH/TO/FMRIPREP/DIR/ '
+                '--variant_tag=scrubbed_model-full --task=tonecat'))
+    parser.add_argument('--qc_dir',
+                        help=('directory containing the per-subject summary CSVs. If omitted, '
+                             'derived from --bidsroot/--fmriprep_dir/--variant_tag instead, '
+                             'matching where qa_feedback_scrubbing_impact.py filed them'),
+                        type=str, default=None)
+    parser.add_argument('--bidsroot',
+                        help='top-level BIDS dataset dir (only needed if --qc_dir is omitted)',
+                        type=str, default=None)
+    parser.add_argument('--fmriprep_dir',
+                        help='fMRIprep derivatives dir (only needed if --qc_dir is omitted)',
+                        type=str, default=None)
+    parser.add_argument('--variant_tag',
+                        help=("univariate_glm.py modeling-variant directory to read from -- "
+                             "see that script's _variant_tag (only needed if --qc_dir is "
+                             "omitted). Default matches the original baseline location"),
+                        type=str, default='scrubbed_model-full')
     parser.add_argument('--task', help='task id', type=str, default='tonecat')
     parser.add_argument('--min_clean_trials',
                         help=('flag any subject/stage/condition with fewer than this many '
@@ -64,10 +90,13 @@ def main():
         parser.print_help()
         sys.exit(1)
 
-    out_dir = args.out_dir or args.qc_dir
+    qc_dir = args.qc_dir or os.path.join(
+        args.bidsroot, 'derivatives', 'nilearn', _fmriprep_tag(args.fmriprep_dir),
+        args.variant_tag, 'qc')
+    out_dir = args.out_dir or qc_dir
     os.makedirs(out_dir, exist_ok=True)
 
-    combined = load_all_summaries(args.qc_dir, args.task)
+    combined = load_all_summaries(qc_dir, args.task)
     combined['n_clean'] = combined['n_trials'] - combined['n_affected']
     n_subjects = combined['participant_id'].nunique()
 
