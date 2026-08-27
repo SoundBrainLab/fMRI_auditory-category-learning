@@ -3,6 +3,7 @@ import re
 import sys
 import argparse
 
+import numpy as np
 import pandas as pd
 
 ''' Set up and interpret command line arguments '''
@@ -46,6 +47,13 @@ parser.add_argument("--bidsroot",
 parser.add_argument("--fmriprep_dir",
                     help="directory of the fMRIprep preprocessed dataset",
                     type=str)
+parser.add_argument("--no_scrubbing",
+                    help=("skip FD/DVARS-based volume censoring while keeping the same "
+                          "motion/aCompCor confound regressors -- for isolating scrubbing's "
+                          "specific effect via a side-by-side comparison. Outputs land in a "
+                          "separate 'noscrub' subdirectory, not overwriting the default "
+                          "scrubbed outputs"),
+                    action='store_true', default=False)
 
 args = parser.parse_args()
 
@@ -64,6 +72,18 @@ t_acq = args.t_acq
 t_r = args.t_r
 bidsroot = args.bidsroot
 fmriprep_dir = args.fmriprep_dir
+no_scrubbing = args.no_scrubbing
+
+
+def _denoise_tag(no_scrubbing):
+    ''' None keeps output paths byte-identical to the original scrubbing-only
+    behavior (the common case, and everything already on disk); 'noscrub'
+    namespaces a --no_scrubbing ablation run into its own subdirectory so it
+    can never overwrite the real scrubbed outputs. '''
+    return 'noscrub' if no_scrubbing else None
+
+
+denoise_tag = _denoise_tag(no_scrubbing)
 
 
 def _fmriprep_tag(fmriprep_dir):
@@ -88,7 +108,7 @@ fmriprep_tag = _fmriprep_tag(fmriprep_dir)
 # based on: https://nilearn.github.io/auto_examples/04_glm_first_level/
 # plot_bids_features.html#sphx-glr-auto-examples-04-glm-first-level-plot-bids-features-py
 
-def _save_confound_qc(subject_id, task_label, event_type, bidsroot, fmriprep_tag,
+def _save_confound_qc(subject_id, task_label, event_type, bidsroot, fmriprep_tag, denoise_tag,
                       models_confounds, models_sample_masks, min_retained_frac=0.5):
     ''' record per-run scrubbing stats -- for review, not for excluding data.
     We keep every run regardless of retained fraction (n=12 means every run
@@ -107,7 +127,8 @@ def _save_confound_qc(subject_id, task_label, event_type, bidsroot, fmriprep_tag
                 'low_quality': retained_frac < min_retained_frac,
             })
 
-    qc_dir = os.path.join(bidsroot, 'derivatives', 'nilearn', fmriprep_tag, 'qc')
+    qc_dir = os.path.join(bidsroot, 'derivatives', 'nilearn',
+                          *(p for p in (fmriprep_tag, denoise_tag) if p), 'qc')
     os.makedirs(qc_dir, exist_ok=True)
     qc_fpath = os.path.join(
         qc_dir, f'sub-{subject_id}_task-{task_label}_event-{event_type}_confound-scrubbing-qc.csv')
@@ -121,7 +142,8 @@ def _save_confound_qc(subject_id, task_label, event_type, bidsroot, fmriprep_tag
 
 
 def prep_models_and_args(subject_id=None, task_id=None, fwhm=None, bidsroot=None,
-                         deriv_dir=None, event_type=None, t_r=None, t_acq=None, space_label='T1w'):
+                         deriv_dir=None, event_type=None, t_r=None, t_acq=None, space_label='T1w',
+                         no_scrubbing=False):
     from nilearn.glm.first_level import first_level_from_bids
     from nilearn.interfaces.fmriprep import load_confounds_strategy
     data_dir = bidsroot
@@ -172,11 +194,25 @@ def prep_models_and_args(subject_id=None, task_id=None, fwhm=None, bidsroot=None
             fd_threshold=0.9,
             std_dvars_threshold=1.5,
         )
+        if no_scrubbing:
+            # keep the same confound regressors (motion + aCompCor, still
+            # sourced from the 'scrubbing' strategy above) but discard the
+            # censoring mask itself -- isolates scrubbing's specific effect
+            # by holding everything else in the denoising strategy constant.
+            # Explicit "keep every volume" index arrays, NOT a list of None:
+            # confirmed empirically that FirstLevelModel.fit() accepts either
+            # a single bare None (no masking for the whole call) or a list of
+            # real index arrays, but rejects a list containing None entries
+            # (nilearn's check_run_sample_masks tries to iterate each one).
+            # Per-run indexing elsewhere (grouped_runs slicing a subset of
+            # runs into its own model.fit call) needs this to stay a real
+            # per-run list, so a single overall None isn't an option here.
+            run_sample_masks = [np.arange(len(conf)) for conf in run_confounds]
         models_confounds.append(run_confounds)
         models_sample_masks.append(run_sample_masks)
 
     _save_confound_qc(subject_id, task_label, event_type, bidsroot, _fmriprep_tag(deriv_dir),
-                      models_confounds, models_sample_masks)
+                      _denoise_tag(no_scrubbing), models_confounds, models_sample_masks)
 
     ''' create events '''
     for sx, sub_events in enumerate(models_events):
@@ -240,7 +276,7 @@ def prep_models_and_args(subject_id=None, task_id=None, fwhm=None, bidsroot=None
 # ### Grouping: none -- fit all runs together in a single GLM
 def nilearn_glm_across_runs(stim_list, task_label, models, models_run_imgs,
                             models_events, models_confounds, models_sample_masks,
-                            space_label, event_type, bidsroot, fmriprep_tag):
+                            space_label, event_type, bidsroot, fmriprep_tag, denoise_tag):
     from nilearn.glm import save_glm_to_bids
 
     bidsderiv_sub_dir = None
@@ -262,7 +298,8 @@ def nilearn_glm_across_runs(stim_list, task_label, models, models_run_imgs,
         # single differential contrast fits into that) instead of looping
         # compute_contrast + manual saving ourselves per stimulus
         print('computing and saving contrasts for all conditions')
-        bidsderiv_sub_dir = os.path.join(bidsroot, 'derivatives', 'nilearn', fmriprep_tag,
+        bidsderiv_sub_dir = os.path.join(bidsroot, 'derivatives', 'nilearn',
+                                         *(p for p in (fmriprep_tag, denoise_tag) if p),
                                          'bids-deriv_level-1_fwhm-%.02f'%model.smoothing_fwhm,
                                          f'sub-{model.subject_label}_space-{space_label}',
                                          f'run-all_event-{event_type}')
@@ -281,7 +318,7 @@ def nilearn_glm_across_runs(stim_list, task_label, models, models_run_imgs,
 # ### Grouping: grouped -- fit separate GLMs per early/middle/late run-pair
 def nilearn_glm_grouped_runs(stim_list, task_label, models, models_run_imgs,
                             models_events, models_confounds, models_sample_masks,
-                            space_label, event_type, bidsroot, fmriprep_tag):
+                            space_label, event_type, bidsroot, fmriprep_tag, denoise_tag):
     from nilearn.glm import save_glm_to_bids
 
     #run_group_dict = {'firsthalf': [0, 1, 2],
@@ -314,7 +351,8 @@ def nilearn_glm_grouped_runs(stim_list, task_label, models, models_run_imgs,
                           sample_masks=sample_masks_grouped)
 
                 print('computing and saving contrasts for all conditions')
-                bidsderiv_sub_dir = os.path.join(bidsroot, 'derivatives', 'nilearn', fmriprep_tag,
+                bidsderiv_sub_dir = os.path.join(bidsroot, 'derivatives', 'nilearn',
+                                                 *(p for p in (fmriprep_tag, denoise_tag) if p),
                                                  'bids-deriv_level-1_fwhm-%.02f'%model.smoothing_fwhm,
                                                  f'sub-{model.subject_label}_space-{space_label}',
                                                  f'{run_group}_event-{event_type}')
@@ -342,13 +380,14 @@ stim_list, models, models_run_imgs, models_events, \
                                                                    fmriprep_dir,
                                                                    event_type,
                                                                    t_r, t_acq,
-                                                                   space_label)
+                                                                   space_label,
+                                                                   no_scrubbing)
 
 if grouping == 'grouped':
     nilearn_glm_grouped_runs(stim_list, task_label, models, models_run_imgs,
                              models_events, models_confounds, models_sample_masks,
-                             space_label, event_type, bidsroot, fmriprep_tag)
+                             space_label, event_type, bidsroot, fmriprep_tag, denoise_tag)
 else:
     nilearn_glm_across_runs(stim_list, task_label, models, models_run_imgs,
                             models_events, models_confounds, models_sample_masks,
-                            space_label, event_type, bidsroot, fmriprep_tag)
+                            space_label, event_type, bidsroot, fmriprep_tag, denoise_tag)
