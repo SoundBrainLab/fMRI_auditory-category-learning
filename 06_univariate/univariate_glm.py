@@ -223,6 +223,24 @@ def prep_models_and_args(subject_id=None, task_id=None, fwhm=None, bidsroot=None
             # runs into its own model.fit call) needs this to stay a real
             # per-run list, so a single overall None isn't an option here.
             run_sample_masks = [np.arange(len(conf)) for conf in run_confounds]
+        else:
+            # load_confounds_strategy documents returning None (not an index
+            # array) for any individual run where zero volumes needed
+            # censoring -- perfectly plausible for a single low-motion run
+            # even when a sibling run in the same run-group had some
+            # scrubbing. That produces the exact same list-of-[array, None]
+            # mix FirstLevelModel.fit() rejects (see the no_scrubbing comment
+            # above): confirmed on real data (sub-FLT20's 'early' run-group,
+            # run 1 at 100% retained -> None, run 0 partially scrubbed ->
+            # array) raising 'NoneType' object is not iterable and silently
+            # dropping that entire run-group via grouped_runs' try/except.
+            # None means "nothing scrubbed" here too, so this normalization
+            # changes nothing about which volumes are used -- it only avoids
+            # the mixed-type crash.
+            run_sample_masks = [
+                (np.arange(len(conf)) if mask is None else mask)
+                for conf, mask in zip(run_confounds, run_sample_masks)
+            ]
         models_confounds.append(run_confounds)
         models_sample_masks.append(run_sample_masks)
 
