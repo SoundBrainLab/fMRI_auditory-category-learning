@@ -411,7 +411,27 @@ def nilearn_glm_grouped_runs(stim_list, task_label, models, models_run_imgs,
                                  out_dir=bidsderiv_sub_dir,
                                  prefix=out_prefix,
                                 )
-                print(f'Saved model outputs to {bidsderiv_sub_dir}')
+
+                # save_glm_to_bids has returned without raising here, but a
+                # prior run silently produced zero files for one run-group
+                # (FLT20/early) despite reaching this same print statement --
+                # verify from inside this process, at write time, that
+                # anything actually landed on disk
+                n_written = sum(len(files) for _, _, files in os.walk(bidsderiv_sub_dir))
+                if n_written == 0:
+                    print(f'WARNING: save_glm_to_bids() returned normally but '
+                         f'{bidsderiv_sub_dir} contains zero files immediately after. '
+                         f'Diagnostic state for {run_group}:')
+                    print(f'  imgs_grouped: {imgs_grouped}')
+                    print(f'  sample_masks_grouped types/lens: '
+                         f'{[(type(m).__name__, None if m is None else len(m)) for m in sample_masks_grouped]}')
+                    print(f'  confounds_grouped shapes: '
+                         f'{[getattr(c, "shape", None) for c in confounds_grouped]}')
+                    print(f'  events_grouped shapes: '
+                         f'{[getattr(e, "shape", None) for e in events_grouped]}')
+                    print(f'  model.labels_ type: {type(getattr(model, "labels_", None))}')
+                else:
+                    print(f'Saved model outputs to {bidsderiv_sub_dir} ({n_written} files)')
             except Exception as e:
                 print(f'could not run {run_group}: {e}')
     return bidsderiv_sub_dir
