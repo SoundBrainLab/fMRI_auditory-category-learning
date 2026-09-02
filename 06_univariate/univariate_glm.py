@@ -324,7 +324,7 @@ def prep_models_and_args(subject_id=None, task_id=None, fwhm=None, bidsroot=None
 def nilearn_glm_across_runs(stim_list, task_label, models, models_run_imgs,
                             models_events, models_confounds, models_sample_masks,
                             space_label, event_type, bidsroot, fmriprep_tag, variant_tag):
-    from nilearn.glm import save_glm_to_bids
+    from nilearn.interfaces.bids import save_glm_to_bids
 
     bidsderiv_sub_dir = None
     for midx in range(len(models)):
@@ -366,7 +366,7 @@ def nilearn_glm_across_runs(stim_list, task_label, models, models_run_imgs,
 def nilearn_glm_grouped_runs(stim_list, task_label, models, models_run_imgs,
                             models_events, models_confounds, models_sample_masks,
                             space_label, event_type, bidsroot, fmriprep_tag, variant_tag):
-    from nilearn.glm import save_glm_to_bids
+    from nilearn.interfaces.bids import save_glm_to_bids
 
     #run_group_dict = {'firsthalf': [0, 1, 2],
     #                  'secondhalf': [3, 4, 5]}
