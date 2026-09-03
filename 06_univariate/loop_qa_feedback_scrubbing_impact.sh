@@ -1,8 +1,8 @@
 #!/bin/bash
 
 # $1 (optional): which univariate_glm.py modeling-variant directory to QA --
-# e.g. scrubbed_model-full (default), collapsed-nuisance, noscrub_collapsed-nuisance
-variant_tag=${1:-scrubbed_model-full}
+# e.g. scrubbed (default), collapsed-nuisance, noscrub_collapsed-nuisance
+variant_tag=${1:-scrubbed}
 
 # the actual analyzed (non-Mandarin) sample the manuscript's feedback results
 # are based on -- n=12, confirmed against group_level_all_ROI.ipynb's own

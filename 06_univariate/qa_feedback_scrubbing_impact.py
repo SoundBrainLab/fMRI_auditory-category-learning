@@ -29,7 +29,7 @@ Usage:
     python qa_feedback_scrubbing_impact.py --sub=FLT02 --task=tonecat \\
         --space=T1w --t_acq=2 --t_r=3 \\
         --bidsroot=/PATH/TO/BIDS/DIR/ --fmriprep_dir=/PATH/TO/FMRIPREP/DIR/ \\
-        --variant_tag=scrubbed_model-full
+        --variant_tag=scrubbed
 
 --variant_tag files the output under univariate_glm.py's matching modeling-
 variant directory ({fmriprep_tag}/{variant_tag}/qc/) so it sits alongside the
@@ -92,7 +92,7 @@ def main():
                 '--task=tonecat --space=T1w --t_acq=2 --t_r=3 '
                 '--bidsroot=/PATH/TO/BIDS/DIR/ '
                 '--fmriprep_dir=/PATH/TO/FMRIPREP/DIR/ '
-                '--variant_tag=scrubbed_model-full'))
+                '--variant_tag=scrubbed'))
     parser.add_argument('--sub', help='participant id', type=str)
     parser.add_argument('--task', help='task id', type=str)
     parser.add_argument('--space', help='space label', type=str, default='T1w')
@@ -107,10 +107,10 @@ def main():
     parser.add_argument('--variant_tag',
                         help=("which univariate_glm.py modeling-variant directory to file this "
                              "QA under (see that script's _variant_tag) -- e.g. "
-                             "'scrubbed_model-full', 'collapsed-nuisance', "
+                             "'scrubbed', 'collapsed-nuisance', "
                              "'noscrub_collapsed-nuisance'. Ignored if --out_dir is given "
                              "explicitly. Default matches the original baseline location"),
-                        type=str, default='scrubbed_model-full')
+                        type=str, default='scrubbed')
     parser.add_argument('--out_dir',
                         help=('directory to write the per-subject summary CSV to. If omitted, '
                              'defaults to {bidsroot}/derivatives/nilearn/{fmriprep_tag}/'

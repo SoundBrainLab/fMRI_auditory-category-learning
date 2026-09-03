@@ -59,7 +59,7 @@ def main():
         description='Aggregate qa_feedback_scrubbing_impact.py output across subjects',
         epilog=('Example: python aggregate_feedback_scrubbing_impact.py '
                 '--bidsroot=/PATH/TO/BIDS/DIR/ --fmriprep_dir=/PATH/TO/FMRIPREP/DIR/ '
-                '--variant_tag=scrubbed_model-full --task=tonecat'))
+                '--variant_tag=scrubbed --task=tonecat'))
     parser.add_argument('--qc_dir',
                         help=('directory containing the per-subject summary CSVs. If omitted, '
                              'derived from --bidsroot/--fmriprep_dir/--variant_tag instead, '
@@ -75,7 +75,7 @@ def main():
                         help=("univariate_glm.py modeling-variant directory to read from -- "
                              "see that script's _variant_tag (only needed if --qc_dir is "
                              "omitted). Default matches the original baseline location"),
-                        type=str, default='scrubbed_model-full')
+                        type=str, default='scrubbed')
     parser.add_argument('--task', help='task id', type=str, default='tonecat')
     parser.add_argument('--min_clean_trials',
                         help=('flag any subject/stage/condition with fewer than this many '

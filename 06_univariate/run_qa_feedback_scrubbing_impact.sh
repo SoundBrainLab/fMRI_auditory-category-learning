@@ -8,10 +8,10 @@
 # generous walltime/mem above just in case of slow network-filesystem I/O
 
 # $2: which univariate_glm.py modeling-variant directory to file this QA
-# under (see that script's _variant_tag) -- e.g. scrubbed_model-full,
+# under (see that script's _variant_tag) -- e.g. scrubbed,
 # collapsed-nuisance, noscrub_collapsed-nuisance. Defaults to the original
 # baseline location if not given.
-variant_tag=${2:-scrubbed_model-full}
+variant_tag=${2:-scrubbed}
 
 python qa_feedback_scrubbing_impact.py --sub=$1 \
       --task=tonecat \
