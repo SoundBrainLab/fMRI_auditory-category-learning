@@ -80,24 +80,24 @@ def _variant_tag(no_scrubbing, event_type):
     the original scrubbed/uncollapsed pipeline -- rather than one nested
     directory per axis of variation. Deviating axes are joined with '_' so
     every combination gets exactly one flat, self-documenting segment:
-        baseline (scrubbed, uncollapsed)      -> 'scrubbed_model-full'
+        baseline (scrubbed, uncollapsed)      -> 'scrubbed'
         --no_scrubbing only                   -> 'noscrub'
         feedback's collapsed-nuisance design  -> 'collapsed-nuisance'
         both at once                          -> 'noscrub_collapsed-nuisance'
-    'scrubbed_model-full' matches where the pre-existing baseline outputs
+    'scrubbed' matches where the pre-existing baseline outputs
     (everything computed before --no_scrubbing/the collapsed-nuisance design
     existed) were moved to on disk -- see REVISION_PLAN.md/group_level_all_ROI.ipynb's
     l1_dir, which must stay in sync with this. Only feedback's design changed
     (sound/stimulus/trial already collapsed nuisance conditions the same way,
     or don't need to), so 'collapsed-nuisance' only ever appears for
     event_type='feedback'; sound/stimulus/trial baseline runs always land in
-    'scrubbed_model-full' since neither axis here applies to them. '''
+    'scrubbed' since neither axis here applies to them. '''
     parts = []
     if no_scrubbing:
         parts.append('noscrub')
     if event_type == 'feedback':
         parts.append('collapsed-nuisance')
-    return '_'.join(parts) if parts else 'scrubbed_model-full'
+    return '_'.join(parts) if parts else 'scrubbed'
 
 
 variant_tag = _variant_tag(no_scrubbing, event_type)
