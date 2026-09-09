@@ -36,14 +36,23 @@ rather than hardcoded, matching how the rest of this pipeline
 (group_level_all_ROI.ipynb) determines group membership -- also means
 this script doesn't need updating if the analyzed sample ever changes.
 
-BIC sanity filtering: real fits in the reviewed subset ranged ~15-210;
-non-convergence produced sentinel values far outside that (~2009-2016
-repeated near-identically across unrelated subjects, or one wild
-outlier at -6490 with malformed parameters). Any BIC outside
-[--bic_min, --bic_max] is treated as a failed fit for that specific
-model in that specific run -- excluded from comparison, not imputed.
-Defaults (-50, 500) are based on that reviewed subset; sanity-check
-against the full file before trusting them blindly.
+BIC sanity filtering, two layers: (1) range -- real fits in the reviewed
+subset ranged ~15-210; non-convergence produced sentinel values far
+outside that (~2009-2016 repeated near-identically across unrelated
+subjects and models -- confirmed on the full file to account for the
+large majority of all rows; or one wild outlier at -6490 with malformed
+parameters). Any BIC outside [--bic_min, --bic_max] is treated as a
+failed fit for that specific model in that specific run -- excluded
+from comparison, not imputed. Defaults (-50, 500) are based on the
+reviewed subset; sanity-check against the full file before trusting
+them blindly. (2) quiet in-range sentinels -- confirmed on the full
+file: BIC=34.840809 recurs to 6 decimal places across SPC fits for
+multiple unrelated subjects, which real independent optimizer output
+can't do by chance. Any BIC value repeated more than once for the same
+model, among rows that already passed the range check, is flagged
+invalid too (see load_model_fits) -- this generalizes past that one
+confirmed value rather than hardcoding it, in case other models have
+their own quiet failure codes.
 
 Example (illustrative only -- fill in your actual paths, nothing here
 is hardcoded as a default):
@@ -68,13 +77,24 @@ def parse_allfits(allfits_str):
     return {name: float(val) for name, val in pairs}
 
 
+IGNORE_SUBS = ['sub-FLT27',  # always leave out FLT27 -- did not participate
+              'sub-FLT07',  # bad QA 11/14/23
+             ]
+
+
 def load_non_mandarin_subjects(bidsroot):
     ''' subject IDs (without the 'sub-' prefix, matching the fits
     file's format) for the non-Mandarin group, read from
-    participants.tsv -- same source of truth
-    group_level_all_ROI.ipynb uses, not a hardcoded list. '''
+    participants.tsv -- same source of truth and same IGNORE_SUBS
+    exclusion group_level_all_ROI.ipynb and
+    04_behavior/create_behav_confusion_matrices.py both apply before
+    deriving group membership (participants.tsv's own 'non-Mandarin'
+    group includes FLT27, who never participated in the study --
+    confirmed via a real run producing 13 subjects instead of the
+    expected 12). '''
     participants_fpath = Path(bidsroot) / 'participants.tsv'
     participants_df = pd.read_csv(participants_fpath, sep='\t')
+    participants_df = participants_df[~participants_df.participant_id.isin(IGNORE_SUBS)]
     nman = participants_df.participant_id[participants_df.group == 'non-Mandarin']
     return sorted(s.replace('sub-', '') for s in nman)
 
@@ -126,7 +146,30 @@ def load_model_fits(fits_fpath, models=CANDIDATE_MODELS, bic_min=-50, bic_max=50
     if n_skipped:
         print(f"WARNING: skipped {n_skipped} malformed row(s) out of {len(df)} total")
 
-    return pd.DataFrame(rows)
+    long_df = pd.DataFrame(rows)
+
+    # A second, distinct failure mode beyond simple range: quiet non-convergence
+    # sentinels that land inside [bic_min, bic_max] and look like a plausible
+    # fit. Confirmed on the real file -- e.g. BIC=34.840809 recurs, to 6 decimal
+    # places, across SPC fits for FLT05/FLT07/FLT08/FLT10/FLT15, which is
+    # essentially impossible for genuine independent optimizer output. Rather
+    # than hardcode that one value (there may be other models with their own
+    # quiet sentinel), flag any BIC value that repeats more than once for the
+    # same model as invalid too -- real converged BIC values from different
+    # subject/run data don't coincide to floating-point precision by chance.
+    dup_counts = long_df[long_df['valid']].groupby(['model', 'bic']).size()
+    dup_values = dup_counts[dup_counts > 1]
+    if len(dup_values):
+        is_dup = long_df.set_index(['model', 'bic']).index.isin(dup_values.index)
+        n_newly_invalid = int((is_dup & long_df['valid'].values).sum())
+        long_df.loc[is_dup, 'valid'] = False
+        print(f"WARNING: found {len(dup_values)} distinct BIC value(s) repeated across "
+              f"multiple subjects/runs for the same model within [{bic_min}, {bic_max}] "
+              f"-- these look like quiet non-convergence sentinels, not real fits. "
+              f"Flagged {n_newly_invalid} additional row(s) invalid:")
+        print(dup_values.to_string())
+
+    return long_df
 
 
 def restrict_to_subjects(long_df, subjects):
