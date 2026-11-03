@@ -71,7 +71,13 @@ Cluster access obtained — fMRIPrep, atlas warping, and the univariate GLM have
 
 22. **Ran `robustness_checks.py` against the real n=12 `scrubbed`+collapsed-nuisance feedback data — the anterior-caudate-vs-putamen double dissociation robustly confirmed.** `aCAU`'s learning-stage decline: LOSO 12/12 folds preserved, exact permutation p=.0034, bootstrap CI excludes 0. `aPUT` shows no trend (expected — its claim is a sustained, not declining, response). The differential `aCAU`-minus-`aPUT` trend (the actual headline claim): LOSO 12/12, exact permutation p=.0024, bootstrap CI excludes 0. See Workstream 5 for full numbers.
 
-**Not started:** Workstream 1's methods write-up/neural integration, Workstream 2 (user doing it themselves), Workstream 4, Workstream 6. Workstream 3 has a new open item (#21) alongside the already-resolved legend check.
+**Not started:** Workstream 1's methods write-up, Workstream 2 (user doing it themselves), Workstream 4, Workstream 6. Workstream 3 has a new open item (#21) alongside the already-resolved legend check.
+
+## Progress (2026-09-10 → 2026-09-15)
+
+23. **Integration plan added, split into a Phase 1/Phase 2 roadmap** (`09_integration/INTEGRATION_PLAN.md`) for connecting this manuscript's striatal-feedback/behavioral findings with representational-dimensionality work in the sibling `FLT2`/`FST1` repos — this is the groundwork Workstream 1's neural-integration analysis needs. Phase 1 (going into this revision): one pre-registered link between the striatal feedback learning-stage trend (already in this repo) and an auditory-cortex representational-dimensionality trend (recomputed in `FLT2`). Phase 2 (later, on request): the SPC-behavior/dimensionality links, an FST1 acoustic-baseline comparison, RSA/language-group extensions.
+
+24. **`FLT2`/`FST1` dimensionality recompute now running on the cluster on fMRIPrep 25.2.5, in native T1w — matching this repo's own revised pipeline**, not left on the old 22.1.1/MNI outputs. Getting the first real run working surfaced and fixed several bugs in the sibling repos (not this one, but load-bearing for Workstream 1): `FLT2` wasn't saving GLMsingle betas as NIfTI at all; its design matrix was collapsing repeated within-run trials into one column per condition instead of one per trial, which both violates GLMsingle's own documented method and silently dropped every masked beta downstream; a stale-cache bug treated an interrupted GLMsingle run's output directory as "already complete" and crashed trying to load files that were never written. Also separately confirmed GLMsingle is methodologically valid for `FST1`'s 20-second block-design stgrid task (checked directly against GLMsingle's own docs, not assumed) and removed both repos' manual `slice_time_ref` computation to match this repo's own validated auto-inference (`univariate_glm.py`, #18). `FLT2` tonecat dimensionality output now exists for 23 of ~25 subjects; the remaining two are rerunning with the fixes applied. `FST1` stgrid GLMsingle has also been run. Full detail in `09_integration/INTEGRATION_PLAN.md`, Workstream I.
 
 ## Workstreams (in priority order)
 
@@ -122,6 +128,8 @@ Data-quality flags re-checked against this grouping (mostly moot after dropping 
 
 Directly and quantitatively answers R1's "wouldn't replicate at n=12": the differential effect survives every single leave-one-out fold. Ready to drop into the manuscript's robustness paragraph. (Minor: the script's docstring/example still says the input filename is `..._contrast-fbcorrectvswrong.tsv`; the real file is `..._contrast-fb-correct-vs-wrong.tsv` — cosmetic doc drift, not fixed yet.)
 
+**Figure**: `06_univariate/plot_robustness_checks.py` — a "robustness panel" (per-subject slopes · LOSO caterpillar · exact-permutation null · bootstrap CI), one row per contrast (aCAU / aPUT / aCAU−aPUT), `--mode=roi`; a one-row `--mode=spc` variant does the same for the SPC behavioral trend from `model_comparison.py`'s `spc_relative_bic_early_late.csv`. Tested against synthetic data locally; not yet run against the real files. See `INTEGRATION_PLAN.md` for the fuller menu of robustness-plot options.
+
 **Scope — headline claims only.** Primary target: anterior-caudate-vs-putamen feedback learning-stage interaction (Table 8). Table 5 (sound) is a secondary extension if time allows.
 
 **Summary scalar (reused, not re-derived per check):** per-subject linear learning-stage trend (weights `[-1,0,1]` across early/middle/late) per ROI, and the aCAU-minus-aPUT difference in that trend — the same scalar Workstream 1's neural-linkage analysis needs.
@@ -168,12 +176,12 @@ Scope: three atlases warped to T1w — **Tian S2** (striatum; S3 dropped), **`su
 ## Suggested sequencing
 
 1. ✅ **Done.** Housekeeping: branch, `.gitignore`, starter `environment.yml`.
-2. ✅ **Delivered; comparison code built, not yet run on the real full file.** CJH1/CJH2 dropped; `model_comparison.py` validated (20/20). 🔲 Methods write-up and neural-integration analysis not started.
+2. ✅ **Delivered; comparison code built, not yet run on the real full file.** CJH1/CJH2 dropped; `model_comparison.py` validated (20/20). 🔲 Methods write-up not started. 🟡 Neural-integration analysis: groundwork (sibling-repo dimensionality recompute, #24) now running on the cluster; the actual correlation/write-up (Phase 1 of `09_integration/INTEGRATION_PLAN.md`) hasn't started.
 3. ✅ **Run to completion.** fMRIPrep 25.2.x built and run to a separate tree (Workstream 7); `05_masking/` re-run against it.
 4. ✅ **Run to completion.** Tian S2/`subcort_aud`/`carpet_dseg`/`carpet_pfc` warped to T1w (Workstream 8); transform confirmed correct.
 5. ✅ **Done, substantially beyond original scope.** Confound/GLM upgrade live; run scripts use `--space=T1w`. Found/fixed real data-loss/API bugs, added scrubbing ablation + permanent collapsed-nuisance design, confirmed feedback replicates the manuscript (#19). Sound has an undiagnosed discrepancy (#21). README needs a catch-up pass (not yet done).
 6. 🟡 **Partially started.** Univariate reporting (Workstream 3) has a new open item (#21). Connectivity reporting (Workstream 2) not started — user doing it themselves.
-7. 🟡 **Model comparison done; write-up/neural linkage not started.** `08_behavioral-modeling/` exists, README current.
+7. 🟡 **Model comparison done; write-up not started; neural linkage groundwork in progress** (see item 2 / #24). `08_behavioral-modeling/` exists, README current.
 8. ✅ **Run on real data (2026-09-04) — headline double-dissociation robustly confirmed** (Workstream 5): `aCAU`-minus-`aPUT` learning-stage trend survives all 12 LOSO folds, exact permutation p=.0024, bootstrap CI excludes 0.
 9. 🔲 **Not started.** Power-limitations paragraph (Workstream 4), then discussion clarifications (Workstream 6) — last, once analyses are final.
 10. 🔲 **Not started.** Final formatting/scope pass once a journal is chosen. Merge to `main` only once the user is fully satisfied.
