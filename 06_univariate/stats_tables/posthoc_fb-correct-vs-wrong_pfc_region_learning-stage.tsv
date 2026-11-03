@@ -1,0 +1,37 @@
+Contrast	region	A	B	t	df	p	p_fdr	stat_str	stat_str_fdr
+region	-	ACC	FMC	-1.14	11.0	p = .280	p = .782	t(11) = -1.14, p = .280	t(11) = -1.14, q = .782
+region	-	ACC	IFGo	0.63	11.0	p = .541	p = .902	t(11) = 0.63, p = .541	t(11) = 0.63, q = .902
+region	-	ACC	IFGt	0.96	11.0	p = .360	p = .782	t(11) = 0.96, p = .360	t(11) = 0.96, q = .782
+region	-	ACC	OFC	0.94	11.0	p = .365	p = .782	t(11) = 0.94, p = .365	t(11) = 0.94, q = .782
+region	-	ACC	PCG	0.83	11.0	p = .426	p = .800	t(11) = 0.83, p = .426	t(11) = 0.83, q = .800
+region	-	FMC	IFGo	1.72	11.0	p = .113	p = .566	t(11) = 1.72, p = .113	t(11) = 1.72, q = .566
+region	-	FMC	IFGt	2.43	11.0	p = .033	p = .249	t(11) = 2.43, p = .033	t(11) = 2.43, q = .249
+region	-	FMC	OFC	2.56	11.0	p = .026	p = .249	t(11) = 2.56, p = .026	t(11) = 2.56, q = .249
+region	-	FMC	PCG	1.53	11.0	p = .154	p = .576	t(11) = 1.53, p = .154	t(11) = 1.53, q = .576
+region	-	IFGo	IFGt	0.16	11.0	p = .879	p = .957	t(11) = 0.16, p = .879	t(11) = 0.16, q = .957
+region	-	IFGo	OFC	0.06	11.0	p = .955	p = .957	t(11) = 0.06, p = .955	t(11) = 0.06, q = .957
+region	-	IFGo	PCG	-0.06	11.0	p = .957	p = .957	t(11) = -0.06, p = .957	t(11) = -0.06, q = .957
+region	-	IFGt	OFC	-0.13	11.0	p = .902	p = .957	t(11) = -0.13, p = .902	t(11) = -0.13, q = .957
+region	-	IFGt	PCG	-0.22	11.0	p = .834	p = .957	t(11) = -0.22, p = .834	t(11) = -0.22, q = .957
+region	-	OFC	PCG	-0.16	11.0	p = .874	p = .957	t(11) = -0.16, p = .874	t(11) = -0.16, q = .957
+learning_stage	-	early	final	3.80	11.0	p = .003	p = .009	t(11) = 3.80, p = .003	t(11) = 3.80, q = .009
+learning_stage	-	early	middle	1.95	11.0	p = .077	p = .116	t(11) = 1.95, p = .077	t(11) = 1.95, q = .116
+learning_stage	-	final	middle	-1.31	11.0	p = .216	p = .216	t(11) = -1.31, p = .216	t(11) = -1.31, q = .216
+region * learning_stage	ACC	early	final	2.67	11.0	p = .022	p = .078	t(11) = 2.67, p = .022	t(11) = 2.67, q = .078
+region * learning_stage	ACC	early	middle	1.84	11.0	p = .093	p = .183	t(11) = 1.84, p = .093	t(11) = 1.84, q = .183
+region * learning_stage	ACC	final	middle	-1.79	11.0	p = .102	p = .183	t(11) = -1.79, p = .102	t(11) = -1.79, q = .183
+region * learning_stage	FMC	early	final	-0.02	11.0	p = .983	p = .983	t(11) = -0.02, p = .983	t(11) = -0.02, q = .983
+region * learning_stage	FMC	early	middle	0.65	11.0	p = .531	p = .562	t(11) = 0.65, p = .531	t(11) = 0.65, q = .562
+region * learning_stage	FMC	final	middle	0.65	11.0	p = .527	p = .562	t(11) = 0.65, p = .527	t(11) = 0.65, q = .562
+region * learning_stage	IFGo	early	final	3.74	11.0	p = .003	p = .037	t(11) = 3.74, p = .003	t(11) = 3.74, q = .037
+region * learning_stage	IFGo	early	middle	1.30	11.0	p = .219	p = .328	t(11) = 1.30, p = .219	t(11) = 1.30, q = .328
+region * learning_stage	IFGo	final	middle	-1.17	11.0	p = .266	p = .369	t(11) = -1.17, p = .266	t(11) = -1.17, q = .369
+region * learning_stage	IFGt	early	final	3.22	11.0	p = .008	p = .037	t(11) = 3.22, p = .008	t(11) = 3.22, q = .037
+region * learning_stage	IFGt	early	middle	1.72	11.0	p = .114	p = .186	t(11) = 1.72, p = .114	t(11) = 1.72, q = .186
+region * learning_stage	IFGt	final	middle	-0.97	11.0	p = .352	p = .453	t(11) = -0.97, p = .352	t(11) = -0.97, q = .453
+region * learning_stage	OFC	early	final	3.25	11.0	p = .008	p = .037	t(11) = 3.25, p = .008	t(11) = 3.25, q = .037
+region * learning_stage	OFC	early	middle	2.32	11.0	p = .040	p = .121	t(11) = 2.32, p = .040	t(11) = 2.32, q = .121
+region * learning_stage	OFC	final	middle	-0.78	11.0	p = .454	p = .544	t(11) = -0.78, p = .454	t(11) = -0.78, q = .544
+region * learning_stage	PCG	early	final	3.55	11.0	p = .005	p = .037	t(11) = 3.55, p = .005	t(11) = 3.55, q = .037
+region * learning_stage	PCG	early	middle	1.87	11.0	p = .088	p = .183	t(11) = 1.87, p = .088	t(11) = 1.87, q = .183
+region * learning_stage	PCG	final	middle	-2.11	11.0	p = .059	p = .151	t(11) = -2.11, p = .059	t(11) = -2.11, q = .151
