@@ -253,8 +253,8 @@ Notes:
 2. `roi_crosswalk.csv` — Tian S2 ↔ auditory `dseg` ↔ carpet label mapping.
 3. Exporters:
    - this repo: per-subject aCAU / aPUT / aCAU−aPUT feedback trend → a small CSV
-     (`derivatives/nilearn/group_level/roi_trend_scalars.csv`), from a cell added to
-     `group_level_all_ROI.ipynb` or derived in the integration notebook from `roi_values_long.csv`.
+     (`derivatives/nilearn/group_space-T1w_fwhm-0.00/roi_trend_scalars.csv`) — **done (2026-11-03)**,
+     written by the last cell of `group_level_all_ROI.ipynb`.
    - `FLT2`: the integration notebook reads `sub-*_dimensionality_PR.csv` directly (cross-repo read,
      like `FLT2` §9i does in reverse).
 4. `09_integration/integration_B.ipynb` — merge on `participant_id`, compute the cortical PR trend
