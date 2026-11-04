@@ -27,7 +27,9 @@ parser.add_argument("--fwhm",
                     help="spatial smoothing full-width half-max",
                     type=float)
 parser.add_argument("--event_type",
-                    help="what to model (options: `stimulus` or `trial` or `sound` or `feedback`)",
+                    help=("what to model (options: `stimulus` or `trial` or `sound` or `feedback`). "
+                          "`feedback` is the main model: one design with feedback outcomes split, "
+                          "saving the sound, resp and feedback contrasts together"),
                     type=str)
 parser.add_argument("--grouping",
                     help=("run-grouping strategy: `none` fits all runs together "
@@ -76,31 +78,29 @@ no_scrubbing = args.no_scrubbing
 
 
 def _variant_tag(no_scrubbing, event_type):
-    ''' single directory level describing every way this run deviates from
-    the original scrubbed/uncollapsed pipeline -- rather than one nested
-    directory per axis of variation. Deviating axes are joined with '_' so
-    every combination gets exactly one flat, self-documenting segment:
-        baseline (scrubbed, uncollapsed)      -> 'scrubbed'
-        --no_scrubbing only                   -> 'noscrub'
-        feedback's collapsed-nuisance design  -> 'collapsed-nuisance'
-        both at once                          -> 'noscrub_collapsed-nuisance'
-    'scrubbed' matches where the pre-existing baseline outputs
-    (everything computed before --no_scrubbing/the collapsed-nuisance design
-    existed) were moved to on disk -- see REVISION_PLAN.md/group_level_all_ROI.ipynb's
-    l1_dir, which must stay in sync with this. Only feedback's design changed
-    (sound/stimulus/trial already collapsed nuisance conditions the same way,
-    or don't need to), so 'collapsed-nuisance' only ever appears for
-    event_type='feedback'; sound/stimulus/trial baseline runs always land in
-    'scrubbed' since neither axis here applies to them. '''
-    parts = []
-    if no_scrubbing:
-        parts.append('noscrub')
+    ''' single directory level naming the confound strategy and design, so
+    each model variant gets one flat, self-documenting segment:
+        feedback (main model: sound/resp collapsed,
+                  fb_correct/fb_wrong/fb_noresp split)  -> 'scrubbed-splitfb'
+        same, --no_scrubbing                            -> 'noscrub-splitfb'
+        sound/stimulus/trial                            -> 'scrubbed' / 'noscrub'
+    'scrubbed-splitfb' is the one model all reported contrasts (sound, resp,
+    fbcorrectvswrong, fbcorrect) now come from; it's the same design the
+    older 'collapsed-nuisance' outputs used, renamed so the new all-contrast
+    outputs can't mix with those (or with the old sound-only 'scrubbed'
+    outputs) on disk. group_level_all_ROI.ipynb's variant_tag_by_event_type
+    must stay in sync with this. '''
+    scrub_tag = 'noscrub' if no_scrubbing else 'scrubbed'
     if event_type == 'feedback':
-        parts.append('collapsed-nuisance')
-    return '_'.join(parts) if parts else 'scrubbed'
+        return f'{scrub_tag}-splitfb'
+    return scrub_tag
 
 
 variant_tag = _variant_tag(no_scrubbing, event_type)
+
+# per-stage output folders are named `{run_group}_event-{label}`; feedback's
+# model holds every contrast, so its folders say `all` rather than `feedback`
+output_event_label = 'all' if event_type == 'feedback' else event_type
 
 
 def _fmriprep_tag(fmriprep_dir):
@@ -305,19 +305,51 @@ def prep_models_and_args(subject_id=None, task_id=None, fwhm=None, bidsroot=None
         # create stimulus list from updated events.tsv file
         stim_list = sorted([str(s) for s in run_events['trial_type'].unique() if str(s) not in ['nan', 'None']])
 
-    # feedback is modeled as a single differential contrast rather than one
-    # contrast per condition -- express that as a {contrast_id: contrast_def}
-    # dict here so save_glm_to_bids's `contrasts` argument (which accepts
-    # either a list of expressions or an id->expression dict) is the only
-    # thing that varies by event_type; the GLM-fitting code downstream
-    # doesn't need to know event_type exists. `fbcorrectvswrong` (rather
-    # than a dashed label) is used as the id since it survives BIDS
-    # entity-value sanitization unchanged.
+    # feedback is modeled as named contrasts rather than one contrast per
+    # condition -- express that as a {contrast_id: contrast_def} dict here so
+    # save_glm_to_bids's `contrasts` argument (which accepts either a list of
+    # expressions or an id->expression dict) is the only thing that varies by
+    # event_type; the GLM-fitting code downstream doesn't need to know
+    # event_type exists. Ids are written without dashes since they survive
+    # BIDS entity-value sanitization unchanged.
+    #   sound, resp      -- vs. baseline, from the same model as the feedback
+    #                       contrasts so every reported effect shares one design
+    #   fbcorrectvswrong -- the learners' headline contrast
+    #   fbcorrect        -- correct feedback vs. baseline, estimable for the
+    #                       Mandarin group too (natives get ~1 wrong-feedback
+    #                       trial per run, too few for the differential
+    #                       contrast)
     if event_type == 'feedback':
-        stim_list = {'fbcorrectvswrong': 'fb_correct - fb_wrong'}
+        stim_list = {'sound': 'sound',
+                     'resp': 'resp',
+                     'fbcorrectvswrong': 'fb_correct - fb_wrong',
+                     'fbcorrect': 'fb_correct'}
 
     #model_and_args = zip(models, models_run_imgs, models_events, models_confounds)
     return stim_list, models, models_run_imgs, models_events, models_confounds, models_sample_masks
+
+
+def _estimable_contrasts(contrasts, model):
+    ''' drop contrasts naming a regressor that's missing from any of the
+    fitted model's design matrices. nilearn leaves a condition out of a
+    run's design matrix when that run has no events of it (e.g. a Mandarin
+    participant with zero fb_wrong trials), and a contrast string naming
+    the missing column raises inside save_glm_to_bids -- which, caught by
+    the run-group try/except, used to discard every contrast for that
+    run-group, not just the inestimable one. Skips are printed so they
+    show up in the SLURM log. '''
+    if not isinstance(contrasts, dict):
+        contrasts = {c: c for c in contrasts}
+    columns_per_run = [set(dm.columns) for dm in model.design_matrices_]
+    keep = {}
+    for contrast_id, contrast_def in contrasts.items():
+        regressors = set(re.findall(r'[A-Za-z_]\w*', contrast_def))
+        missing = sorted({r for cols in columns_per_run for r in regressors - cols})
+        if missing:
+            print(f'skipping contrast {contrast_id}: {missing} absent from at least one run')
+        else:
+            keep[contrast_id] = contrast_def
+    return keep
 
 
 # ### Grouping: none -- fit all runs together in a single GLM
@@ -354,7 +386,7 @@ def nilearn_glm_across_runs(stim_list, task_label, models, models_run_imgs,
 
         out_prefix = f"sub-{model.subject_label}_task-{task_label}_fwhm-{model.smoothing_fwhm}"
         save_glm_to_bids(model,
-                         contrasts=stim_list,
+                         contrasts=_estimable_contrasts(stim_list, model),
                          out_dir=bidsderiv_sub_dir,
                          prefix=out_prefix,
                         )
@@ -407,7 +439,7 @@ def nilearn_glm_grouped_runs(stim_list, task_label, models, models_run_imgs,
 
                 out_prefix = f"sub-{model.subject_label}_task-{task_label}_fwhm-{model.smoothing_fwhm}"
                 save_glm_to_bids(model,
-                                 contrasts=stim_list,
+                                 contrasts=_estimable_contrasts(stim_list, model),
                                  out_dir=bidsderiv_sub_dir,
                                  prefix=out_prefix,
                                 )
@@ -455,8 +487,8 @@ stim_list, models, models_run_imgs, models_events, \
 if grouping == 'grouped':
     nilearn_glm_grouped_runs(stim_list, task_label, models, models_run_imgs,
                              models_events, models_confounds, models_sample_masks,
-                             space_label, event_type, bidsroot, fmriprep_tag, variant_tag)
+                             space_label, output_event_label, bidsroot, fmriprep_tag, variant_tag)
 else:
     nilearn_glm_across_runs(stim_list, task_label, models, models_run_imgs,
                             models_events, models_confounds, models_sample_masks,
-                            space_label, event_type, bidsroot, fmriprep_tag, variant_tag)
+                            space_label, output_event_label, bidsroot, fmriprep_tag, variant_tag)

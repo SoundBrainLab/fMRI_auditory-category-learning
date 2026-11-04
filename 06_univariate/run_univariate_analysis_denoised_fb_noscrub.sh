@@ -4,9 +4,8 @@
 
 # Same feedback analysis as run_univariate_analysis_denoised_fb.sh, but with
 # --no_scrubbing: same confound regressors (motion + aCompCor), no FD/DVARS
-# volume censoring. Since event_type=feedback always gets the collapsed-
-# nuisance design too (see univariate_glm.py's _variant_tag), this lands in
-# .../noscrub_collapsed-nuisance/, never overwriting the default scrubbed
+# volume censoring. Lands in .../noscrub-splitfb/ (see univariate_glm.py's
+# _variant_tag), never overwriting the default scrubbed-splitfb
 # outputs -- built specifically to isolate how much of the striatal
 # fb_correct-vs-wrong difference from the original manuscript is attributable
 # to scrubbing, versus everything else (fmriprep version, T1w space, etc.).
