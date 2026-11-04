@@ -106,6 +106,38 @@ def baseline_tests(df, by_stage=False):
     return out
 
 
+def group_difference_tests(df, contrasts=('sound', 'resp', 'fbcorrect'), by_stage=False,
+                           groups=GROUPS, n_perms=10000, seed=0):
+    ''' learners - natives per contrast x network x region (x stage):
+    Welch t, Cohen's d (pooled SD), group-label permutation p. Stages are
+    averaged per participant first unless by_stage. FDR across regions
+    within each contrast x network (x stage), as in baseline_tests.
+    fbcorrectvswrong is left out by default -- natives mostly lack it. '''
+    rng = np.random.default_rng(seed)
+    bilat = bilateral_mean(df)
+    bilat = bilat[bilat.contrast.isin(contrasts)]
+    unit = ['network', 'contrast', 'region'] + (['learning_stage'] if by_stage else [])
+    per_subject = bilat.groupby(unit + ['participant_id', 'participant_group'], as_index=False)['beta'].mean()
+
+    rows = []
+    for key, grp in per_subject.groupby(unit):
+        a = grp.loc[grp.participant_group == groups[0], 'beta'].values
+        b = grp.loc[grp.participant_group == groups[1], 'beta'].values
+        if len(a) < 2 or len(b) < 2:
+            continue
+        t, p = stats.ttest_ind(a, b, equal_var=False)
+        pooled_sd = np.sqrt(((len(a) - 1) * a.var(ddof=1) + (len(b) - 1) * b.var(ddof=1)) / (len(a) + len(b) - 2))
+        perm = group_label_permutation_test(a, b, n_perms=n_perms, rng=rng) if n_perms else {'p_value': np.nan}
+        rows.append(dict(zip(unit, key), n_a=len(a), n_b=len(b), mean_a=a.mean(), mean_b=b.mean(),
+                         difference=a.mean() - b.mean(), t=t, p=p, d=(a.mean() - b.mean()) / pooled_sd,
+                         permutation_p=perm['p_value']))
+    out = pd.DataFrame(rows).rename(columns={'n_a': f'n_{groups[0]}', 'n_b': f'n_{groups[1]}',
+                                             'mean_a': f'mean_{groups[0]}', 'mean_b': f'mean_{groups[1]}'})
+    family = [c for c in unit if c != 'region']
+    out['q'] = out.groupby(family)['p'].transform(fdr)
+    return out
+
+
 def subject_trends(df):
     ''' per-subject linear learning-stage trend (weights [-1, 0, 1] across
     early/middle/final) per contrast x network x region, hemispheres
