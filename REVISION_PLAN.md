@@ -104,6 +104,14 @@ Cluster access obtained — fMRIPrep, atlas warping, and the univariate GLM have
 
 31. **Decided (2026-11-04): `resp` stays in the first-level model as a nuisance regressor, but no `resp` results are reported.** The response follows the sound by <1 s, too close to separate at TR=3 s; for group comparisons, response-time differences between groups would also confound it. `extract_roi_values.py` still extracts it (harmless), but `group_stats.CONTRASTS` and the two-group notebook no longer load or test it. Before this change the two-group run had found a `resp` NAc-shell group effect (q=.008), which is not reported for these reasons. `group_level_all_ROI.ipynb` never reported `resp`.
 
+32. **Both notebooks rerun on `scrubbed-splitfb` (2026-11-04).**
+    - Section 1b of the two-group notebook now passes: the max difference is 0.0 for every network × contrast.
+    - Headline unchanged: the exported trends are identical to the 4th decimal, and aCAU t=−3.30 / aCAU−aPUT t=−2.90 reproduce.
+    - **Table 5 discrepancy (#21) resolved by the single model:** left PP sound is t=3.14, q=.012 (was t=0.79, n.s. under the old `scrubbed` sound model). Left ParsOp is q=.048 (was .053). Other auditory ROIs are similar to before.
+    - The striatal sound baseline tests went up, e.g. aCAU t=4.54 (was 3.32) and pCAU now nominally significant. **These numbers were inflated: see below.**
+
+33. **Bug fixed in `group_level_all_ROI.ipynb` (2026-11-04): pseudoreplicated one-sample t-tests.** Ten cells (91, 147, 155, 198, 206, 243, 294, 300, 344, 352) tested each region on the per-participant × stage (or × hemisphere, or × region) rows without averaging within participant first. That gave n=36 (or 24) per test while exporting df=11, so the p-values were too small; the p-values in cells 91, 147, 198, 243 and 300 imply df≈35 or 23. The fix averages within participant first, so n=12. Per-hemisphere (Table 5) and per-stage (Table 8) tests were already correct; only the tests that collapse stage, hemisphere or region were affected. Any manuscript numbers taken from the "collapse over stage / hemisphere" tables (striatal sound by region, cortical sound by region, feedback by region across stages, PFC by stage) must be re-taken from the rerun. **To do:** rerun the notebook; check which manuscript values change.
+
 ## Workstreams (in priority order)
 
 ### 0. Obtain subject-specific behavioral modeling results (blocking; code assumed unavailable)
