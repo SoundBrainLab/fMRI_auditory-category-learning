@@ -29,7 +29,9 @@ values here reproduce that script's.
 
 GROUPS = ('non-Mandarin', 'Mandarin')
 NETWORKS = ('tian-S2', 'auditory', 'pfc')
-CONTRASTS = ('sound', 'resp', 'fbcorrectvswrong', 'fbcorrect')
+# resp stays in the first-level model as a nuisance regressor but isn't
+# reported: it follows the sound by <1 s, too close to separate at TR=3 s
+CONTRASTS = ('sound', 'fbcorrectvswrong', 'fbcorrect')
 
 # the auditory and PFC networks both draw these two labels from the same
 # atlas region; keep the auditory copy so each region is tested once
@@ -106,7 +108,7 @@ def baseline_tests(df, by_stage=False):
     return out
 
 
-def group_difference_tests(df, contrasts=('sound', 'resp', 'fbcorrect'), by_stage=False,
+def group_difference_tests(df, contrasts=('sound', 'fbcorrect'), by_stage=False,
                            groups=GROUPS, n_perms=10000, seed=0):
     ''' learners - natives per contrast x network x region (x stage):
     Welch t, Cohen's d (pooled SD), group-label permutation p. Stages are
