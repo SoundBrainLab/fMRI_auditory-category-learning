@@ -110,7 +110,23 @@ Cluster access obtained — fMRIPrep, atlas warping, and the univariate GLM have
     - **Table 5 discrepancy (#21) resolved by the single model:** left PP sound is t=3.14, q=.012 (was t=0.79, n.s. under the old `scrubbed` sound model). Left ParsOp is q=.048 (was .053). Other auditory ROIs are similar to before.
     - The striatal sound baseline tests went up, e.g. aCAU t=4.54 (was 3.32) and pCAU now nominally significant. **These numbers were inflated: see below.**
 
-33. **Bug fixed in `group_level_all_ROI.ipynb` (2026-11-04): pseudoreplicated one-sample t-tests.** Ten cells (91, 147, 155, 198, 206, 243, 294, 300, 344, 352) tested each region on the per-participant × stage (or × hemisphere, or × region) rows without averaging within participant first. That gave n=36 (or 24) per test while exporting df=11, so the p-values were too small; the p-values in cells 91, 147, 198, 243 and 300 imply df≈35 or 23. The fix averages within participant first, so n=12. Per-hemisphere (Table 5) and per-stage (Table 8) tests were already correct; only the tests that collapse stage, hemisphere or region were affected. Any manuscript numbers taken from the "collapse over stage / hemisphere" tables (striatal sound by region, cortical sound by region, feedback by region across stages, PFC by stage) must be re-taken from the rerun. **To do:** rerun the notebook; check which manuscript values change.
+33. **Bug fixed in `group_level_all_ROI.ipynb` (2026-11-04): pseudoreplicated one-sample t-tests.** Ten cells (91, 147, 155, 198, 206, 243, 294, 300, 344, 352) tested each region on the per-participant × stage (or × hemisphere, or × region) rows without averaging within participant first. That gave n=36 (or 24) per test while exporting df=11, so the p-values were too small; the p-values in cells 91, 147, 198, 243 and 300 imply df≈35 or 23. The fix averages within participant first, so n=12. Per-hemisphere (Table 5) and per-stage (Table 8) tests were already correct; only the tests that collapse stage, hemisphere or region were affected. Any manuscript numbers taken from the "collapse over stage / hemisphere" tables (striatal sound by region, cortical sound by region, feedback by region across stages, PFC by stage) must be re-taken from the rerun. **Rerun done (2026-11-04, commit 2bf49c3)**; only the fixed cells changed. Results that changed significance:
+    - Striatal sound, stages collapsed: pCAU (t=1.67, q=.147) and pPUT (t=1.83, q=.141) are no longer significant. NAc-core, aCAU and aPUT hold.
+    - Auditory sound, hemispheres collapsed: ParsOp is no longer significant (t=2.13, q=.066); the others hold.
+    - PFC sound, hemispheres collapsed: IFGo (q=.103) and PCG (q=.156) are no longer significant; FMC, FO, FP, OFC and PreCG hold.
+    - Striatal feedback, stages collapsed: aPUT holds but is close to the threshold (t=3.21, q=.049).
+    - Auditory feedback, stages collapsed: STGp is now significant (t=3.84, q=.019; was q=.085). t can go *up* when averaging removes within-participant noise.
+    - PFC feedback by stage (cell 352): early and final are no longer significant (q=.176 and .132).
+    - The two-group notebook reran with `resp` removed and no errors; section 1b is still 0.0 everywhere.
+    **To do:** update any manuscript text or tables that cite these collapsed tests.
+
+34. **`group_level_all_ROI.ipynb` reads `extract_roi_values.py` output and runs for either group (2026-11-11).**
+    - The six "ONLY RUN ONCE" masking cells (40, 109, 160, 211, 268, 308) now load this group's rows from `roi-values_scrubbed-splitfb/` and write the same `univariate-results_*.tsv` tables. `mask_stat_maps`, `make_stats_df` (with its always-true `or 'pfc'` bug) and the stat-map lookups are gone. Cell numbering is unchanged.
+    - `analysis_group` in the setup cell picks the group. `'non-Mandarin'` (default) keeps every output name as before. `'Mandarin'` adds `_group-Mandarin` to the ROI tables and the trend export, and writes to `stats_tables_group-Mandarin/` and `figures/group-Mandarin/`. Natives' feedback contrast (`contrast_list[2]`) is `fbcorrect`.
+    - The stray resets of `stats_out_dir`/`fig_out_dir` in cells 63, 181, 230 and 329 are removed, as are the hard-coded df=11 and n=12 in cells 363–366 and 368.
+    - Tested end to end on fake tables for both groups. The only failures were the fake environment (no masks, no `yabplot`) and cells 141/240, which get an empty post hoc table when no comparison reaches p<.05 (random data).
+    - Section 1b of the two-group notebook is now only a consistency check, since both notebooks read the same tables.
+    - **Run order now:** first-level GLMs → `run_extract_roi_values.sh` → notebook (learners) → notebook with `analysis_group = 'Mandarin'`.
 
 ## Workstreams (in priority order)
 
