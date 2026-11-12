@@ -140,6 +140,47 @@ def group_difference_tests(df, contrasts=('sound', 'fbcorrect'), by_stage=False,
     return out
 
 
+def laterality_tests(df, contrasts=('sound', 'fbcorrect'), groups=GROUPS, n_perms=10000, seed=0):
+    ''' group x hemisphere: per participant left - right (stages averaged)
+    per contrast x network x region, plus 'all regions' (the regions'
+    mean, the hemisphere main effect of group_level_all_ROI.ipynb's
+    AnovaRM: its t^2 is that F). Within each group, laterality vs 0;
+    between groups, Welch t, Cohen's d and a group-label permutation p --
+    with two hemispheres this is the group x hemisphere interaction. FDR
+    across regions within each contrast x network; the 'all regions' row
+    is one planned test per network, so it isn't in that family. '''
+    rng = np.random.default_rng(seed)
+    sub = df[df.contrast.isin(contrasts)].assign(
+        hemisphere=lambda d: np.where(d.hemisphere.isin(['L', 'lh']), 'left', 'right'))
+    keys = ['network', 'contrast', 'participant_id', 'participant_group', 'region']
+    wide = sub.pivot_table(index=keys, columns='hemisphere', values='beta', aggfunc='mean').dropna()
+    lat = (wide['left'] - wide['right']).rename('laterality').reset_index()
+    all_regions = (lat.groupby(['network', 'contrast', 'participant_id', 'participant_group'], as_index=False)
+                   ['laterality'].mean().assign(region='all regions'))
+    lat = pd.concat([lat, all_regions], ignore_index=True)
+
+    rows = []
+    for (network, contrast, region), grp in lat.groupby(['network', 'contrast', 'region']):
+        a = grp.loc[grp.participant_group == groups[0], 'laterality'].values
+        b = grp.loc[grp.participant_group == groups[1], 'laterality'].values
+        if len(a) < 2 or len(b) < 2:
+            continue
+        row = {'network': network, 'contrast': contrast, 'region': region}
+        for g, values in zip(groups, (a, b)):
+            t, p = stats.ttest_1samp(values, 0)
+            row.update({f'n_{g}': len(values), f'mean_{g}': values.mean(), f't_{g}': t, f'p_{g}': p})
+        t, p = stats.ttest_ind(a, b, equal_var=False)
+        pooled_sd = np.sqrt(((len(a) - 1) * a.var(ddof=1) + (len(b) - 1) * b.var(ddof=1)) / (len(a) + len(b) - 2))
+        perm = group_label_permutation_test(a, b, n_perms=n_perms, rng=rng) if n_perms else {'p_value': np.nan}
+        row.update(difference=a.mean() - b.mean(), t=t, p=p, d=(a.mean() - b.mean()) / pooled_sd,
+                   permutation_p=perm['p_value'])
+        rows.append(row)
+    out = pd.DataFrame(rows)
+    per_region = out.region != 'all regions'
+    out.loc[per_region, 'q'] = out[per_region].groupby(['network', 'contrast'])['p'].transform(fdr)
+    return out
+
+
 def subject_trends(df):
     ''' per-subject linear learning-stage trend (weights [-1, 0, 1] across
     early/middle/final) per contrast x network x region, hemispheres

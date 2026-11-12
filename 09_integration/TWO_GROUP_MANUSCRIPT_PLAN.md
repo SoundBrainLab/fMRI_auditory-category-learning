@@ -1,7 +1,8 @@
 # Two-group FLT manuscript plan: learners (non-Mandarin) vs native listeners (Mandarin)
 
 *Drafted 2026-10-30; updated 2026-11-04 with the first two-group striatal and cortical ROI results
-(REVISION_PLAN.md #28–#33). Alternative to `MANUSCRIPT_INTEGRATION_PLAN.md` (non-Mandarin only).
+(REVISION_PLAN.md #28–#33), and 2026-11-11 with the full within-group analysis for each group
+(§0c; REVISION_PLAN #34–#35). Alternative to `MANUSCRIPT_INTEGRATION_PLAN.md` (non-Mandarin only).
 Reuses its repo map, the FLT2/FST1 status notes and the integrity checks (§1b–1e there), which
 apply unchanged.*
 
@@ -100,6 +101,38 @@ will move on rerun). Strength: ● supports the claim · ◐ suggestive / indire
   the first half. The framing decision at Phase 1 step 8 has to be made on this basis (§6).
 - **The strongest group difference overall is still cortical:** PR topography (FLT2).
 
+## 0c. Within-group results (2026-11-11)
+
+From `group_level_all_ROI.ipynb` run separately for each group (learners: commit `2bf49c3`, values
+unchanged by the refactor; natives: `0e616aa`, `analysis_group = 'Mandarin'`). One value per
+participant throughout; q = FDR across regions within the table. **Feedback rows compare
+different contrasts:** learners `fbcorrectvswrong`, natives `fbcorrect`. Learners' `fbcorrect` is
+in the two-group notebook (section 2).
+
+| | Learners (n=12) | Natives (n=13) | Reading |
+|---|---|---|---|
+| **Sound, striatum** (stages averaged) | aPUT 6.96, NAc-core 3.93, aCAU 3.54 (q<.01); pCAU, pPUT, NAc-shell n.s. | aPUT 7.05, pPUT 3.62, NAc-shell 2.86, NAc-core 2.62 (q<.05); **aCAU 1.02, pCAU −0.02 n.s.** | aPUT/NAc-core shared. aCAU sound response only in learners; pPUT/NAc-shell only in natives. None of these is a significant *group difference* (two-group 5b) |
+| **Sound, striatum, hemisphere** | no hemisphere effect (F=0.42, p=.53) | hemisphere effect (F(1,12)=6.87, p=.022) and hemisphere × axis (p=.040); left t-values larger (aPUT-lh 9.06 vs rh 4.96; pPUT-lh 4.05 vs rh 2.38) | Possible left-weighted striatal sound response in natives only. Not yet tested as group × hemisphere |
+| **Sound, striatum, stage** | pPUT declines: early vs final t=3.52, q=.029 (early t=3.06 vs baseline, then ~0.7) | pPUT sustained: early vs final t=1.03, p=.32 (early 4.31, middle 2.39, final 1.95) | **Candidate learner-specific sound decline in pPUT.** Needs the group test on the sound trend (not yet run). No striatal stage main effect in either group |
+| **Sound, auditory cortex** | HG, PP, PT, STGa, STGp q<.001; ParsOp q=.066 | Same regions, larger t (PT 10.2, STGp 9.47); ParsOp q=.020; **left PP t=3.96, q=.003** | Shared; stronger in natives (STGp group difference, two-group 5b). Table 5's left PP replicates in natives |
+| **Sound, PFC** | Below baseline: FP −6.64, OFC −4.39, FMC −3.10 (q<.03); PreCG, FO positive | FP −2.97 (q=.043) only; **OFC −0.54, FMC +2.35 (q=.080)**; PreCG, FO, IFGo positive | Sound-evoked medial/orbitofrontal deactivation is **learner-specific** (FMC group difference q=.013; OFC q=.060). PFC hemisphere effect in learners only (F=11.96, p=.005) |
+| **Feedback, striatum** | `fbcorrectvswrong`: aCAU decline (final − early t=−3.30, q=.043); aPUT positive (3.21, q=.049) | `fbcorrect`: aPUT positive (4.23, q=.007); **no stage change in any region** (all early-vs-final q=.90; stage F=0.17) | Natives' correct-feedback response is flat across the session |
+| **Feedback, auditory cortex** | `fbcorrectvswrong`: STGp positive (3.84, q=.019) | `fbcorrect`: below baseline, strongest early (PT early t=−4.23, q=.025; HG/PP/PT stage-averaged q≈.09) | Learners' `fbcorrect` is also below baseline here (HG t=−6.15, two-group section 2): auditory cortex dips after correct feedback in both groups |
+| **Feedback, PFC** | nothing survives | nothing survives | -- |
+| **Sound vs feedback** (Compare contrasts) | sound > feedback in aCAU, aPUT, NAc-core and most cortex | sound > feedback in aPUT, pPUT, NAc-core, NAc-shell; **not aCAU** (F=1.50, p=.25); HG event × stage p=.040 | Mirrors the sound results above |
+| **Brain–behavior** (uncorrected) | `fbcorrectvswrong` early: aCAU r=−.75, pCAU r=−.78 with accuracy | few, scattered (accuracy at ceiling) | Exploratory; natives' ceiling makes their correlations uninformative (§5 Risks) |
+
+**What this adds to §0b**
+- The clearest *new* learner-specific candidates are both in the `sound` contrast: pPUT's sound
+  response declines with learning in learners but stays up in natives, and learners (not natives)
+  show sound-evoked medial/orbitofrontal deactivation.
+- Natives show no stage-related change in any striatal response, sound or feedback. That fits
+  "learning-related change is learner-specific", but it's absence of evidence until tested as
+  group × stage (TOST or Bayes factor, §1 Power).
+- FLT15 (natives' trend export): aCAU−aPUT `fbcorrect` trend −0.61, opposite to the native mean
+  (+0.27). Excluding them would widen the planned group difference; another reason to settle
+  §1 before freezing numbers.
+
 ## 1. Sample
 
 | Group | Behavior | Imaging | Notes |
@@ -149,7 +182,11 @@ This paper uses only this study's own fMRI and behavioral data.*
   pPUT is significant in natives only, and pCAU in neither once tests use one value per
   participant (REVISION_PLAN #33).
 - Still to do: TOST for the "present in both groups" claims; the `[-1,0,1]` sound trend × group
-  test (only the ANOVA has been run for sound).
+  test (only the ANOVA has been run for sound). **Priority: pPUT** -- learners' sound response
+  declines (early vs final q=.029) while natives' doesn't (§0c). Use
+  `gs.trend_group_difference(trends, 'sound', 'pPUT')` in the two-group notebook.
+- Also to do: group × hemisphere for striatal sound (natives show a hemisphere effect, learners
+  don't; §0c). `group_stats` averages hemispheres, so this needs a `by_hemisphere` option.
 
 ### R3. Striatal feedback -- needs a new contrast
 **Constraint:** natives get ~1 wrong-feedback trial per run (~2 per stage), so
@@ -187,10 +224,14 @@ This paper uses only this study's own fMRI and behavioral data.*
    differential trend, absent for aCAU alone.
 Options 1 and 2 combine naturally.
 
-### R4. Cortical and PFC ROI networks -- run 2026-11-04
-Done in `group_level_two_group.ipynb` rather than by adding group to `group_level_all_ROI.ipynb`
-(that notebook stays learners-only for the existing tables). IFGo/IFGt are dropped as duplicates
-of ParsOp/ParsTri.
+### R4. Cortical and PFC ROI networks -- run 2026-11-04; per-group 2026-11-11
+Between-group tests are in `group_level_two_group.ipynb` (IFGo/IFGt dropped as duplicates of
+ParsOp/ParsTri). Since 2026-11-11, `group_level_all_ROI.ipynb` also runs the full per-group
+analysis (ANOVAs, post hocs, Table 5/8-style tables, brain plots) for either group via
+`analysis_group`; within-group results are in §0c.
+- PFC sound: learners' FMC/OFC/FP deactivation is mostly absent in natives (§0c). Worth framing
+  as a learner-specific frontal response to the sounds, with FMC as the FDR-surviving group
+  difference.
 - Per-ROI group differences (section 5b; stage-averaged and per stage): `sound` FMC and STGp
   survive FDR (§0b); OFC `sound` is close (q=.060). Nothing survives per stage.
 - Group × stage ANOVA: only FMC `sound` (group main effect) survives FDR.
@@ -278,6 +319,10 @@ category test. If kept, port the outlier/NaN-masking fix from
 
 **Phase 2 -- full analyses**
 9. ~~R3 robustness with group~~ (done, `group_stats.py`); equivalence tests still to do.
+9b. Sound trend group tests (pPUT first) and group × hemisphere for striatal sound (§0c, R2).
+9c. Natives' `group_level_all_ROI` outputs: keep a saved copy of the executed notebook per group
+    (the file holds only the last run's outputs), and set `analysis_group` back to
+    `'non-Mandarin'` in the committed version.
 10. ~~R4 networks with group.~~ Done 2026-11-04 (R4).
 11. R6 FST1: masking + PR for all, trial-matched tonecat PR, tuning port and stats fix.
 12. R7 integration.
