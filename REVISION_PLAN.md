@@ -144,9 +144,10 @@ Cluster access obtained — fMRIPrep, atlas warping, and the univariate GLM have
     - Exploratory: learners' PFC sound response is left-weighted (t=3.27; group p=.088); STGa `fbcorrect` laterality differs between groups (p=.013, q=.093). Nothing survives FDR.
     - Learner rerun reproduced the tables again (section 1b max diff 4e-16); all other two-group results unchanged.
 
-37. **Equivalence tests (TOST) added, not yet run (2026-11-12).**
+37. **Equivalence tests (TOST) added and run (2026-11-12).**
     - `group_stats.tost` (one-sample or Welch; 90% CI, smallest bound reached, JZS BF01) and `equivalence_tests` (per region, FDR within claim). Checked against `pingouin.tost`.
     - `group_level_two_group.ipynb` section 5d: four striatal claims, bounds set by rule from learner effects (`TWO_GROUP_MANUSCRIPT_PLAN.md` R2). Output `stats_two-group/equivalence_tests.tsv`.
+    - Results: only natives' `fbcorrect` trend in aCAU and NAc-core is equivalent to 0 (q=.024, BF01≈3.5), with caveats on the bound. Sound-level similarity, natives' sound stability and the pPUT group comparison are inconclusive. Details in `TWO_GROUP_MANUSCRIPT_PLAN.md` R2.
 
 ## Workstreams (in priority order)
 

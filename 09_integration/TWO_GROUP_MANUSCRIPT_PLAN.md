@@ -203,6 +203,20 @@ This paper uses only this study's own fMRI and behavioral data.*
   would pass) and BF01. With 12 vs 13 expect equivalence only at large bounds (≈ d 1.2
   two-sample, 0.85 one-sample); an inconclusive TOST is worded "we can't rule out a difference
   smaller than `bound_reached`".
+- **TOST results (2026-11-12):**
+  - Sound level: no region equivalent at ±0.66. `bound_reached` 1.26 (aPUT) to 2.87 (pCAU); BF01
+    1.4–2.6. "Present in both groups" can only mean "significant within each group"; don't
+    write "similar".
+  - Natives' feedback change: **equivalent in aCAU** (trend 0.07, 90% CI [−0.26, 0.40], q=.024,
+    BF01=3.4) and NAc-core (q=.024, BF01=3.6); the other four just miss (q=.084, `bound_reached`
+    0.64–0.67 vs 0.59). Natives' aCAU `fbcorrect` change is smaller than the learners' headline
+    effect. **Caveat:** the bound comes from learners' `fbcorrectvswrong` (0.59), but learners'
+    own `fbcorrect` aCAU trend is only −0.33, inside natives' `bound_reached` (0.40). So this
+    shows natives lack a change of the headline's size, not that they differ from learners on
+    the same contrast (that's the planned test, p=.13). Don't re-pick the bound after the fact.
+  - Natives' sound change: none equivalent at ±1.41 (`bound_reached` 1.38–2.30; BF01 2.0–3.4).
+  - pPUT sound decline, learners − natives: inconclusive (`bound_reached` 2.08, BF01=2.1).
+    The pPUT result is neither learner-specific nor shown to be shared.
 - Done 2026-11-12 (two-group 4b): pPUT sound trend × group. Learners decline (t=−3.52), natives
   don't significantly (t=−1.03), but the groups don't differ (t=−0.88, p=.39). Report as a
   within-learner effect, not a learner-specific one; secondary (chosen after the §0c results).
