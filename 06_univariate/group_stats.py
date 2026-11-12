@@ -181,6 +181,62 @@ def laterality_tests(df, contrasts=('sound', 'fbcorrect'), groups=GROUPS, n_perm
     return out
 
 
+def subject_means(df):
+    ''' one value per participant x contrast x network x region: hemispheres
+    and stages averaged, as group_difference_tests uses '''
+    return (bilateral_mean(df)
+            .groupby(['network', 'contrast', 'participant_id', 'participant_group', 'region'], as_index=False)
+            ['beta'].mean())
+
+
+def tost(a, b=None, bound=1.0):
+    ''' two one-sided tests: is the mean of a (one-sample) or the difference
+    a - b (Welch, as in group_difference_tests) inside +/- bound, in the
+    data's own units? p_tost is the larger one-sided p; equivalence at
+    alpha=.05 means the 90% CI lies inside the bound. Also returns the
+    smallest bound equivalence would pass at (the 90% CI's widest edge) and
+    a JZS Bayes factor for "no difference" (BF01, default prior; Student t
+    for the two-sample case, since that's what the BF is defined on). '''
+    a = np.asarray(a, dtype=float)
+    if b is None:
+        estimate, se, dof = a.mean(), a.std(ddof=1) / np.sqrt(len(a)), len(a) - 1
+        bf10 = pg.bayesfactor_ttest(stats.ttest_1samp(a, 0).statistic, len(a))
+    else:
+        b = np.asarray(b, dtype=float)
+        va, vb = a.var(ddof=1) / len(a), b.var(ddof=1) / len(b)
+        estimate, se = a.mean() - b.mean(), np.sqrt(va + vb)
+        dof = (va + vb) ** 2 / (va ** 2 / (len(a) - 1) + vb ** 2 / (len(b) - 1))
+        bf10 = pg.bayesfactor_ttest(stats.ttest_ind(a, b).statistic, len(a), len(b))
+    p_lower = stats.t.sf((estimate + bound) / se, dof)    # H0: mean <= -bound
+    p_upper = stats.t.cdf((estimate - bound) / se, dof)   # H0: mean >= +bound
+    half_width = stats.t.ppf(.95, dof) * se
+    return {'estimate': estimate, 'bound': bound, 'df': dof, 'p_tost': max(p_lower, p_upper),
+            'ci90_lower': estimate - half_width, 'ci90_upper': estimate + half_width,
+            'bound_reached': abs(estimate) + half_width, 'BF01': 1 / float(bf10)}
+
+
+def equivalence_tests(data, value, bounds, claim, one_group=None, groups=GROUPS):
+    ''' TOST per region of data[value] (subject_means' 'beta' or
+    subject_trends' 'trend'). bounds: {region: bound}, raw units, fixed in
+    TWO_GROUP_MANUSCRIPT_PLAN.md before running. With one_group, a
+    one-sample test on that group; otherwise learners - natives. FDR on
+    p_tost across the claim's regions. '''
+    rows = []
+    for region, bound in bounds.items():
+        sub = data[data.region == region]
+        if one_group:
+            result = tost(sub.loc[sub.participant_group == one_group, value], bound=bound)
+        else:
+            result = tost(sub.loc[sub.participant_group == groups[0], value],
+                          sub.loc[sub.participant_group == groups[1], value], bound=bound)
+        rows.append({'claim': claim, 'region': region,
+                     'test': f'{one_group} vs 0' if one_group else f'{groups[0]} - {groups[1]}', **result})
+    out = pd.DataFrame(rows)
+    out['q_tost'] = fdr(out['p_tost'])
+    out['equivalent'] = out['q_tost'] < .05
+    return out
+
+
 def subject_trends(df):
     ''' per-subject linear learning-stage trend (weights [-1, 0, 1] across
     early/middle/final) per contrast x network x region, hemispheres

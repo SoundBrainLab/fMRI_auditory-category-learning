@@ -135,7 +135,18 @@ Cluster access obtained — fMRIPrep, atlas warping, and the univariate GLM have
       - pPUT sound declines across stages in learners (early vs final t=3.52, q=.029) but not natives (t=1.03).
       - Learners show sound-evoked FMC/OFC/FP deactivation that natives mostly lack.
     - Natives show no stage-related change in any striatal response, and a left-weighted striatal sound response (hemisphere F=6.87, p=.022) that learners don't.
-    - **Housekeeping:** the committed notebook has `analysis_group = 'Mandarin'` and holds only the natives' outputs. Set it back to `'non-Mandarin'`, and keep an executed copy per group (e.g. save as `group_level_all_ROI_group-Mandarin.ipynb` after the native run) so both sets of outputs are reviewable.
+    - **Housekeeping:** the committed notebook has `analysis_group = 'Mandarin'` and holds only the natives' outputs. Set it back to `'non-Mandarin'`, and keep an executed copy per group (e.g. save as `group_level_all_ROI_group-Mandarin.ipynb` after the native run) so both sets of outputs are reviewable. *Done 2026-11-12: learners in `group_level_all_ROI.ipynb`, natives in `group-Mand_ROI.ipynb`.*
+
+36. **pPUT sound trend and group × hemisphere tests (2026-11-12, commit `073fb77`).**
+    - New in `group_level_two_group.ipynb`: section 4b (`gs.trend_group_difference(trends, 'sound', 'pPUT')`) and section 5c (`gs.laterality_tests`: left − right per participant, stages averaged; the group difference is the group × hemisphere interaction).
+    - pPUT sound trend: learners −1.41 (t=−3.52, p=.005, LOSO 12/12); natives −0.71 (t=−1.03, p=.32); difference t=−0.88, p=.39. **Not learner-specific.**
+    - Striatal sound laterality: natives t=2.62 (t²=6.87 reproduces the `group_level_all_ROI` hemisphere F), learners t=0.65; group p=.22. **Not a group difference.**
+    - Exploratory: learners' PFC sound response is left-weighted (t=3.27; group p=.088); STGa `fbcorrect` laterality differs between groups (p=.013, q=.093). Nothing survives FDR.
+    - Learner rerun reproduced the tables again (section 1b max diff 4e-16); all other two-group results unchanged.
+
+37. **Equivalence tests (TOST) added, not yet run (2026-11-12).**
+    - `group_stats.tost` (one-sample or Welch; 90% CI, smallest bound reached, JZS BF01) and `equivalence_tests` (per region, FDR within claim). Checked against `pingouin.tost`.
+    - `group_level_two_group.ipynb` section 5d: four striatal claims, bounds set by rule from learner effects (`TWO_GROUP_MANUSCRIPT_PLAN.md` R2). Output `stats_two-group/equivalence_tests.tsv`.
 
 ## Workstreams (in priority order)
 
