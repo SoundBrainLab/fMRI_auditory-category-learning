@@ -65,7 +65,9 @@ for sub_id in participant_list:
 
         simple_df['correct_key'] = simple_df['correct_key'].astype(int).astype(str)
 
-        simple_df['trial_type'] = [x[-1] for x in simple_df['trial_type']]
+        # key pressed: 'resp_6' -> '6'. FLT15's events store keys as floats
+        # ('resp_6.0'), so taking the last character scored them all wrong
+        simple_df['trial_type'] = [x.split('_', 1)[1].removesuffix('.0') for x in simple_df['trial_type']]
 
         renum_simple_df = simple_df.astype(str).replace(['7', '6', '1', '2'], 
                                                         ['1', '2', '3', '4'])
@@ -97,7 +99,7 @@ for sub_id in participant_list:
 
         stim_df.dropna(inplace=True)
 
-        stim_df['trial_type'] = [x[-1] for x in stim_df['trial_type']]
+        stim_df['trial_type'] = [x.split('_', 1)[1].removesuffix('.0') for x in stim_df['trial_type']]
 
         stim_df['trial_type'] = stim_df['trial_type'].astype(str).replace(['7', '6', '1', '2'], 
                                                                           ['1', '2', '3', '4'])
