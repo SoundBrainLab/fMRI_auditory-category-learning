@@ -128,6 +128,15 @@ Cluster access obtained — fMRIPrep, atlas warping, and the univariate GLM have
     - Section 1b of the two-group notebook is now only a consistency check, since both notebooks read the same tables.
     - **Run order now:** first-level GLMs → `run_extract_roi_values.sh` → notebook (learners) → notebook with `analysis_group = 'Mandarin'`.
 
+35. **Both groups run through `group_level_all_ROI.ipynb` (2026-11-11, commit `0e616aa`).**
+    - Learners: the rerun reproduced the tables exactly (two-group section 1b max diff 4e-16). The manuscript numbers in #32/#33 stand.
+    - Natives: full results summarized in `09_integration/TWO_GROUP_MANUSCRIPT_PLAN.md` §0c.
+    - Two new learner-specific candidates, both in `sound`:
+      - pPUT sound declines across stages in learners (early vs final t=3.52, q=.029) but not natives (t=1.03).
+      - Learners show sound-evoked FMC/OFC/FP deactivation that natives mostly lack.
+    - Natives show no stage-related change in any striatal response, and a left-weighted striatal sound response (hemisphere F=6.87, p=.022) that learners don't.
+    - **Housekeeping:** the committed notebook has `analysis_group = 'Mandarin'` and holds only the natives' outputs. Set it back to `'non-Mandarin'`, and keep an executed copy per group (e.g. save as `group_level_all_ROI_group-Mandarin.ipynb` after the native run) so both sets of outputs are reviewable.
+
 ## Workstreams (in priority order)
 
 ### 0. Obtain subject-specific behavioral modeling results (blocking; code assumed unavailable)
