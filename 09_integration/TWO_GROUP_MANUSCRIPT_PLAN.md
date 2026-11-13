@@ -70,7 +70,7 @@ will move on rerun). Strength: ● supports the claim · ◐ suggestive / indire
 
 | Claim | Current evidence | Prov. / n | Strength | Missing |
 |---|---|---|---|---|
-| Only learners learn | Accuracy run 1→6: learners .38→.82 (t=6.67, p<.001); natives .95→.98 (t=1.88, p=.087). **Old numbers** (old behavior summary, natives n=12 without FLT15, raw accuracy); recompute with `04_behavior/two_group_accuracy.py` (n=12/13, group × run ANOVA) | behavior, 12/13 | ● | Replace with the script's output (R1) |
+| Learners learn; natives are at ceiling | Accuracy run 1→6 (`two_group_accuracy.py`, 2026-11-13): learners .38→.82 (t(11)=6.68, p<.001); natives .945→.984 (t(12)=2.29, p=.041, nearly all run 1→2, then flat ≈.98: task familiarisation). **Group × run** F(5,115)=19.06, p<.001, ηp²=.45; group F(1,23)=38.9; run F=25.9, p_GG=.0001 | behavior, 12/13 | ● | Rest the claim on the interaction, not on "natives don't change". GG correction not reported for the interaction (pingouin); F is large enough not to matter |
 | Medial frontal cortex responds differently to sound | FMC sound: learners below baseline (−0.35), natives above (+0.40); d=−1.44, q=.013, holds without FLT15 (q=.025); also the only group main effect surviving FDR in the group × stage ANOVA (F=13.0, q=.033) | new, 12/13 | ● (strongest striatal/frontal ROI group difference) | Not predicted -- interpret cautiously; check it isn't driven by `resp` timing (RT differs by group) |
 | Cortical PR topography differs | Group × ROI F(13,247)=5.63, p<.001. Learners higher PR in right auditory cortex (R-STGa p_FDR=.017, d=1.65; R-HG/R-STGp p_FDR=.055); natives higher in L-ParsOp (p_FDR=.055) | new, 11/10 | ● (strongest new-pipeline group result) | Complete sample (FLT02 etc.); FST1 baseline to say whether it's experience or trait |
 | Primary vs association hierarchy reverses by group | Learners Primary > Association at middle/final (p=.04/.02 unc.); natives reverse at middle (p=.04 unc.); all p_FDR=.08. Primary-level group difference largest at middle stage (t=-3.38, p_FDR=.019) | new, 11/10 | ◐ | Single mixed model instead of per-stage tests |
@@ -192,7 +192,7 @@ test (TOST) or Bayes factor, not a non-significant p.
 This paper uses only this study's own fMRI and behavioral data.*
 
 ### R1. Behavior
-- Accuracy: `04_behavior/two_group_accuracy.py` (2026-11-13; not yet run) reads the corrected
+- Accuracy: `04_behavior/two_group_accuracy.py` (2026-11-13; run, results in §0b) reads the corrected
   `run_accuracies.tsv`, n=12/13 including FLT15, and writes per-run means with 95% CIs, run 6 vs
   run 1 within each group, the group × run mixed ANOVA (GG-corrected) and the two-group figure
   `04_behavior/behav_acc_two-group.{png,svg}`. Its accuracy is per-category accuracy averaged

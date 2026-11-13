@@ -158,7 +158,7 @@ Cluster access obtained — fMRIPrep, atlas warping, and the univariate GLM have
 39. **FLT15 kept; behavior rescored (2026-11-13).**
     - FLT15's "bad responses" were a scoring bug: keys stored as floats (`resp_6.0`) were read as `'0'`, so every trial scored wrong (0% accuracy). Real accuracy is .90 → 1.00. Fixed in `create_behav_confusion_matrices.py` (`f36d397`) and `behavior_analysis.ipynb`; native notebook rerun on the corrected file.
     - Their missed responses are labelled `fb_wrong`; only `fbcorrectvswrong` is affected, which natives aren't analysed on. Included in every analysis (n=12 learners, 13 natives). Details: `TWO_GROUP_MANUSCRIPT_PLAN.md` §1.
-    - New `04_behavior/two_group_accuracy.py` (not yet run): per-run accuracy for both groups, run 6 vs run 1, group × run mixed ANOVA, and the two-group figure. Replaces the old n=12/12 accuracy numbers in the plan.
+    - New `04_behavior/two_group_accuracy.py`: per-run accuracy for both groups, run 6 vs run 1, group × run mixed ANOVA, and the two-group figure `04_behavior/behav_acc_two-group.{png,svg}`. Results: learners .38→.82 (t(11)=6.68, p<.001, unchanged from before); natives .945→.984 (t(12)=2.29, p=.041; was p=.087 at n=12), almost all run 1→2; group × run F(5,115)=19.06, p<.001, ηp²=.45.
 
 ## Workstreams (in priority order)
 
