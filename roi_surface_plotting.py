@@ -154,6 +154,7 @@ def plot_roi_surface_stat(
     dpi: int = 300,
     highlight: Optional[Sequence[str]] = None,
     cbar_label: str = 'group t-statistic',
+    hemi_prefix_labels: bool = True,
 ):
     """Render per-ROI group statistics on the fsaverage surface.
 
@@ -162,7 +163,9 @@ def plot_roi_surface_stat(
     with a single shared symmetric colorbar and black ROI boundary contours.
     Each ROI's name is only labeled on the view (lateral/medial) it actually
     faces, per `_dominant_view_for_roi`. Regions in `highlight` (e.g. those
-    surviving FDR) get an asterisk on their label.
+    surviving FDR) get an asterisk on their label. hemi_prefix_labels=False
+    drops the 'L-'/'R-' from labels (each panel is already titled by
+    hemisphere), which keeps neighbouring labels like OFC/FMC from colliding.
     """
     highlight = set(highlight or ())
     surf_data = project_roi_stats_to_surface(stat_dict, mask_path_dict, fsaverage=fsaverage)
@@ -216,7 +219,8 @@ def plot_roi_surface_stat(
             if (add_labels and roi_vertices.any()
                     and _dominant_view_for_roi(data['coords_infl'], roi_vertices, hemi) == view):
                 cx, cy, cz = data['coords_infl'][roi_vertices].mean(axis=0)
-                ax.text(cx, cy, cz, region_hemi + ('*' if region_hemi in highlight else ''),
+                label = region_hemi if hemi_prefix_labels else region_hemi[2:]
+                ax.text(cx, cy, cz, label + ('*' if region_hemi in highlight else ''),
                         fontsize=7, fontweight='bold',
                         ha='center', va='center', color='black')
 

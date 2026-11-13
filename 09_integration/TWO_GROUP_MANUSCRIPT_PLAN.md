@@ -129,6 +129,14 @@ in the two-group notebook (section 2).
   candidates did not hold up as group differences (2026-11-12): pPUT's sound decline (group
   p=.39; natives decline too, just more variably) and the natives' left-weighted striatal sound
   response (group × hemisphere p=.22).
+- Per-region trend group differences (two-group 6b, `gs.trend_difference_tests`, exploratory,
+  2026-11-13): the correct-feedback (`fbcorrect`) trend differs between groups in **ParsTri**
+  (d=−1.18, q=.030), **STGa** (d=−1.15, q=.030) and **ParsOp** (d=−1.00, q=.046). Learners stay
+  flat or decline slightly (−0.13 to −0.24); natives increase (+0.47 to +0.76). Nothing survives
+  in the striatum or PFC, and no `sound` trend differs. FDR is only within the 7 auditory regions;
+  12 such families were searched. Check before interpreting: natives' auditory feedback response
+  is below baseline early (§0c), so their "increase" may be recovery from an early dip rather
+  than a learning effect.
 - Laterality elsewhere (two-group 5c, exploratory): learners' PFC sound response is left-weighted
   (t=3.27, p=.008; natives t=1.54; group p=.088), and learners' `fbcorrect` is left-weighted in
   auditory cortex and PFC (t=2.58, 2.37). Only STGa `fbcorrect` differs between groups at p<.05

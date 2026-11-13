@@ -149,6 +149,12 @@ Cluster access obtained — fMRIPrep, atlas warping, and the univariate GLM have
     - `group_level_two_group.ipynb` section 5d: four striatal claims, bounds set by rule from learner effects (`TWO_GROUP_MANUSCRIPT_PLAN.md` R2). Output `stats_two-group/equivalence_tests.tsv`.
     - Results: only natives' `fbcorrect` trend in aCAU and NAc-core is equivalent to 0 (q=.024, BF01≈3.5), with caveats on the bound. Sound-level similarity, natives' sound stability and the pPUT group comparison are inconclusive. Details in `TWO_GROUP_MANUSCRIPT_PLAN.md` R2.
 
+38. **Group-difference figures (2026-11-13, commits `d650ffd`, `1e25cbd`).**
+    - Two-group notebook section 6b: forest plot (d with 95% CI, every ROI, stage-averaged and trend), 12 ROI maps of learners − natives t (bilateral t on both hemispheres, ±4 scale, `*` = q<.05), key-results panel. Figures in `06_univariate/figures/two-group/`.
+    - Surface-map SVGs are 100–230 MB (3D mesh), which GitHub rejects; surface maps are now saved as PNG only (uncommitted fix). Striatal SVGs are fine.
+    - New exploratory result: auditory `fbcorrect` trend group differences in ParsTri, STGa and ParsOp (q=.030–.046; natives increase, learners don't). See `TWO_GROUP_MANUSCRIPT_PLAN.md` R2.
+    - The key-results cell didn't run (the run stopped after the maps).
+
 ## Workstreams (in priority order)
 
 ### 0. Obtain subject-specific behavioral modeling results (blocking; code assumed unavailable)
