@@ -155,6 +155,11 @@ Cluster access obtained — fMRIPrep, atlas warping, and the univariate GLM have
     - New exploratory result: auditory `fbcorrect` trend group differences in ParsTri, STGa and ParsOp (q=.030–.046; natives increase, learners don't). See `TWO_GROUP_MANUSCRIPT_PLAN.md` R2.
     - The key-results cell didn't run (the run stopped after the maps).
 
+39. **FLT15 kept; behavior rescored (2026-11-13).**
+    - FLT15's "bad responses" were a scoring bug: keys stored as floats (`resp_6.0`) were read as `'0'`, so every trial scored wrong (0% accuracy). Real accuracy is .90 → 1.00. Fixed in `create_behav_confusion_matrices.py` (`f36d397`) and `behavior_analysis.ipynb`; native notebook rerun on the corrected file.
+    - Their missed responses are labelled `fb_wrong`; only `fbcorrectvswrong` is affected, which natives aren't analysed on. Included in every analysis (n=12 learners, 13 natives). Details: `TWO_GROUP_MANUSCRIPT_PLAN.md` §1.
+    - New `04_behavior/two_group_accuracy.py` (not yet run): per-run accuracy for both groups, run 6 vs run 1, group × run mixed ANOVA, and the two-group figure. Replaces the old n=12/12 accuracy numbers in the plan.
+
 ## Workstreams (in priority order)
 
 ### 0. Obtain subject-specific behavioral modeling results (blocking; code assumed unavailable)

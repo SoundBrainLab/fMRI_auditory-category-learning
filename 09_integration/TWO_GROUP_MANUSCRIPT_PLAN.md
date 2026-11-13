@@ -3,7 +3,8 @@
 *Drafted 2026-10-30; updated 2026-11-04 with the first two-group striatal and cortical ROI results
 (REVISION_PLAN.md #28–#33), and 2026-11-11 with the full within-group analysis for each group
 (§0c; REVISION_PLAN #34–#35), and 2026-11-12 with the pPUT sound-trend and group × hemisphere
-tests (REVISION_PLAN #36). Alternative to `MANUSCRIPT_INTEGRATION_PLAN.md` (non-Mandarin only).
+tests (REVISION_PLAN #36), and 2026-11-13: FLT15 kept, behavior rescored (REVISION_PLAN #39).
+Alternative to `MANUSCRIPT_INTEGRATION_PLAN.md` (non-Mandarin only).
 Reuses its repo map, the FLT2/FST1 status notes and the integrity checks (§1b–1e there), which
 apply unchanged.*
 
@@ -69,7 +70,7 @@ will move on rerun). Strength: ● supports the claim · ◐ suggestive / indire
 
 | Claim | Current evidence | Prov. / n | Strength | Missing |
 |---|---|---|---|---|
-| Only learners learn | Accuracy run 1→6: learners .38→.82 (t=6.67, p<.001); natives .95→.98 (t=1.88, p=.087) | behavior, 12/12 | ● | Formal group × run model; FLT15 excluded from the behavior file for "bad responses" (§1) |
+| Only learners learn | Accuracy run 1→6: learners .38→.82 (t=6.67, p<.001); natives .95→.98 (t=1.88, p=.087). **Old numbers** (old behavior summary, natives n=12 without FLT15, raw accuracy); recompute with `04_behavior/two_group_accuracy.py` (n=12/13, group × run ANOVA) | behavior, 12/13 | ● | Replace with the script's output (R1) |
 | Medial frontal cortex responds differently to sound | FMC sound: learners below baseline (−0.35), natives above (+0.40); d=−1.44, q=.013, holds without FLT15 (q=.025); also the only group main effect surviving FDR in the group × stage ANOVA (F=13.0, q=.033) | new, 12/13 | ● (strongest striatal/frontal ROI group difference) | Not predicted -- interpret cautiously; check it isn't driven by `resp` timing (RT differs by group) |
 | Cortical PR topography differs | Group × ROI F(13,247)=5.63, p<.001. Learners higher PR in right auditory cortex (R-STGa p_FDR=.017, d=1.65; R-HG/R-STGp p_FDR=.055); natives higher in L-ParsOp (p_FDR=.055) | new, 11/10 | ● (strongest new-pipeline group result) | Complete sample (FLT02 etc.); FST1 baseline to say whether it's experience or trait |
 | Primary vs association hierarchy reverses by group | Learners Primary > Association at middle/final (p=.04/.02 unc.); natives reverse at middle (p=.04 unc.); all p_FDR=.08. Primary-level group difference largest at middle stage (t=-3.38, p_FDR=.019) | new, 11/10 | ◐ | Single mixed model instead of per-stage tests |
@@ -87,7 +88,7 @@ will move on rerun). Strength: ● supports the claim · ◐ suggestive / indire
   Done 2026-11-04: both groups are run; the sound discrepancy is resolved by the single model
   (left PP t=3.14, q=.012).
 - Behavioral model comparison: built and tested; confirm it has been run on the full file.
-- FLT15 events check (§1), then TOST for the similarity claims.
+- ~~FLT15 events check (§1)~~ done: kept (§1). ~~TOST~~ done (R2).
 
 ### Bottom line (2026-11-04)
 - **Similarity claims hold on the new pipeline:** sound drives auditory cortex, aPUT and
@@ -145,25 +146,37 @@ in the two-group notebook (section 2).
   "learning-related change is learner-specific", but it's absence of evidence until tested as
   group × stage (TOST or Bayes factor, §1 Power).
 - FLT15 (natives' trend export): aCAU−aPUT `fbcorrect` trend −0.61, opposite to the native mean
-  (+0.27). Excluding them would widen the planned group difference; another reason to settle
-  §1 before freezing numbers.
+  (+0.27). Keeping them (§1, decided 2026-11-13) makes the planned group difference more
+  conservative.
 
 ## 1. Sample
 
 | Group | Behavior | Imaging | Notes |
 |---|---|---|---|
 | non-Mandarin (learners) | 12: FLT02 04 06 09 11 12 13 14 20 25 28 30 | same 12 | FLT02 run-1 response coding corrupted (behavioral modeling n=11) |
-| Mandarin (natives) | 12: FLT03 05 08 10 17 18 19 21 22 23 24 26 | 13 so far (+FLT15) | **FLT15:** see below |
+| Mandarin (natives) | 13: FLT03 05 08 10 15 17 18 19 21 22 23 24 26 | same 13 | **FLT15:** kept, see below |
 | Excluded | FLT07 (bad QA) | | FLT27 appears in some FLT2 lists -- confirm status |
 
-**FLT15 (found 2026-11-04).** The old repo's `behav_conversion/behavior_analysis.ipynb` excludes
-FLT15 on purpose (`'sub-FLT15', # bad responses 07/17/26`, commit `47ab055`); its behavioral file
-had already needed a one-off reconversion in 2025 (commit `7639a4b`). This repo's
-`04_behavior/behavior_analysis.ipynb` and every imaging script still include them. The events
-files are built from the responses, so if the responses are bad, FLT15's `fbcorrect` and
-`fbcorrectvswrong` maps are suspect too (`sound` is unaffected). **To do:** check FLT15's
-per-run `resp_*`/`fb_*` counts on the cluster, then exclude them everywhere (12 vs 12) or nowhere.
-Sensitivity so far: STGp `sound` group difference q=.036 → .079 without FLT15; FMC holds.
+**FLT15: kept in every analysis (decided 2026-11-13).** The old repo excluded them for "bad
+responses" (`behav_conversion/behavior_analysis.ipynb`, commit `47ab055`). The events QA
+(`04_behavior/qa_events_summary.py`) shows the responses are fine; the problem was formatting
+from their one-off 2025 reconversion (commit `7639a4b`):
+- **Keys stored as floats** (`resp_6.0`). The accuracy scripts took the key as the label's last
+  character, read `'0'`, and scored every FLT15 trial wrong: 0% accuracy in every run, which is
+  what the old exclusion and the native brain–behavior correlations saw. Fixed in
+  `create_behav_confusion_matrices.py` (commit `f36d397`) and `behavior_analysis.ipynb`; the
+  native notebook was rerun on the corrected `run_accuracies.tsv`.
+- **Actual performance:** .90 of answered trials in run 1, then 1.00 in runs 2–6. Normal for a
+  native listener.
+- **Missed responses labelled `fb_wrong`** (no response row, no `fb_noresp`): 7 in run 1, 0–2 in
+  later runs; nearly all of FLT15's "wrong" trials are misses. This affects only their
+  `fb_wrong` regressor, so only `fbcorrectvswrong`, which natives aren't analysed on. `sound`
+  and `fbcorrect` are valid (misses sit in their own regressor either way).
+- Optional cleanup: reconvert FLT15's events so misses are `fb_noresp` (the converter needs a
+  one-line change to treat a missing key as no response), then rerun their first level and
+  extraction. Headline numbers won't change.
+- Sensitivity, for the record: STGp `sound` group difference q=.036 → .079 without FLT15; FMC
+  holds; the planned aCAU−aPUT difference would widen.
 
 To do first: one `09_integration/subjects.csv` with group, and per-analysis inclusion flags
 (behavior / striatal GLM / FLT2 PR / FST1), so every n in the paper traces to one file.
@@ -179,8 +192,12 @@ test (TOST) or Bayes factor, not a non-significant p.
 This paper uses only this study's own fMRI and behavioral data.*
 
 ### R1. Behavior
-- Accuracy and RT: group × run mixed ANOVA (already computed in the old repo's
-  `behavior_analysis.ipynb`; port into `04_behavior/`).
+- Accuracy: `04_behavior/two_group_accuracy.py` (2026-11-13; not yet run) reads the corrected
+  `run_accuracies.tsv`, n=12/13 including FLT15, and writes per-run means with 95% CIs, run 6 vs
+  run 1 within each group, the group × run mixed ANOVA (GG-corrected) and the two-group figure
+  `04_behavior/behav_acc_two-group.{png,svg}`. Its accuracy is per-category accuracy averaged
+  over categories, on answered trials, so expect small differences from the old .38→.82.
+- RT: group × run model still to port from the old repo's `behavior_analysis.ipynb`.
 - Response confusion matrices for both groups (old repo has the code and outputs).
 - SPC / decision-bound modeling: **learners only** -- natives at ceiling make strategy fits
   uninformative. Say so explicitly. Optionally show natives' best-fitting model descriptively;
@@ -345,7 +362,7 @@ category test. If kept, port the outlier/NaN-masking fix from
 
 **Phase 0 -- setup (this week)**
 1. Commit `09_integration/` and `REVISION_PLAN.md`.
-2. Build `subjects.csv`; resolve FLT15 (events check, §1) / FLT27 / FLT02.
+2. Build `subjects.csv`; ~~FLT15~~ (kept, §1) / FLT27 / FLT02.
 3. ~~Count `fb_wrong` per subject × stage, both groups.~~ Done via `roi-values_missing.tsv` (R3).
 4. Integrity checks from the other plan §1d (stgrid fMRIPrep anatomical overwrite; tonecat vs
    stgrid grid).
@@ -386,7 +403,8 @@ category test. If kept, port the outlier/NaN-masking fix from
 - **Feedback contrast change -- realized.** `fb_correct` doesn't reproduce the learners'
   `fb_correct − fb_wrong` aCAU decline (R3). Keep B as the learner-only result so the original
   finding stays intact, and frame the group result around what A measures.
-- **FLT15.** Possibly bad responses (§1). One sound group difference (STGp) depends on them.
+- ~~**FLT15.**~~ Resolved 2026-11-13: responses fine, scoring bug fixed, kept (§1). The STGp
+  sound difference still weakens without them (q=.079); say so if it's reported.
 - **Response timing.** `resp` isn't reported, but RT differences between groups can still shift
   variance between the `sound` and `resp` regressors. Group differences in `sound` (FMC, STGp)
   carry a milder version of this caveat.
@@ -405,7 +423,7 @@ category test. If kept, port the outlier/NaN-masking fix from
 2. ~~Feedback Contrast A for the cross-group test.~~ Done. **New decision:** how to frame the
    feedback result now that A ≠ B in learners (R3 framing options 1–3), and whether to add the
    learners-only `fbwrong` decomposition.
-2b. FLT15: include or exclude, everywhere (§1).
+2b. ~~FLT15~~ Decided 2026-11-13: included everywhere (§1).
 2c. ~~`resp`~~ Decided 2026-11-04: modeled, not reported.
 3. RSA in or out.
 4. FST1 as a main-text baseline (recommended in this design) or supplement.
