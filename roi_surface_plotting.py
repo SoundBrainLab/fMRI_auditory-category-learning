@@ -4,7 +4,7 @@ import nibabel as nib
 import matplotlib.pyplot as plt
 
 from glob import glob
-from typing import Dict, List, Optional
+from typing import Dict, List, Optional, Sequence
 from nilearn import datasets, surface, plotting
 
 """
@@ -152,6 +152,8 @@ def plot_roi_surface_stat(
     add_labels: bool = True,
     views=('lateral', 'medial'),
     dpi: int = 300,
+    highlight: Optional[Sequence[str]] = None,
+    cbar_label: str = 'group t-statistic',
 ):
     """Render per-ROI group statistics on the fsaverage surface.
 
@@ -159,8 +161,10 @@ def plot_roi_surface_stat(
     if the ROI set has no medial regions) and one column per hemisphere,
     with a single shared symmetric colorbar and black ROI boundary contours.
     Each ROI's name is only labeled on the view (lateral/medial) it actually
-    faces, per `_dominant_view_for_roi`.
+    faces, per `_dominant_view_for_roi`. Regions in `highlight` (e.g. those
+    surviving FDR) get an asterisk on their label.
     """
+    highlight = set(highlight or ())
     surf_data = project_roi_stats_to_surface(stat_dict, mask_path_dict, fsaverage=fsaverage)
 
     if vlim is None:
@@ -212,14 +216,15 @@ def plot_roi_surface_stat(
             if (add_labels and roi_vertices.any()
                     and _dominant_view_for_roi(data['coords_infl'], roi_vertices, hemi) == view):
                 cx, cy, cz = data['coords_infl'][roi_vertices].mean(axis=0)
-                ax.text(cx, cy, cz, region_hemi, fontsize=7, fontweight='bold',
+                ax.text(cx, cy, cz, region_hemi + ('*' if region_hemi in highlight else ''),
+                        fontsize=7, fontweight='bold',
                         ha='center', va='center', color='black')
 
     sm = plt.cm.ScalarMappable(cmap=cmap, norm=plt.Normalize(vmin=vmin, vmax=vmax))
     sm.set_array([])
     cbar = fig.colorbar(sm, ax=fig.axes, orientation='vertical',
                          fraction=0.03, pad=0.02, shrink=0.6)
-    cbar.set_label('group t-statistic')
+    cbar.set_label(cbar_label)
 
     if title:
         fig.suptitle(title)

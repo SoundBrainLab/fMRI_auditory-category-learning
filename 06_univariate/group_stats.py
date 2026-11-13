@@ -108,6 +108,20 @@ def baseline_tests(df, by_stage=False):
     return out
 
 
+def two_group_stats(a, b, n_perms=10000, rng=None):
+    ''' learners (a) - natives (b): Welch t, Cohen's d (pooled SD) with an
+    approximate 95% CI (normal SE of d), group-label permutation p '''
+    t, p = stats.ttest_ind(a, b, equal_var=False)
+    n_a, n_b = len(a), len(b)
+    pooled_sd = np.sqrt(((n_a - 1) * a.var(ddof=1) + (n_b - 1) * b.var(ddof=1)) / (n_a + n_b - 2))
+    d = (a.mean() - b.mean()) / pooled_sd
+    se_d = np.sqrt((n_a + n_b) / (n_a * n_b) + d ** 2 / (2 * (n_a + n_b)))
+    perm = group_label_permutation_test(a, b, n_perms=n_perms, rng=rng) if n_perms else {'p_value': np.nan}
+    return {'difference': a.mean() - b.mean(), 't': t, 'p': p, 'd': d,
+            'd_ci_lower': d - 1.96 * se_d, 'd_ci_upper': d + 1.96 * se_d,
+            'permutation_p': perm['p_value']}
+
+
 def group_difference_tests(df, contrasts=('sound', 'fbcorrect'), by_stage=False,
                            groups=GROUPS, n_perms=10000, seed=0):
     ''' learners - natives per contrast x network x region (x stage):
@@ -127,12 +141,8 @@ def group_difference_tests(df, contrasts=('sound', 'fbcorrect'), by_stage=False,
         b = grp.loc[grp.participant_group == groups[1], 'beta'].values
         if len(a) < 2 or len(b) < 2:
             continue
-        t, p = stats.ttest_ind(a, b, equal_var=False)
-        pooled_sd = np.sqrt(((len(a) - 1) * a.var(ddof=1) + (len(b) - 1) * b.var(ddof=1)) / (len(a) + len(b) - 2))
-        perm = group_label_permutation_test(a, b, n_perms=n_perms, rng=rng) if n_perms else {'p_value': np.nan}
         rows.append(dict(zip(unit, key), n_a=len(a), n_b=len(b), mean_a=a.mean(), mean_b=b.mean(),
-                         difference=a.mean() - b.mean(), t=t, p=p, d=(a.mean() - b.mean()) / pooled_sd,
-                         permutation_p=perm['p_value']))
+                         **two_group_stats(a, b, n_perms=n_perms, rng=rng)))
     out = pd.DataFrame(rows).rename(columns={'n_a': f'n_{groups[0]}', 'n_b': f'n_{groups[1]}',
                                              'mean_a': f'mean_{groups[0]}', 'mean_b': f'mean_{groups[1]}'})
     family = [c for c in unit if c != 'region']
@@ -321,6 +331,29 @@ def trend_group_difference(trends, contrast, region, groups=GROUPS, n_perms=1000
                  'loso_preserved': f"{loso['n_preserved']}/{loso['n_folds']}",
                  'ci_lower': boot['ci_lower'], 'ci_upper': boot['ci_upper']})
     return pd.DataFrame(rows).assign(contrast=contrast, region=region)
+
+
+def trend_difference_tests(trends, contrasts=('sound', 'fbcorrect'), groups=GROUPS, n_perms=10000, seed=0):
+    ''' learners - natives on the per-subject learning-stage trend, every
+    contrast x network x region (two_group_stats), FDR across regions
+    within contrast x network. The all-region companion to
+    trend_group_difference, which runs the full planned battery on one
+    region; exploratory. '''
+    rng = np.random.default_rng(seed)
+    rows = []
+    for (network, contrast, region), grp in trends[trends.contrast.isin(contrasts)].groupby(
+            ['network', 'contrast', 'region']):
+        a = grp.loc[grp.participant_group == groups[0], 'trend'].values
+        b = grp.loc[grp.participant_group == groups[1], 'trend'].values
+        if len(a) < 2 or len(b) < 2:
+            continue
+        rows.append({'network': network, 'contrast': contrast, 'region': region,
+                     f'n_{groups[0]}': len(a), f'n_{groups[1]}': len(b),
+                     f'mean_{groups[0]}': a.mean(), f'mean_{groups[1]}': b.mean(),
+                     **two_group_stats(a, b, n_perms=n_perms, rng=rng)})
+    out = pd.DataFrame(rows)
+    out['q'] = out.groupby(['network', 'contrast'])['p'].transform(fdr)
+    return out
 
 
 def learner_contrast_agreement(trends, region, group='non-Mandarin'):

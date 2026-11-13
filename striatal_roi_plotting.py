@@ -6,7 +6,7 @@ from matplotlib.path import Path
 from matplotlib.patches import PathPatch
 from matplotlib.cm import ScalarMappable
 from skimage import measure
-from typing import Dict, List, Optional
+from typing import Dict, List, Optional, Sequence
 
 """
 Render per-ROI group statistics as colored contours on a representative
@@ -65,6 +65,8 @@ def plot_striatal_roi_stat(
     cmap: str = 'coolwarm',
     vlim: Optional[float] = None,
     title: Optional[str] = None,
+    highlight: Optional[Sequence[str]] = None,
+    cbar_label: str = 'group t-statistic',
 ):
     """Render per-ROI group statistics as colored contours on a representative
     sagittal slice per structure/hemisphere.
@@ -73,8 +75,10 @@ def plot_striatal_roi_stat(
     and one column per hemisphere. Each panel overlays that structure's
     subdivisions (e.g. anterior/posterior caudate) as filled, black-outlined
     contours colored by their stat value, with a single shared symmetric
-    colorbar.
+    colorbar. Regions in `highlight` (e.g. those surviving FDR) get a
+    thicker outline and an asterisk.
     """
+    highlight = set(highlight or ())
     if vlim is None:
         vlim = max(abs(v) for v in stat_dict.values())
     vmin, vmax = -vlim, vlim
@@ -113,8 +117,9 @@ def plot_striatal_roi_stat(
                 stat_value = stat_dict.get(region, 0)
                 ax.add_patch(PathPatch(Path(verts, codes),
                                         facecolor=cmap_obj(norm(stat_value)),
-                                        edgecolor='black', linewidth=1))
-                base_name = region.rsplit('-', 1)[0]
+                                        edgecolor='black',
+                                        linewidth=2.5 if region in highlight else 1))
+                base_name = region.rsplit('-', 1)[0] + ('*' if region in highlight else '')
                 ax.text(np.mean(contour[:, 0]), np.mean(contour[:, 1]), base_name,
                         ha='center', va='center', fontsize=6, color='black')
 
@@ -138,7 +143,7 @@ def plot_striatal_roi_stat(
     sm.set_array([])
     cbar = fig.colorbar(sm, ax=axes, orientation='vertical',
                          fraction=0.03, pad=0.05, shrink=0.6)
-    cbar.set_label('group t-statistic')
+    cbar.set_label(cbar_label)
 
     if title:
         fig.suptitle(title)
