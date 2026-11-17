@@ -195,6 +195,11 @@ Cluster access obtained — fMRIPrep, atlas warping, and the univariate GLM have
     - RSA notebook sections 6–7: stage-to-stage RDM stability (with a mean-distance check) and native-likeness (natives' leave-one-out template, same-stage peer-likeness as control); loaders in `multivariate_data.py`.
     - All three recovered planted effects on a 25-subject synthetic dataset run through the FLT2 scripts.
 
+46. **Learners' feedback decomposition (2026-11-17, two-group section 4c, added on the cluster).**
+    - `fbwrong` derived exactly as `fbcorrect` − `fbcorrectvswrong` (same model; nilearn averages per-run contrasts; ROI values are means, so it's linear). No first-level rerun.
+    - All 12 learners, every stage. aCAU trend: headline −0.59 (p=.007, LOSO 12/12) = correct −0.33 (p=.083) minus wrong +0.26 (p=.25). Neither part is reliable alone; they covary (r=.59), likely shared baseline variance that cancels in the difference.
+    - Consequences: decomposition reported descriptively; the "half and half" claim dropped; the cross-group test on `fbcorrect` is conservative, and resting it on aCAU−aPUT is justified. Details in `TWO_GROUP_MANUSCRIPT_PLAN.md` R3.
+
 ## Reviewer issues: status (2026-11-17)
 
 The manuscript work order is `09_integration/TWO_GROUP_MANUSCRIPT_PLAN.md` §4. This table tracks each reviewer concern; the workstream sections below keep the original detail.

@@ -21,7 +21,7 @@ the `fbcorrectvswrong` headline. Each feedback contrast has one job:
 |---|---|---|---|
 | Headline | `fbcorrectvswrong` aCAU trend; aCAU−aPUT | learners | The original finding and its robustness (Reviewer 1: replication at n=12) |
 | Specificity | `fbcorrect` aCAU−aPUT trend difference | both | The correct-feedback part of the shift is absent in natives |
-| Decomposition | `fbwrong` = `fbcorrect` − `fbcorrectvswrong` | learners | Headline ≈ half less response to correct feedback, half more to wrong; natives speak only to the first half |
+| Decomposition | `fbwrong` = `fbcorrect` − `fbcorrectvswrong` | learners | Descriptive: correct −0.33, wrong +0.26, neither reliable alone; only their difference is (R3). Natives speak only to the correct part |
 | Shared vs different | `sound` | both | Auditory cortex, aPUT, NAc-core in both; vmPFC (FMC) and STGp differ |
 
 Say in Methods why the contrast changes: natives average ~1 wrong-feedback trial per run and six
@@ -122,6 +122,8 @@ will move on rerun). Strength: ● supports the claim · ◐ suggestive / indire
   correct feedback and half more response to wrong feedback; natives can only be measured on
   the first half. The framing decision at Phase 1 step 8 has to be made on this basis (§6).
 - **The strongest group difference overall is still cortical:** PR topography (FLT2).
+- **Decomposition (2026-11-17, R3):** neither the correct (−0.33, p=.083) nor the wrong (+0.26,
+  p=.25) part of the headline changes reliably alone; only their difference does.
 - **Wording for the feedback result (2026-11-17):** the groups differ in how aCAU changes
   *relative to* aPUT, not in either region alone. Don't write "learners' aCAU decreased while
   aPUT increased": learners' aPUT trend is ≈0 and no single-region trend is significant.
@@ -320,9 +322,27 @@ This paper uses only this study's own fMRI and behavioral data.*
    can and can't speak to.
 3. Treat the two-group feedback result as supporting rather than decisive: robust for the
    differential trend, absent for aCAU alone.
-Options 1 and 2 combine naturally. **Decided 2026-11-17: 1 + 2** (see Framing at the top). To do:
-learners' `fbwrong` aCAU trend (implied ≈ +0.26) tested with the same battery (sign-flip, LOSO,
-bootstrap) in the two-group notebook.
+Options 1 and 2 combine naturally. **Decided 2026-11-17: 1 + 2** (see Framing at the top).
+
+**Decomposition results (2026-11-17, two-group section 4c; all 12 learners, every stage):**
+
+| aCAU trend, learners | mean | t | p | LOSO |
+|---|---|---|---|---|
+| `fbcorrectvswrong` (headline) | −0.59 | −3.30 | .007 | 12/12 |
+| `fbcorrect` | −0.33 | −1.91 | .083 | 1/12 |
+| `fbwrong` (derived, exact) | +0.26 | 1.22 | .25 | 0/12 |
+
+aCAU−aPUT: −0.61 (p=.014) / −0.39 (p=.052) / +0.22 (p=.37). aPUT: nothing.
+- Neither part is reliable alone; only the difference is. The parts covary across learners
+  (aCAU r=.59, p=.042), most likely because both are measured against the same implicit
+  baseline, and that shared variance cancels in the difference.
+- **Wording:** "the caudate's response to correct feedback declined relative to wrong
+  feedback", with the components given descriptively. Don't claim "half less correct, half more
+  wrong" as a finding.
+- **For the group test:** natives can only be tested on `fbcorrect`, which is marginal even in
+  learners, so the aCAU-alone group test (p=.13) is weak by design and its null says little. The
+  aCAU−aPUT difference removes shared variance, which is the stated reason the cross-group claim
+  rests on it (p=.019). The group test is conservative: it uses the noisier half of the effect.
 
 ### R4. Cortical and PFC ROI networks -- run 2026-11-04; per-group 2026-11-11
 Between-group tests are in `group_level_two_group.ipynb` (IFGo/IFGt dropped as duplicates of
