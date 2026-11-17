@@ -183,6 +183,12 @@ Cluster access obtained — fMRIPrep, atlas warping, and the univariate GLM have
     - Here: `multivariate_data.py` gains model RDMs (tone, talker), per-subject tau-a fits in the `extract_roi_values.py` schema, group-mean RDMs and a leave-one-out noise ceiling. `10_multivariate/rsa_two_group.ipynb` runs fit vs 0, tone-fit trend learners vs natives (full battery on composites, aCAU, aPUT), per-stage group differences and the group × stage ANOVA.
     - Tested end to end on synthetic trial betas run through FLT2's `rsa_roi.py`: a planted learner-only tone-fit rise and natives-ahead-early pattern were recovered. Talker fit fell in learners although talker structure was constant -- tau-a fits trade off; noted in the notebook.
 
+44. **Dimensionality method fixed; cross-validation over repetitions (2026-11-17, FLT2 `6bcaa4e`).**
+    - Simulation showed plain PR is inflated by noise and by low trial/voxel counts, and D_sheng saturates at 15. Neither can carry a stage or group claim. FLT2's existing PR results are on hold.
+    - Cross-validated PR (`PRcv`, cvPCA) replaces it; `cvsignal` is saved to check PRcv against signal strength (PRcv reads low at weak signal).
+    - Cross-validation splits each run's repetitions of a stimulus into balanced halves (`FLT2/trial_splits.py`) instead of splitting runs, because learning changes responses between runs (the user's point). In simulation a run split erased signal present in only one of a stage's runs (PRcv 1.00, tone tau-a −0.02); the repetition split kept it (1.54, 0.32). Same change for crossnobis in `rsa_roi.py` (`--cv=rep`, default).
+    - `10_multivariate`: PR notebook now uses `PRcv` with checks against `cvsignal`, split type (natives) and voxel count; RSA notebook reads the `_cv-rep` RDMs and compares splits in natives. Both retested on synthetic data.
+
 ## Reviewer issues: status (2026-11-17)
 
 The manuscript work order is `09_integration/TWO_GROUP_MANUSCRIPT_PLAN.md` §4. This table tracks each reviewer concern; the workstream sections below keep the original detail.

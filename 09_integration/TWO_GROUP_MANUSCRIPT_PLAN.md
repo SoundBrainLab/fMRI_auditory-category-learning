@@ -366,8 +366,25 @@ analysis (ANOVAs, post hocs, Table 5/8-style tables, brain plots) for either gro
   - Not executed on the recompute: §9h (D_sheng cross-validation), §9i (PR ↔ accuracy), §11
     searchlight, §13 D2. Searchlight D_sheng loads 0 subjects (searchlight not re-run; group maps
     would need MNI).
-- Report PR as primary and ROI-level D_sheng (already in `dimensionality_roi.py` CSVs) as
-  robustness; skip the searchlight version.
+- ~~Report PR as primary and ROI-level D_sheng as robustness.~~ **Method problems found
+  (2026-11-17, simulated data):**
+  - Plain PR on stimulus means is inflated by noise (pure noise gives near-maximal PR; the same
+    2-D signal reads 2.5 at low noise and 10.4 at high noise) and depends on trial and voxel
+    counts. A stage decline or group difference in it can be a change in signal-to-noise.
+  - D_sheng (Kaiser count on standardized voxels) saturates at 15 for any ROI above a few dozen
+    voxels. Unusable as is.
+  - **Fix (FLT2 `6bcaa4e`):** cross-validated PR (`PRcv`; cvPCA, Stringer et al. 2019) from two
+    halves of the trials. Halves split each run's repetitions of a stimulus, not runs, because
+    learners change between runs (a run split counts learning as noise; in simulation it erased a
+    signal present in only one of a stage's runs). `PRcvrun` (run split) kept as a check; it
+    should match `PRcv` in natives. `PRcv` is biased low at weak signal, so results are checked
+    against `cvsignal` (cross-validated variance per voxel).
+  - **FLT2's existing PR results (pooled stage decline, group × ROI interaction, §0b) can't be
+    reported until `PRcv` confirms them.** Rerun `dimensionality_roi.py` for everyone.
+  - The FLT2 notebook's sample is also off: `sub_list` includes FLT07 and omits FLT06, and its
+    group section drops FLT06 and FLT08 without a stated reason (hence 11 vs 10).
+    `10_multivariate` takes the sample from `participants.tsv`.
+- Skip the searchlight version.
 - **Where the code lives (2026-11-17):** per-subject processing stays in FLT2; group-level
   analysis is `10_multivariate/dimensionality_two_group.ipynb` here (planned Primary-composite
   trend test, the mixed model above, exploratory per-region tests, D_sheng, PR trend export for
@@ -375,7 +392,9 @@ analysis (ANOVAs, post hocs, Table 5/8-style tables, brain plots) for either gro
 - **RSA (2026-11-17, optional section below):** FLT2 `dfa4908` brings `rsa_roi.py` up to SSP's
   version, reading the 25.2.5/T1w tree, with `--stage` (crossnobis across each stage's two
   runs) and opt-in `--noise=shrinkage` (true crossnobis; default is cross-validated Euclidean).
-  `run_mask_glmsingle_betas.sh` now also masks the 12 striatal Tian-S2 ROIs. Group level:
+  `run_mask_glmsingle_betas.sh` now also masks the 12 striatal Tian-S2 ROIs. Since `6bcaa4e`
+  crossnobis is cross-validated over repetition splits (`--cv=rep`), for the same reason as
+  `PRcv`; `--cv=run` is the natives' check. Group level:
   `10_multivariate/rsa_two_group.ipynb` (tone/talker tau-a fits, noise ceilings, tone-fit trend
   learners vs natives, per-stage group differences). Tested on synthetic data only. To run:
   masking (`tian-S2`) → `loop_run_rsa_roi.sh` → notebook. Caveat: tau-a fits to tone and talker

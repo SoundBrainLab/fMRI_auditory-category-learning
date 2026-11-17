@@ -86,13 +86,19 @@ number reported in the paper is computed here.
   table `06_univariate/extract_roi_values.py` writes (measure in `beta`, its
   name in `contrast`), so `group_stats.py`'s two-group functions run on it
   unchanged. Also adds the a-priori Primary/Association composites.
-- `dimensionality_two_group.ipynb`: participation ratio by group × stage --
-  the planned composite trend test, a group × stage × level mixed model,
-  exploratory per-region tests, D_sheng robustness, and the PR trend export
-  for analysis B.
+- `dimensionality_two_group.ipynb`: cross-validated participation ratio
+  (`PRcv`) by group × stage -- the planned composite trend test, a group ×
+  stage × level mixed model, exploratory per-region tests, checks against
+  signal strength, split type and voxel count, and the trend export for
+  analysis B. Plain PR is inflated by noise, so it's shown only for
+  comparison.
+- Cross-validation in both PR and RSA splits each run's repetitions of a
+  stimulus into two halves (FLT2 `trial_splits.py`), not runs: learners
+  change from run to run, and a run split would count that as noise.
 - `rsa_two_group.ipynb`: RSA on FLT2's per-stage RDMs (`rsa_roi.py --stage`,
   crossnobis across each stage's two runs). Tone and talker model fits
-  (tau-a) per participant × stage × ROI, noise ceilings per group × stage,
+  (tau-a) per participant × stage × ROI, a repetition- vs run-split check in
+  natives, noise ceilings per group × stage,
   fit vs 0 within group, tone-fit trend learners vs natives, and per-stage
   group differences. Needs `rsatoolbox` (only for this notebook).
 - Decoding: to be added once `FLT2` writes per-stage decoding outputs.
