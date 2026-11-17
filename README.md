@@ -101,7 +101,15 @@ number reported in the paper is computed here.
   natives, noise ceilings per group × stage,
   fit vs 0 within group, tone-fit trend learners vs natives, and per-stage
   group differences. Needs `rsatoolbox` (only for this notebook).
-- Decoding: to be added once `FLT2` writes per-stage decoding outputs.
+  Also stage-to-stage RDM stability (does the geometry change?) and
+  native-likeness (do learners' RDMs converge on the natives' template,
+  beyond what same-stage peer similarity explains?).
+- `generalization_two_group.ipynb`: decoding from FLT2's
+  `decoding_generalization.py` -- tone across talkers (train on three talkers,
+  test on the fourth: is the tone code talker-invariant?) and talker across
+  tones (control), per stage, with the same two-group tests. Folds split
+  stimuli, not runs. No standalone within-stimulus decoder: the crossnobis
+  tone fit already measures tone discriminability.
 
 The old RSA code (nilearn LSS betas, MNI, fMRIPrep 22.1.1) is in
 `./archive/07_rsa/` for reference; it isn't part of the current pipeline.

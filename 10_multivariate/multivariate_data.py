@@ -22,8 +22,7 @@ run on it unchanged. The measure goes in `beta` and its name in `contrast`
 
 The per-subject processing stays in FLT2; only group-level analysis lives
 here (TWO_GROUP_MANUSCRIPT_PLAN.md R5). The RSA functions import rsatoolbox
-only when called, so the dimensionality notebook doesn't need it. A decoding
-loader gets added once FLT2 writes per-stage decoding outputs.
+only when called, so the dimensionality notebook doesn't need it.
 '''
 
 DERIV_DIR = '/ix1/bchandrasekaran/krs228/data/FLT/data_denoised/derivatives'
@@ -197,4 +196,100 @@ def noise_ceiling(rdms, participants, method='tau-a'):
                      'region': region, 'hemisphere': hemisphere, 'network': network,
                      'n': len(stacked), 'lower': np.mean(lower), 'upper': np.mean(upper)})
     return pd.DataFrame(rows)
+
+
+def load_decoding(dec_dir, participants, held_out='mean'):
+    ''' FLT2's decoding_generalization.py output (sub-<id>_decoding.tsv) in the
+    extract_roi_values.py schema: accuracy minus chance in `beta`, the analysis in
+    `contrast` ('tone_across_talker', 'talker_across_tone'; '<analysis>_held-out-run' for
+    the conservative scheme), stages early/middle/final (the whole-session rows are
+    dropped). held_out='mean' keeps the mean over folds. '''
+    files = sorted(glob(os.path.join(dec_dir, 'sub-*_decoding.tsv')))
+    if not files:
+        raise FileNotFoundError(f'no sub-*_decoding.tsv files in {dec_dir}')
+    dec = pd.concat([pd.read_csv(f, sep='\t') for f in files], ignore_index=True)
+    dec = dec[(dec.held_out == held_out) & dec.stage.isin(STAGE_ORDER)]
+    split = dec.roi.map(split_region_hemi)
+    dec = dec.assign(region_hemi=dec.roi, region=split.str[0], hemisphere=split.str[1], network=split.str[2],
+                     learning_stage=dec.stage, beta=dec.accuracy - dec.chance,
+                     contrast=np.where(dec.scheme == 'same-runs', dec.analysis, dec.analysis + '_held-out-run'))
+    return dec.drop(columns='participant_group', errors='ignore').merge(participants, on='participant_id', how='inner')[
+        ['participant_id', 'participant_group', 'region_hemi', 'region', 'hemisphere', 'network',
+         'learning_stage', 'contrast', 'beta', 'n_voxels']]
+
+
+def rdm_vectors(rdms):
+    ''' {(participant_id, stage, region_hemi): dissimilarity vector}, checking one stimulus order '''
+    vectors, stimuli = {}, None
+    for (participant_id, stage), sub_rdms in rdms.items():
+        order = list(sub_rdms.pattern_descriptors['stimulus'])
+        assert stimuli is None or order == stimuli, f'{participant_id}: stimulus order differs'
+        stimuli = order
+        for i, region_hemi in enumerate(sub_rdms.rdm_descriptors['ROI']):
+            vectors[(participant_id, stage, str(region_hemi))] = sub_rdms[i].get_vectors()[0]
+    return vectors
+
+
+def _rdm_row(participant_id, group, region_hemi, label, contrast, value):
+    region, hemisphere, network = split_region_hemi(region_hemi)
+    return {'participant_id': participant_id, 'participant_group': group, 'region_hemi': region_hemi,
+            'region': region, 'hemisphere': hemisphere, 'network': network,
+            'learning_stage': label, 'contrast': contrast, 'beta': value}
+
+
+def stage_stability(rdms, participants, pairs=(('early', 'middle'), ('middle', 'final'), ('early', 'final'))):
+    ''' within each participant and ROI, the Pearson correlation between two stages'
+    cross-validated RDMs: how much the representational geometry changes. The stage pair
+    (e.g. 'early-final') goes in `learning_stage`, so group_difference_tests(..., by_stage=True)
+    tests each pair. Noisier RDMs correlate less, so check against mean_distance. '''
+    group_of = participants.set_index('participant_id').participant_group
+    vectors = rdm_vectors(rdms)
+    rows = []
+    for (participant_id, stage, region_hemi), v in vectors.items():
+        for a, b in pairs:
+            if stage == a and (participant_id, b, region_hemi) in vectors:
+                r = np.corrcoef(v, vectors[(participant_id, b, region_hemi)])[0, 1]
+                rows.append(_rdm_row(participant_id, group_of[participant_id], region_hemi,
+                                     f'{a}-{b}', 'stage_stability', r))
+    return pd.DataFrame(rows)
+
+
+def native_likeness(rdms, participants, natives='Mandarin'):
+    ''' per participant x stage x ROI, the Pearson correlation of the participant's RDM
+    with the natives' template: their mean RDM over all stages (natives' geometry shouldn't
+    change), each native left out of their own template. Control, 'peer_likeness': the
+    correlation with the mean RDM of the other members of the participant's own group at the
+    same stage. If learners' native-likeness rises only as much as their peer-likeness, the
+    rise is reliability (cleaner RDMs correlate with everything more), not convergence on the
+    native geometry. '''
+    group_of = participants.set_index('participant_id').participant_group
+    vectors = rdm_vectors(rdms)
+    native_mean = {}
+    for (p, stage, roi), v in vectors.items():
+        if group_of[p] == natives:
+            native_mean.setdefault(roi, {}).setdefault(p, []).append(v)
+    native_mean = {roi: {p: np.mean(vs, axis=0) for p, vs in by_p.items()} for roi, by_p in native_mean.items()}
+
+    rows = []
+    for (participant_id, stage, roi), v in vectors.items():
+        group = group_of[participant_id]
+        natives_others = [m for p, m in native_mean.get(roi, {}).items() if p != participant_id]
+        peers = [w for (p, st, r), w in vectors.items()
+                 if r == roi and st == stage and p != participant_id and group_of[p] == group]
+        if len(natives_others) >= 2:
+            rows.append(_rdm_row(participant_id, group, roi, stage, 'native_likeness',
+                                 np.corrcoef(v, np.mean(natives_others, axis=0))[0, 1]))
+        if len(peers) >= 2:
+            rows.append(_rdm_row(participant_id, group, roi, stage, 'peer_likeness',
+                                 np.corrcoef(v, np.mean(peers, axis=0))[0, 1]))
+    return pd.DataFrame(rows)
+
+
+def mean_distance(rdms, participants):
+    ''' mean cross-validated distance per participant x stage x ROI: overall
+    discriminability, for checking that stability or native-likeness differences
+    aren't just differences in signal strength '''
+    group_of = participants.set_index('participant_id').participant_group
+    return pd.DataFrame([_rdm_row(p, group_of[p], roi, stage, 'mean_distance', v.mean())
+                         for (p, stage, roi), v in rdm_vectors(rdms).items()])
 

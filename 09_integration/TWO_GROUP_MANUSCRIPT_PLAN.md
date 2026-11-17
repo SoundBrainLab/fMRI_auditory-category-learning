@@ -399,8 +399,20 @@ analysis (ANOVAs, post hocs, Table 5/8-style tables, brain plots) for either gro
   learners vs natives, per-stage group differences). Tested on synthetic data only. To run:
   masking (`tian-S2`) → `loop_run_rsa_roi.sh` → notebook. Caveat: tau-a fits to tone and talker
   trade off; a joint model would separate them.
-- Decoding exists only in `auditory_category_learning/multivariate/` (nilearn LSS, MNI). The old
-  `07_rsa/` is archived (`archive/07_rsa/`).
+- **Multivariate scope (decided 2026-11-17):**
+  - No standalone tone decoder: crossnobis tone fit already measures tone discriminability, and
+    leave-one-run-out decoding would count learning between runs against it.
+  - **Cross-talker generalization decoding** (FLT2 `decoding_generalization.py`,
+    `10_multivariate/generalization_two_group.ipynb`): tone trained on three talkers, tested on
+    the fourth -- the direct test of a talker-invariant category code -- and talker across tones
+    as the control. Folds split stimuli, not runs.
+  - **RSA, representational change:** stage-to-stage RDM stability within participant, checked
+    against mean cross-validated distance (signal strength).
+  - **RSA, native-likeness:** each participant's RDM vs the natives' leave-one-out template,
+    with same-stage peer-likeness as the reliability control.
+  - Out of this paper: trial-level evidence vs choice, stimulus-vs-choice on errors (motor
+    confound), group-membership decoding, feedback-period patterns.
+  - All tested on synthetic data only. The old `07_rsa/` is archived (`archive/07_rsa/`).
 
 ### R6. Acoustic baseline (FST1, stgrid)
 Stgrid has no learning and no tone categories, so it answers: **are the FLT2 group differences

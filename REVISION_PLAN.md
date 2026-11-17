@@ -189,6 +189,12 @@ Cluster access obtained — fMRIPrep, atlas warping, and the univariate GLM have
     - Cross-validation splits each run's repetitions of a stimulus into balanced halves (`FLT2/trial_splits.py`) instead of splitting runs, because learning changes responses between runs (the user's point). In simulation a run split erased signal present in only one of a stage's runs (PRcv 1.00, tone tau-a −0.02); the repetition split kept it (1.54, 0.32). Same change for crossnobis in `rsa_roi.py` (`--cv=rep`, default).
     - `10_multivariate`: PR notebook now uses `PRcv` with checks against `cvsignal`, split type (natives) and voxel count; RSA notebook reads the `_cv-rep` RDMs and compares splits in natives. Both retested on synthetic data.
 
+45. **Multivariate scope set; generalization decoding and RSA change measures added (2026-11-17).**
+    - No standalone decoder (redundant with crossnobis; leave-one-run-out would penalize learning).
+    - FLT2 `decoding_generalization.py`: tone across talkers and talker across tones, per ROI and stage, folds split by stimulus. Null simulation sits at chance; talker-specific codes fall slightly below it. `10_multivariate/generalization_two_group.ipynb` runs above-chance, trend and per-stage group tests and the held-out-run sensitivity check.
+    - RSA notebook sections 6–7: stage-to-stage RDM stability (with a mean-distance check) and native-likeness (natives' leave-one-out template, same-stage peer-likeness as control); loaders in `multivariate_data.py`.
+    - All three recovered planted effects on a 25-subject synthetic dataset run through the FLT2 scripts.
+
 ## Reviewer issues: status (2026-11-17)
 
 The manuscript work order is `09_integration/TWO_GROUP_MANUSCRIPT_PLAN.md` §4. This table tracks each reviewer concern; the workstream sections below keep the original detail.
