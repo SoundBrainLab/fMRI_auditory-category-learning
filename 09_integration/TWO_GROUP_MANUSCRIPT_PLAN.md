@@ -368,6 +368,15 @@ analysis (ANOVAs, post hocs, Table 5/8-style tables, brain plots) for either gro
     would need MNI).
 - Report PR as primary and ROI-level D_sheng (already in `dimensionality_roi.py` CSVs) as
   robustness; skip the searchlight version.
+- **Where the code lives (2026-11-17):** per-subject processing stays in FLT2; group-level
+  analysis is `10_multivariate/dimensionality_two_group.ipynb` here (planned Primary-composite
+  trend test, the mixed model above, exploratory per-region tests, D_sheng, PR trend export for
+  R7), via `multivariate_data.py` and `group_stats.py`. Tested on synthetic data only.
+- **Before RSA or decoding (optional section below):** FLT2 masks only `--atlas=dseg`, so there are
+  no striatal (Tian-S2) or IC/MGN trial betas yet; FLT2's `rsa_roi.py` still reads the old
+  untagged `glmsingle/` tree (22.1.1/MNI) and builds one RDM per session, not per stage; decoding
+  exists only in `auditory_category_learning/multivariate/` (nilearn LSS, MNI). The old
+  `07_rsa/` is archived (`archive/07_rsa/`).
 
 ### R6. Acoustic baseline (FST1, stgrid)
 Stgrid has no learning and no tone categories, so it answers: **are the FLT2 group differences

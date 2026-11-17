@@ -16,7 +16,7 @@ The manuscript ("Distinct 7T functional MRI response patterns to stimulus and fe
 - HCP structural-connectivity work (`hcp7t_mrtrix3_TianS2/`) uses an **independent normative sample** (up to 100 HCP 7T participants), not this study's own 12 — confirms R1's "not unique to this study" critique; rules out within-subject structure↔function↔behavior analysis (this study never collected its own DWI — `02_denoising/single_sub_dwi_denoise.sh` denoises *functional* data, not diffusion).
 - The striatum–PFC full ANOVA R2 asked for is **already computed** (`hcp7t_mrtrix3_TianS2/connectivity_statistics.ipynb` → `stats_exports/anova_pfc_full.tsv`) — just needs pulling into the manuscript.
 - Univariate stats live in `06_univariate/group_level_all_ROI.ipynb` (Tian-S2 8-ROI striatal parcellation × hemisphere + NAc, up to 3–4-way RM-ANOVAs at n=12) — consistent with both reviewers' power concerns.
-- `07_rsa/` still exists despite RSA being cut from the manuscript — no action unless revisited.
+- `07_rsa/` (old pipeline) moved to `archive/07_rsa/` (2026-11-17); multivariate group analysis is now `10_multivariate/`, reading FLT2's per-subject outputs.
 - Fig 4C/3B duplicate is a manuscript-assembly error, not a pipeline bug (no duplicate output files).
 - *(Historical, fixed — see Progress.)* The three original GLM scripts had aCompCor disabled, no motion scrubbing, and fMRIPrep pinned to 22.1.1. The user's `sitek/SSP` repo already runs fMRIPrep 23.2.1 with `load_confounds_strategy(denoise_strategy='scrubbing', fd_threshold=0.9, std_dvars_threshold=1.5)` — the validated setup this revision adopts (Workstream 7).
 
@@ -171,6 +171,12 @@ Cluster access obtained — fMRIPrep, atlas warping, and the univariate GLM have
     - Framing: both groups, plus learners-only analyses (`fbcorrectvswrong` headline, `fbwrong` decomposition, analysis B). `TWO_GROUP_MANUSCRIPT_PLAN.md` decisions 1 and 2 closed.
     - `TWO_GROUP_MANUSCRIPT_PLAN.md` is now the only live plan. It absorbed the live parts of `MANUSCRIPT_INTEGRATION_PLAN.md` and `INTEGRATION_PLAN.md`: FLT2 result and fixes (R5), FST1 status and the fMRIPrep/grid integrity checks (R6), the analysis-B spec with its striatal scalar fixed to `fbcorrectvswrong` and the merge layer (R7), Methods/figure notes (§3), cross-repo risks (§5), repo table (Appendix). Both originals moved to `09_integration/archive/` with pointer headers.
     - This file: added the reviewer-issue status table; marked the old sequencing as historical and the superseded sound-discrepancy and connectivity items.
+
+42. **`10_multivariate/` added; `07_rsa/` archived (2026-11-17).**
+    - Split: per-subject multivariate processing stays in FLT2 (GLMsingle, masking, PR/RSA); group-level analysis that produces reported numbers lives here.
+    - `multivariate_data.py` loads FLT2's per-stage dimensionality CSVs into the `extract_roi_values.py` schema so `group_stats.py` runs unchanged, and adds Primary/Association composites (separate FDR family).
+    - `dimensionality_two_group.ipynb`: planned PR trend test on the composites (learners vs natives), group × stage × level mixed model, exploratory per-region tests, D_sheng robustness, PR trend export for analysis B. Tested end to end on synthetic outputs (a planted learner-only decline was recovered; a missing participant is reported). Not yet run on real data.
+    - `07_rsa/` (nilearn LSS, MNI, 22.1.1) moved to `archive/07_rsa/`. Gaps before RSA/decoding are listed in `TWO_GROUP_MANUSCRIPT_PLAN.md` R5.
 
 ## Reviewer issues: status (2026-11-17)
 

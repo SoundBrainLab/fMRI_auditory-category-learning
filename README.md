@@ -76,10 +76,25 @@ managed through conda.
    participants (`sub_list_nman`), so double check the actual n once real
    data is available; the script doesn't assume n=12.
 
-### Representational similarity analysis: `./07_rsa/`
-1. Create event-specific beta estimates
-2. Run region-based RSA using atlas masks (see [masking](#Masking))
-3. Compute group-level RSA statistics for cortical and striatal networks
+### Multivariate analysis: `./10_multivariate/`
+Group-level analysis of the multivariate measures computed per participant
+in the sibling `FLT2` repo (GLMsingle single-trial betas, fMRIPrep 25.2.5,
+T1w: `modeling_firstlevel_GLMsingle.py` → `mask_glmsingle_betas.py` →
+`dimensionality_roi.py`). The per-subject pipeline stays in `FLT2`; every
+number reported in the paper is computed here.
+- `multivariate_data.py` reads FLT2's per-stage outputs into the same long
+  table `06_univariate/extract_roi_values.py` writes (measure in `beta`, its
+  name in `contrast`), so `group_stats.py`'s two-group functions run on it
+  unchanged. Also adds the a-priori Primary/Association composites.
+- `dimensionality_two_group.ipynb`: participation ratio by group × stage --
+  the planned composite trend test, a group × stage × level mixed model,
+  exploratory per-region tests, D_sheng robustness, and the PR trend export
+  for analysis B.
+- RSA and decoding: to be added once `FLT2` writes per-stage outputs for them
+  from the same betas.
+
+The old RSA code (nilearn LSS betas, MNI, fMRIPrep 22.1.1) is in
+`./archive/07_rsa/` for reference; it isn't part of the current pipeline.
 
 ### Behavioral modeling: `./08_behavioral-modeling/`
 The SPC/decision-bound model-fitting code itself lives outside this repo; this
