@@ -178,6 +178,11 @@ Cluster access obtained — fMRIPrep, atlas warping, and the univariate GLM have
     - `dimensionality_two_group.ipynb`: planned PR trend test on the composites (learners vs natives), group × stage × level mixed model, exploratory per-region tests, D_sheng robustness, PR trend export for analysis B. Tested end to end on synthetic outputs (a planted learner-only decline was recovered; a missing participant is reported). Not yet run on real data.
     - `07_rsa/` (nilearn LSS, MNI, 22.1.1) moved to `archive/07_rsa/`. Gaps before RSA/decoding are listed in `TWO_GROUP_MANUSCRIPT_PLAN.md` R5.
 
+43. **RSA modernized (2026-11-17).**
+    - FLT2 (`dfa4908`, branch `representational-dimensionality`): `rsa_roi.py` restructured on SSP's `GLMsingle_rsa-roi.py`, reading the `--glmsingle_dirname` tree (it read the old untagged `glmsingle/`, 22.1.1/MNI), ROIs found from the masked folders, `--stage` for per-stage RDMs, opt-in `--noise=shrinkage` (neither repo passed a noise estimate, so "crossnobis" was cross-validated Euclidean), stored noise matrices dropped before saving. `mask_glmsingle_betas.py`: `--rois` subset, and a failed mask no longer saves the previous trial's values under the next trial's name. Masking run script adds the 12 striatal Tian-S2 ROIs.
+    - Here: `multivariate_data.py` gains model RDMs (tone, talker), per-subject tau-a fits in the `extract_roi_values.py` schema, group-mean RDMs and a leave-one-out noise ceiling. `10_multivariate/rsa_two_group.ipynb` runs fit vs 0, tone-fit trend learners vs natives (full battery on composites, aCAU, aPUT), per-stage group differences and the group × stage ANOVA.
+    - Tested end to end on synthetic trial betas run through FLT2's `rsa_roi.py`: a planted learner-only tone-fit rise and natives-ahead-early pattern were recovered. Talker fit fell in learners although talker structure was constant -- tau-a fits trade off; noted in the notebook.
+
 ## Reviewer issues: status (2026-11-17)
 
 The manuscript work order is `09_integration/TWO_GROUP_MANUSCRIPT_PLAN.md` §4. This table tracks each reviewer concern; the workstream sections below keep the original detail.

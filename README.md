@@ -90,8 +90,12 @@ number reported in the paper is computed here.
   the planned composite trend test, a group × stage × level mixed model,
   exploratory per-region tests, D_sheng robustness, and the PR trend export
   for analysis B.
-- RSA and decoding: to be added once `FLT2` writes per-stage outputs for them
-  from the same betas.
+- `rsa_two_group.ipynb`: RSA on FLT2's per-stage RDMs (`rsa_roi.py --stage`,
+  crossnobis across each stage's two runs). Tone and talker model fits
+  (tau-a) per participant × stage × ROI, noise ceilings per group × stage,
+  fit vs 0 within group, tone-fit trend learners vs natives, and per-stage
+  group differences. Needs `rsatoolbox` (only for this notebook).
+- Decoding: to be added once `FLT2` writes per-stage decoding outputs.
 
 The old RSA code (nilearn LSS betas, MNI, fMRIPrep 22.1.1) is in
 `./archive/07_rsa/` for reference; it isn't part of the current pipeline.

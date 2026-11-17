@@ -372,10 +372,15 @@ analysis (ANOVAs, post hocs, Table 5/8-style tables, brain plots) for either gro
   analysis is `10_multivariate/dimensionality_two_group.ipynb` here (planned Primary-composite
   trend test, the mixed model above, exploratory per-region tests, D_sheng, PR trend export for
   R7), via `multivariate_data.py` and `group_stats.py`. Tested on synthetic data only.
-- **Before RSA or decoding (optional section below):** FLT2 masks only `--atlas=dseg`, so there are
-  no striatal (Tian-S2) or IC/MGN trial betas yet; FLT2's `rsa_roi.py` still reads the old
-  untagged `glmsingle/` tree (22.1.1/MNI) and builds one RDM per session, not per stage; decoding
-  exists only in `auditory_category_learning/multivariate/` (nilearn LSS, MNI). The old
+- **RSA (2026-11-17, optional section below):** FLT2 `dfa4908` brings `rsa_roi.py` up to SSP's
+  version, reading the 25.2.5/T1w tree, with `--stage` (crossnobis across each stage's two
+  runs) and opt-in `--noise=shrinkage` (true crossnobis; default is cross-validated Euclidean).
+  `run_mask_glmsingle_betas.sh` now also masks the 12 striatal Tian-S2 ROIs. Group level:
+  `10_multivariate/rsa_two_group.ipynb` (tone/talker tau-a fits, noise ceilings, tone-fit trend
+  learners vs natives, per-stage group differences). Tested on synthetic data only. To run:
+  masking (`tian-S2`) → `loop_run_rsa_roi.sh` → notebook. Caveat: tau-a fits to tone and talker
+  trade off; a joint model would separate them.
+- Decoding exists only in `auditory_category_learning/multivariate/` (nilearn LSS, MNI). The old
   `07_rsa/` is archived (`archive/07_rsa/`).
 
 ### R6. Acoustic baseline (FST1, stgrid)
