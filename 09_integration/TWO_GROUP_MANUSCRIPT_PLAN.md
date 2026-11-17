@@ -410,6 +410,9 @@ analysis (ANOVAs, post hocs, Table 5/8-style tables, brain plots) for either gro
     against mean cross-validated distance (signal strength).
   - **RSA, native-likeness:** each participant's RDM vs the natives' leave-one-out template,
     with same-stage peer-likeness as the reliability control.
+  - Deferred: representational connectivity (striatum–cortex RDM similarity). Needs RDMs from
+    disjoint trial halves per region (shared trial noise) and usable striatal noise ceilings;
+    revisit after the RSA noise ceilings are in.
   - Out of this paper: trial-level evidence vs choice, stimulus-vs-choice on errors (motor
     confound), group-membership decoding, feedback-period patterns.
   - All tested on synthetic data only. The old `07_rsa/` is archived (`archive/07_rsa/`).
