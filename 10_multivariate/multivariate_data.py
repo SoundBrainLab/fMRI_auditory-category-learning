@@ -39,12 +39,19 @@ COMPOSITES = {'Primary': ('HG', 'PT', 'PP'),
 STIMULUS_FACTORS = {'tone': lambda stim: stim.split('_')[0], 'talker': lambda stim: stim.split('_')[1]}
 
 
+# networks for FLT2's masked ROIs that aren't auditory cortex: the subcortical auditory atlas
+# (`subcort-aud`) and the whole caudate/putamen labels in the `dseg` atlas
+OTHER_NETWORKS = {'IC': 'subcort-aud', 'MGN': 'subcort-aud', 'CN': 'subcort-aud', 'SOC': 'subcort-aud',
+                  'Caud': 'striatum-whole', 'Put': 'striatum-whole'}
+
+
 def split_region_hemi(region_hemi):
     ''' 'L-HG' -> ('HG', 'L', 'auditory'); 'aCAU-lh' -> ('aCAU', 'lh', 'tian-S2'), as in
-    extract_roi_values.py '''
+    extract_roi_values.py; 'L-IC' -> ('IC', 'L', 'subcort-aud') '''
     if region_hemi.endswith(('-lh', '-rh')):
         return region_hemi[:-3], region_hemi[-2:], 'tian-S2'
-    return region_hemi[2:], region_hemi[0], 'auditory'
+    region = region_hemi[2:]
+    return region, region_hemi[0], OTHER_NETWORKS.get(region, 'auditory')
 
 
 def load_participants(bidsroot):
@@ -55,7 +62,7 @@ def load_participants(bidsroot):
     return participants[['participant_id', 'group']].rename(columns={'group': 'participant_group'})
 
 
-def load_dimensionality(dim_dir, participants, measure='PR', network='auditory'):
+def load_dimensionality(dim_dir, participants, measure='PR'):
     ''' FLT2's per-stage dimensionality CSVs (stage-<stage>/sub-<id>_dimensionality_<measure>.csv,
     one row per participant, one column per ROI such as 'L-HG') as a long table.
     measure: 'PR', 'Dsheng', or 'ntrials' (trials per stage, for coverage checks) '''
@@ -65,14 +72,14 @@ def load_dimensionality(dim_dir, participants, measure='PR', network='auditory')
             participant_id = os.path.basename(fpath).split('_')[0]
             values = pd.read_csv(fpath).iloc[0]
             for region_hemi, value in values.items():
-                region, hemisphere, _ = split_region_hemi(region_hemi)
+                region, hemisphere, network = split_region_hemi(region_hemi)
                 rows.append({'participant_id': participant_id, 'learning_stage': stage,
                              'region_hemi': region_hemi, 'region': region,
-                             'hemisphere': hemisphere, 'beta': value})
+                             'hemisphere': hemisphere, 'network': network, 'beta': value})
     if not rows:
         raise FileNotFoundError(f'no stage-*/sub-*_dimensionality_{measure}.csv files in {dim_dir}')
     df = pd.DataFrame(rows).merge(participants, on='participant_id', how='inner')
-    return df.assign(network=network, contrast=measure)
+    return df.assign(contrast=measure)
 
 
 def load_nvoxels(dim_dir, participants):
