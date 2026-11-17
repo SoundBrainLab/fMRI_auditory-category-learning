@@ -202,6 +202,8 @@ Cluster access obtained — fMRIPrep, atlas warping, and the univariate GLM have
 
 47. **Two small fixes (2026-11-17).**
     - `group_level_all_ROI.ipynb` "Compare contrasts" (cell 356): IFGo/IFGt dropped before the per-region ANOVAs, so the FDR family is 22 tests, not 24 with two duplicated (open since #27). Rerun on the cluster: 22 regions per effect; no interaction or stage effect survives (pPUT interaction q≈.34); results unchanged in substance. The natives' copy (`group-Mand_ROI.ipynb`, cell 356) still has the duplicates -- same edit needed if its table is reported.
+
+48. **Framing reopened (2026-11-17).** The three-panel stage-profile figure (aCAU, aPUT, aCAU − aPUT) shows the planned group difference is half natives' low early value, half learners' final-stage drop, with the groups equal at the middle stage. Together with the decomposition (#46), the striatal group difference is too weak to carry the paper. Decision 1 in `TWO_GROUP_MANUSCRIPT_PLAN.md` §6 now depends on the multivariate results: group × stage effects in tone geometry or cross-talker generalization → two-group paper; otherwise back toward learners-only with natives as a short control.
     - `group_level_two_group.ipynb` section 6a: paper/slide figure of correct-feedback stage profiles in aCAU and aPUT (shared y-axis, readable titles, participant lines), saved to `figures/two-group/stage-profiles_contrast-fbcorrect_aCAU-aPUT.{png,svg}`.
 
 ## Reviewer issues: status (2026-11-17)

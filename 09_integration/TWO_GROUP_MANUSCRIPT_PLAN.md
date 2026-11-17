@@ -13,7 +13,8 @@ R6), the analysis-B spec and merge layer (R7), Methods and figure notes (§3), r
 cross-repo risks (Appendix, §5). Both originals are in `09_integration/archive/` for the history
 (e.g. the Workstream I bug log). `../REVISION_PLAN.md` is the progress log.*
 
-**Framing (decided 2026-11-17): both groups, plus learners-only analyses.** The paper compares
+**Framing (provisional, 2026-11-17; final call at §6 decision 1 once the multivariate results are
+in): both groups, plus learners-only analyses.** The paper compares
 learners and natives throughout, and keeps the analyses only learners can support -- above all
 the `fbcorrectvswrong` headline. Each feedback contrast has one job:
 
@@ -127,6 +128,14 @@ will move on rerun). Strength: ● supports the claim · ◐ suggestive / indire
 - **Wording for the feedback result (2026-11-17):** the groups differ in how aCAU changes
   *relative to* aPUT, not in either region alone. Don't write "learners' aCAU decreased while
   aPUT increased": learners' aPUT trend is ≈0 and no single-region trend is significant.
+- **What drives it (stage-profile figure, two-group 6a):** caudate − putamen is the same in both
+  groups at the middle stage. Learners drop in the final stage (≈ −0.03 → −0.61); natives start
+  low (≈ −0.59) and rise. So "learners shift, natives don't" is wrong; write "in learners it fell
+  in the final stage, whereas in native listeners it rose from a low early value". Natives' low
+  early value may be task novelty (their accuracy also changed only run 1→2) -- a hypothesis.
+  Check with the per-participant version (`show_participants = True`) whether a few natives
+  drive it. The TOST result (natives' aCAU trend equivalent to 0) is about final − early only;
+  don't extend it to "natives' caudate response is stable".
 
 ## 0c. Within-group results (2026-11-11)
 
@@ -605,8 +614,22 @@ category test. If kept, port the outlier/NaN-masking fix from
   the reviewers' central doubt; it should replace, not add to, weaker sections.
 
 ## 6. Decisions for you
-1. ~~Two-group framing vs the non-Mandarin-only plan.~~ Decided 2026-11-17: both groups, plus
-   learners-only analyses (Framing, top).
+1. **Two-group framing vs learners-only: reopened 2026-11-17, decided by the multivariate
+   results.** The striatal group difference can't carry the paper: it exists only as a
+   difference of differences (aCAU−aPUT, final−early, learners−natives; aCAU alone p=.13), about
+   half of it is natives' low early value rather than learners' change (stage-profile figure,
+   6a), and by design natives can only be measured on the half of the headline that isn't
+   reliable alone even in learners (R3). Report it as the planned test, in a paragraph, not a
+   figure panel.
+   - **If** tone geometry (RSA tone fit, stage stability, native-likeness) or cross-talker
+     generalization shows group × stage effects → two-group paper; the striatal feedback finding
+     becomes "learners' feedback signal changes as the category code forms".
+   - **If** the multivariate results are also null or ambiguous → back toward the learners-only
+     paper (robust feedback headline + PR/RSA in learners), natives as a short control section:
+     behavior (learnable, learned only by learners) and an explicit statement that the headline
+     contrast can't be estimated in participants who rarely err.
+   - Either way, keep: behavior group × run; learners' feedback headline and decomposition; FMC
+     sound difference as an unpredicted observation.
 2. ~~Feedback framing.~~ Decided 2026-11-17: R3 options 1 + 2, including the `fbwrong`
    decomposition.
 2b. ~~FLT15~~ Decided 2026-11-13: included everywhere (§1).
