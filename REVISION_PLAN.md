@@ -200,6 +200,10 @@ Cluster access obtained — fMRIPrep, atlas warping, and the univariate GLM have
     - All 12 learners, every stage. aCAU trend: headline −0.59 (p=.007, LOSO 12/12) = correct −0.33 (p=.083) minus wrong +0.26 (p=.25). Neither part is reliable alone; they covary (r=.59), likely shared baseline variance that cancels in the difference.
     - Consequences: decomposition reported descriptively; the "half and half" claim dropped; the cross-group test on `fbcorrect` is conservative, and resting it on aCAU−aPUT is justified. Details in `TWO_GROUP_MANUSCRIPT_PLAN.md` R3.
 
+47. **Two small fixes (2026-11-17).**
+    - `group_level_all_ROI.ipynb` "Compare contrasts" (cell 356): IFGo/IFGt dropped before the per-region ANOVAs, so the FDR family is 22 tests, not 24 with two duplicated (open since #27). Rerun to update `compare_contrasts_anova.tsv`.
+    - `group_level_two_group.ipynb` section 6a: paper/slide figure of correct-feedback stage profiles in aCAU and aPUT (shared y-axis, readable titles, participant lines), saved to `figures/two-group/stage-profiles_contrast-fbcorrect_aCAU-aPUT.{png,svg}`.
+
 ## Reviewer issues: status (2026-11-17)
 
 The manuscript work order is `09_integration/TWO_GROUP_MANUSCRIPT_PLAN.md` §4. This table tracks each reviewer concern; the workstream sections below keep the original detail.

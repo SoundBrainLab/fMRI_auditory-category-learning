@@ -564,8 +564,9 @@ category test. If kept, port the outlier/NaN-masking fix from
     null as group differences.
 9c. ~~Per-group executed notebooks.~~ Done: `group_level_all_ROI.ipynb` (learners) and
     `group-Mand_ROI.ipynb` (natives).
-9d. Figures: paper-ready stage profiles (two panels, shared y-axis, readable titles; §3) and
-    cropped surface maps. vmPFC naming throughout (R4).
+9d. Figures: ~~paper-ready stage profiles~~ (done 2026-11-17: two-group section 6a,
+    `figures/two-group/stage-profiles_contrast-fbcorrect_aCAU-aPUT.{png,svg}`); cropped surface
+    maps; vmPFC naming throughout (R4).
 10. ~~R4 networks with group.~~ Done 2026-11-04 (R4).
 11. R6 FST1: masking + PR for all, trial-matched tonecat PR, tuning port and stats fix.
 12. R7 integration.
