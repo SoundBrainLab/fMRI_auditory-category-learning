@@ -1,3 +1,8 @@
+> **Archived 2026-11-17.** Superseded by `../TWO_GROUP_MANUSCRIPT_PLAN.md`, which carries the live
+> parts: analysis B and the merge layer (R7), open FLT2/FST1 checks (R5, R6), cross-repo risks (§5)
+> and the repo table (Appendix). Kept for the Workstream I history (FLT2/FST1 bugs fixed on the
+> 25.2.5/T1w recompute). Status notes below are as of 2026-09-15 and are not maintained.
+
 # Integration Plan: Striatal Feedback + Behavior ↔ Auditory Representational Dimensionality + Spectrotemporal Tuning
 
 Companion to `REVISION_PLAN.md`. Scope: connect this repo's striatal-feedback / behavioral-model

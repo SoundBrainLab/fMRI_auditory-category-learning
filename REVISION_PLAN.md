@@ -5,6 +5,7 @@
 The manuscript ("Distinct 7T functional MRI response patterns to stimulus and feedback across dorsal striatum during auditory learning") was rejected by *Journal of Neuroscience* after two rounds of revision (JN-RM-0379-25R2, decision 2026-08-16). Both reviewers' core complaint is that the manuscript **drifted across revisions**: RSA was cut, behavioral modeling (SPC vs. decision-bound models) and PFC connectivity were added late and poorly integrated. R2 was largely positive about the two "core" results (DWI structural-connectivity gradient; univariate feedback/sound response profiles across striatal subregions) but flagged integration/reporting gaps. R1 was more skeptical: doubted the feedback results would replicate at n=12, and flagged the behavioral modeling for lacking a direct model comparison, a structurally biased comparison, and a small (16-stimulus) stimulus set relative to the decision-bound literature.
 
 **Decisions already made with the user:**
+- **Framing (2026-11-17): two groups (learners vs native Mandarin listeners), plus learners-only analyses** -- above all the `fbcorrectvswrong` headline. The manuscript plan is `09_integration/TWO_GROUP_MANUSCRIPT_PLAN.md`; this file is the progress log and reviewer-issue tracker.
 - Keep the SPC/decision-bound modeling (sound method, under-described/poorly integrated) — fix via write-up + integration, not removal.
 - Stay journal-agnostic for now; plan is venue-neutral. (*PLOS Biology* would need a broad-significance reframe for a confirmatory n=12 paper; *Neurobiology of Language*/*eNeuro* are likelier fits given the reviews are about integration/rigor, not novelty.)
 - Open to new analyses beyond robustness checks, as long as n=12 is respected (no new data, no comparison-multiplying analyses without justification).
@@ -75,9 +76,9 @@ Cluster access obtained — fMRIPrep, atlas warping, and the univariate GLM have
 
 ## Progress (2026-09-10 → 2026-09-15)
 
-23. **Integration plan added, split into a Phase 1/Phase 2 roadmap** (`09_integration/INTEGRATION_PLAN.md`) for connecting this manuscript's striatal-feedback/behavioral findings with representational-dimensionality work in the sibling `FLT2`/`FST1` repos — this is the groundwork Workstream 1's neural-integration analysis needs. Phase 1 (going into this revision): one pre-registered link between the striatal feedback learning-stage trend (already in this repo) and an auditory-cortex representational-dimensionality trend (recomputed in `FLT2`). Phase 2 (later, on request): the SPC-behavior/dimensionality links, an FST1 acoustic-baseline comparison, RSA/language-group extensions.
+23. **Integration plan added, split into a Phase 1/Phase 2 roadmap** (`09_integration/INTEGRATION_PLAN.md`, archived 2026-11-17 to `09_integration/archive/`) for connecting this manuscript's striatal-feedback/behavioral findings with representational-dimensionality work in the sibling `FLT2`/`FST1` repos — this is the groundwork Workstream 1's neural-integration analysis needs. Phase 1 (going into this revision): one pre-registered link between the striatal feedback learning-stage trend (already in this repo) and an auditory-cortex representational-dimensionality trend (recomputed in `FLT2`). Phase 2 (later, on request): the SPC-behavior/dimensionality links, an FST1 acoustic-baseline comparison, RSA/language-group extensions.
 
-24. **`FLT2`/`FST1` dimensionality recompute now running on the cluster on fMRIPrep 25.2.5, in native T1w — matching this repo's own revised pipeline**, not left on the old 22.1.1/MNI outputs. Getting the first real run working surfaced and fixed several bugs in the sibling repos (not this one, but load-bearing for Workstream 1): `FLT2` wasn't saving GLMsingle betas as NIfTI at all; its design matrix was collapsing repeated within-run trials into one column per condition instead of one per trial, which both violates GLMsingle's own documented method and silently dropped every masked beta downstream; a stale-cache bug treated an interrupted GLMsingle run's output directory as "already complete" and crashed trying to load files that were never written. Also separately confirmed GLMsingle is methodologically valid for `FST1`'s 20-second block-design stgrid task (checked directly against GLMsingle's own docs, not assumed) and removed both repos' manual `slice_time_ref` computation to match this repo's own validated auto-inference (`univariate_glm.py`, #18). `FLT2` tonecat dimensionality output now exists for 23 of ~25 subjects; the remaining two are rerunning with the fixes applied. `FST1` stgrid GLMsingle has also been run. Full detail in `09_integration/INTEGRATION_PLAN.md`, Workstream I.
+24. **`FLT2`/`FST1` dimensionality recompute now running on the cluster on fMRIPrep 25.2.5, in native T1w — matching this repo's own revised pipeline**, not left on the old 22.1.1/MNI outputs. Getting the first real run working surfaced and fixed several bugs in the sibling repos (not this one, but load-bearing for Workstream 1): `FLT2` wasn't saving GLMsingle betas as NIfTI at all; its design matrix was collapsing repeated within-run trials into one column per condition instead of one per trial, which both violates GLMsingle's own documented method and silently dropped every masked beta downstream; a stale-cache bug treated an interrupted GLMsingle run's output directory as "already complete" and crashed trying to load files that were never written. Also separately confirmed GLMsingle is methodologically valid for `FST1`'s 20-second block-design stgrid task (checked directly against GLMsingle's own docs, not assumed) and removed both repos' manual `slice_time_ref` computation to match this repo's own validated auto-inference (`univariate_glm.py`, #18). `FLT2` tonecat dimensionality output now exists for 23 of ~25 subjects; the remaining two are rerunning with the fixes applied. `FST1` stgrid GLMsingle has also been run. Full detail in `09_integration/archive/INTEGRATION_PLAN.md`, Workstream I.
 
 ## Progress (2026-11-03 → 2026-11-04)
 
@@ -151,14 +152,40 @@ Cluster access obtained — fMRIPrep, atlas warping, and the univariate GLM have
 
 38. **Group-difference figures (2026-11-13, commits `d650ffd`, `1e25cbd`).**
     - Two-group notebook section 6b: forest plot (d with 95% CI, every ROI, stage-averaged and trend), 12 ROI maps of learners − natives t (bilateral t on both hemispheres, ±4 scale, `*` = q<.05), key-results panel. Figures in `06_univariate/figures/two-group/`.
-    - Surface-map SVGs are 100–230 MB (3D mesh), which GitHub rejects; surface maps are now saved as PNG only (uncommitted fix). Striatal SVGs are fine.
+    - Surface-map SVGs are 100–230 MB (3D mesh), which GitHub rejects; surface maps are now saved as PNG only (committed, `ea27a9a`). Striatal SVGs are fine.
     - New exploratory result: auditory `fbcorrect` trend group differences in ParsTri, STGa and ParsOp (q=.030–.046; natives increase, learners don't). See `TWO_GROUP_MANUSCRIPT_PLAN.md` R2.
-    - The key-results cell didn't run (the run stopped after the maps).
+    - ~~The key-results cell didn't run.~~ Rerun 2026-11-13 (`ea27a9a`); all figures present.
 
 39. **FLT15 kept; behavior rescored (2026-11-13).**
     - FLT15's "bad responses" were a scoring bug: keys stored as floats (`resp_6.0`) were read as `'0'`, so every trial scored wrong (0% accuracy). Real accuracy is .90 → 1.00. Fixed in `create_behav_confusion_matrices.py` (`f36d397`) and `behavior_analysis.ipynb`; native notebook rerun on the corrected file.
     - Their missed responses are labelled `fb_wrong`; only `fbcorrectvswrong` is affected, which natives aren't analysed on. Included in every analysis (n=12 learners, 13 natives). Details: `TWO_GROUP_MANUSCRIPT_PLAN.md` §1.
     - New `04_behavior/two_group_accuracy.py`: per-run accuracy for both groups, run 6 vs run 1, group × run mixed ANOVA, and the two-group figure `04_behavior/behav_acc_two-group.{png,svg}`. Results: learners .38→.82 (t(11)=6.68, p<.001, unchanged from before); natives .945→.984 (t(12)=2.29, p=.041; was p=.087 at n=12), almost all run 1→2; group × run F(5,115)=19.06, p<.001, ηp²=.45.
+
+40. **Reading of the two-group feedback result; figure status (2026-11-17).** No new analyses.
+    - aCAU−aPUT `fbcorrect` trend difference is a *relative* change: none of its four components is significant (learners aCAU −0.33, aPUT +0.07; natives aCAU +0.07, aPUT −0.20). Learners' aCAU starts above natives' and ends level (stage gaps +0.30, +0.15, −0.11; all n.s.); describe, don't claim.
+    - FMC is ventromedial PFC (presumably Harvard-Oxford "Frontal Medial Cortex"; confirm against the mask source). Use "vmPFC" in text and slides.
+    - Figures: behavior plot committed (`4cc8a48`). The section 6 stage-profile figure needs a paper/slide version (two `fbcorrect` panels, shared y-axis, readable titles). Surface maps need cropping. The striatal trend map is supplementary.
+    - Details in `TWO_GROUP_MANUSCRIPT_PLAN.md` §0b, R3, R4, §3 and work order 9d.
+
+41. **Plans consolidated; framing decided (2026-11-17).**
+    - Framing: both groups, plus learners-only analyses (`fbcorrectvswrong` headline, `fbwrong` decomposition, analysis B). `TWO_GROUP_MANUSCRIPT_PLAN.md` decisions 1 and 2 closed.
+    - `TWO_GROUP_MANUSCRIPT_PLAN.md` is now the only live plan. It absorbed the live parts of `MANUSCRIPT_INTEGRATION_PLAN.md` and `INTEGRATION_PLAN.md`: FLT2 result and fixes (R5), FST1 status and the fMRIPrep/grid integrity checks (R6), the analysis-B spec with its striatal scalar fixed to `fbcorrectvswrong` and the merge layer (R7), Methods/figure notes (§3), cross-repo risks (§5), repo table (Appendix). Both originals moved to `09_integration/archive/` with pointer headers.
+    - This file: added the reviewer-issue status table; marked the old sequencing as historical and the superseded sound-discrepancy and connectivity items.
+
+## Reviewer issues: status (2026-11-17)
+
+The manuscript work order is `09_integration/TWO_GROUP_MANUSCRIPT_PLAN.md` §4. This table tracks each reviewer concern; the workstream sections below keep the original detail.
+
+| Concern | Status | Where |
+|---|---|---|
+| R1: feedback decline won't replicate at n=12 | Robust in learners (aCAU t=−3.30, aCAU−aPUT t=−2.90, LOSO 12/12); natives added as a control (aCAU−aPUT `fbcorrect` trend differs, p=.019) | Workstream 5; plan R3 |
+| R1/R2: is it learning at all? | Two-group design; learners-only `fbcorrectvswrong` kept | Plan Framing, R3 |
+| R1: behavioral modeling lacks a direct comparison; 16 stimuli | Comparison code built, not run on the full file; write-up not started | Workstreams 0–1 |
+| R2: integrate behavior, striatum and cortex | Analysis B specified, not run (needs FLT2 fixes) | Plan R5, R7 |
+| R2: power / n=12 limitations | Not written | Workstream 4 |
+| Univariate reporting (Table 5/8, Compare contrasts, figures) | Pipeline rerun on `scrubbed-splitfb` (#28–#33); text not updated | Workstream 3; plan R2, R4 |
+| HCP connectivity (R2 ANOVA, caudate breakout, citations) | Moved to a separate manuscript | Workstream 2 |
+| Discussion wording (p.11, p.17) | Writing only, last | Workstream 6 |
 
 ## Workstreams (in priority order)
 
@@ -185,6 +212,7 @@ Data-quality flags re-checked against this grouping (mostly moot after dropping 
 - **Neural integration (most-requested fix, both reviewers, fully feasible):** correlate each subject's SPC fit trajectory with feedback BOLD change in anterior caudate vs. putamen — exactly R2's proposed linkage. Needs only the Workstream 0 results table + existing `06_univariate/` pipeline. **Head start:** cells 223–232 of the notebook already have reusable merge/correlation scaffolding (built for raw accuracy, not SPC — adapt rather than rebuild).
 
 ### 2. Connectivity (HCP) reporting fixes — mostly low-effort
+*Moved to a separate manuscript (decided by 2026-10-30); not part of this revision. Kept for that paper.*
 - Pull the already-computed `anova_pfc_full.tsv` into the manuscript (R2's ask).
 - **Caudate×rostral-caudal breakout — gap confirmed real; user computing it themselves.** No file in `hcp7t_mrtrix3_TianS2/stats_exports/` (22 checked) splits both factors at once for either auditory or PFC connectivity. Raw per-subject connectome data is available locally (`/Users/dsj3886/data_local/derivatives/HCP_7T_diffusion/msmt_csd_nthreads-1/`), and `connectivity_statistics.ipynb` already has the right dataframe columns — just never exported this comparison.
 - Same caudate-only rostral-caudal breakout needed on the PFC side, for reporting parity.
@@ -192,7 +220,7 @@ Data-quality flags re-checked against this grouping (mostly moot after dropping 
 - State explicitly that connectivity draws on an independent normative HCP sample, not this study's participants.
 
 ### 3. Univariate fMRI reporting fixes
-- **Sound discrepancy (#21) — decided: report `scrubbed`, don't diagnose.** Some Table 5 (sound) auditory-cortex ROIs lose significance under the modernized pipeline (e.g. left planum polare). Kept on `scrubbed` for consistency with feedback; the text should state that the updated preprocessing (scrubbing, fMRIPrep 25.2.5, T1w) changed these results. Confirmed at n=12 (#27): left PP still n.s. (t=0.79), right PP significant.
+- *Superseded by #28/#32: one model (`scrubbed-splitfb`) for every contrast; left PP is t=3.14, q=.012 again.* **Sound discrepancy (#21) — decided: report `scrubbed`, don't diagnose.** Some Table 5 (sound) auditory-cortex ROIs lose significance under the modernized pipeline (e.g. left planum polare). Kept on `scrubbed` for consistency with feedback; the text should state that the updated preprocessing (scrubbing, fMRIPrep 25.2.5, T1w) changed these results. Confirmed at n=12 (#27): left PP still n.s. (t=0.79), right PP significant.
 - **"Compare contrasts" section** — run (#27). To fix before reporting: drop the duplicated `IFGo`/`IFGt` (= `ParsOp`/`ParsTri`) from the FDR family; frame `pPUT` follow-ups as exploratory unless a priori; don't interpret the `event_type` main effect on its own.
 - Table 5/8: state explicitly that non-significant regions were excluded via the univariate screening step — logic likely already exists upstream, just needs documenting in text.
 - **Color-gradient legends — checked, not a code bug.** All three plotting paths already build a labeled colorbar; if submitted figures lacked one, it's a stale-figure/assembly issue, not code. Regenerate and confirm visually.
@@ -212,7 +240,7 @@ Data-quality flags re-checked against this grouping (mostly moot after dropping 
 
 Still answers R1's "wouldn't replicate at n=12" — the differential effect survives every leave-one-out fold — but with smaller effects than the old (superseded) numbers: t=−4.03/−4.21, exact p=.0034/.0024. Don't use those in the manuscript.
 
-**Figure — done (2026-11-03)**: `06_univariate/plot_robustness_checks.py --mode=roi`, run against the real TSV above — a "robustness panel" (per-subject slopes · LOSO caterpillar · exact-permutation null · bootstrap CI), one row per contrast (aCAU / aPUT / aCAU−aPUT). The one-row `--mode=spc` variant (SPC behavioral trend from `model_comparison.py`'s `spc_relative_bic_early_late.csv`) is not yet run. See `INTEGRATION_PLAN.md` for the fuller menu of robustness-plot options.
+**Figure — done (2026-11-03)**: `06_univariate/plot_robustness_checks.py --mode=roi`, run against the real TSV above — a "robustness panel" (per-subject slopes · LOSO caterpillar · exact-permutation null · bootstrap CI), one row per contrast (aCAU / aPUT / aCAU−aPUT). The one-row `--mode=spc` variant (SPC behavioral trend from `model_comparison.py`'s `spc_relative_bic_early_late.csv`) is not yet run. See `09_integration/archive/INTEGRATION_PLAN.md` for the fuller menu of robustness-plot options.
 
 **Scope — headline claims only.** Primary target: anterior-caudate-vs-putamen feedback learning-stage interaction (Table 8). Table 5 (sound) is a secondary extension if time allows.
 
@@ -233,7 +261,7 @@ Still answers R1's "wouldn't replicate at n=12" — the differential effect surv
 - P.11 lines 334–336: adopt R2's suggested rephrasing.
 
 ### 7. Processing / GLM modernization
-**Status: run to completion on the cluster (2026-09-04).** fMRIPrep 25.2.5 finished (#16); the confound/GLM upgrade is live in `univariate_glm.py` and iterated well beyond original scope (#18/#19). Feedback now matches the manuscript's key findings; sound has a new open discrepancy (#21, Workstream 3).
+**Status: run to completion on the cluster (2026-09-04).** fMRIPrep 25.2.5 finished (#16); the confound/GLM upgrade is live in `univariate_glm.py` and iterated well beyond original scope (#18/#19). Feedback now matches the manuscript's key findings; the sound discrepancy (#21) was resolved by the single model (#28/#32).
 
 - **Confound/GLM upgrade — done.** Replaced the manual `conf_keep_list` (aCompCor disabled, no scrubbing) with `load_confounds_strategy(denoise_strategy='scrubbing', fd_threshold=0.9, std_dvars_threshold=1.5)`, passing `sample_mask` into `model.fit()`. Every run is kept regardless of retained-fraction (n=12 means every run counts); per-run stats logged to `derivatives/nilearn/qc/`.
 - **fMRIPrep bump — decided: 25.2.x LTS**, not just 23.2.1. The 22.1.1→23.2.1 jump fixes fieldmap/SDC masking; 25.2.x additionally picks up brain-mask dilation fixes and a support window through Oct 2029. No version in range is 7T-specific — this is a general-accuracy/longevity upgrade.
@@ -258,9 +286,10 @@ Scope: three atlases warped to T1w — **Tian S2** (striatum; S3 dropped), **`su
 - **Manuscript framing caveat:** T1w warping is a precision/denoising improvement (avoids MNI-normalization interpolation blur for small structures), not more anatomically individualized ROI boundaries — still population-average parcellations.
 
 ## Suggested sequencing
+*Historical (2026-11-04). The current work order is `09_integration/TWO_GROUP_MANUSCRIPT_PLAN.md` §4; reviewer status is in the table above.*
 
 1. ✅ **Done.** Housekeeping: branch, `.gitignore`, starter `environment.yml`.
-2. ✅ **Delivered; comparison code built, not yet run on the real full file.** CJH1/CJH2 dropped; `model_comparison.py` validated (20/20). 🔲 Methods write-up not started. 🟡 Neural-integration analysis: groundwork (sibling-repo dimensionality recompute, #24) now running on the cluster; the actual correlation/write-up (Phase 1 of `09_integration/INTEGRATION_PLAN.md`) hasn't started.
+2. ✅ **Delivered; comparison code built, not yet run on the real full file.** CJH1/CJH2 dropped; `model_comparison.py` validated (20/20). 🔲 Methods write-up not started. 🟡 Neural-integration analysis: groundwork (sibling-repo dimensionality recompute, #24) now running on the cluster; the actual correlation/write-up (analysis B, `09_integration/TWO_GROUP_MANUSCRIPT_PLAN.md` R7) hasn't started.
 3. ✅ **Run to completion.** fMRIPrep 25.2.x built and run to a separate tree (Workstream 7); `05_masking/` re-run against it.
 4. ✅ **Run to completion.** Tian S2/`subcort_aud`/`carpet_dseg`/`carpet_pfc` warped to T1w (Workstream 8); transform confirmed correct.
 5. ✅ **Done, substantially beyond original scope.** Confound/GLM upgrade live; run scripts use `--space=T1w`. Found/fixed real data-loss/API bugs, added scrubbing ablation + permanent collapsed-nuisance design, confirmed feedback replicates the manuscript (#19). Sound stays on `scrubbed` despite its discrepancy (#21, decided). README needs a catch-up pass (not yet done).

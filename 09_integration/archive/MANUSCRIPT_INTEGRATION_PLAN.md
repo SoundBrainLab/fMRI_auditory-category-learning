@@ -1,3 +1,7 @@
+> **Archived 2026-11-17.** Superseded by `../TWO_GROUP_MANUSCRIPT_PLAN.md`. Its learners-only
+> framing was replaced by the two-group design (with learners-only analyses kept); its FLT2/FST1
+> status, integrity checks and §3E analysis-B spec were merged into R5–R7 there. Not maintained.
+
 # FLT manuscript update: integrating FLT2, FST1 and auditory_category_learning
 
 *Drafted 2026-10-30. Builds on `INTEGRATION_PLAN.md` (last updated 2026-09-15) and `../REVISION_PLAN.md`;

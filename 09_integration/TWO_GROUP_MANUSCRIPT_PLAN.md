@@ -3,10 +3,30 @@
 *Drafted 2026-10-30; updated 2026-11-04 with the first two-group striatal and cortical ROI results
 (REVISION_PLAN.md #28–#33), and 2026-11-11 with the full within-group analysis for each group
 (§0c; REVISION_PLAN #34–#35), and 2026-11-12 with the pPUT sound-trend and group × hemisphere
-tests (REVISION_PLAN #36), and 2026-11-13: FLT15 kept, behavior rescored (REVISION_PLAN #39).
-Alternative to `MANUSCRIPT_INTEGRATION_PLAN.md` (non-Mandarin only).
-Reuses its repo map, the FLT2/FST1 status notes and the integrity checks (§1b–1e there), which
-apply unchanged.*
+tests (REVISION_PLAN #36), and 2026-11-13: FLT15 kept, behavior rescored (REVISION_PLAN #39), and
+2026-11-17: what the aCAU−aPUT group difference is made of, FMC naming, figure status
+(REVISION_PLAN #40).
+**This is the only live manuscript plan (2026-11-17).** The live parts of
+`MANUSCRIPT_INTEGRATION_PLAN.md` (learners-only framing, 2026-10-30) and `INTEGRATION_PLAN.md`
+(cross-repo technical plan, 2026-09) were merged in: FLT2/FST1 status and integrity checks (R5,
+R6), the analysis-B spec and merge layer (R7), Methods and figure notes (§3), repo roles and
+cross-repo risks (Appendix, §5). Both originals are in `09_integration/archive/` for the history
+(e.g. the Workstream I bug log). `../REVISION_PLAN.md` is the progress log.*
+
+**Framing (decided 2026-11-17): both groups, plus learners-only analyses.** The paper compares
+learners and natives throughout, and keeps the analyses only learners can support -- above all
+the `fbcorrectvswrong` headline. Each feedback contrast has one job:
+
+| Role | Contrast | Groups | What it shows |
+|---|---|---|---|
+| Headline | `fbcorrectvswrong` aCAU trend; aCAU−aPUT | learners | The original finding and its robustness (Reviewer 1: replication at n=12) |
+| Specificity | `fbcorrect` aCAU−aPUT trend difference | both | The correct-feedback part of the shift is absent in natives |
+| Decomposition | `fbwrong` = `fbcorrect` − `fbcorrectvswrong` | learners | Headline ≈ half less response to correct feedback, half more to wrong; natives speak only to the first half |
+| Shared vs different | `sound` | both | Auditory cortex, aPUT, NAc-core in both; vmPFC (FMC) and STGp differ |
+
+Say in Methods why the contrast changes: natives average ~1 wrong-feedback trial per run and six
+have none. Don't call the `fbcorrectvswrong` decline itself "learner-specific" -- that can't be
+tested. Analysis B (R7) and the robustness panel stay learners-only on `fbcorrectvswrong`.
 
 **What changed on 2026-11-04**
 - One first-level model, `scrubbed-splitfb`, now gives every contrast for both groups (`sound`,
@@ -46,7 +66,7 @@ into a direct test, and gives FLT2's language-group results a home inside the sa
 Working title idea: *Striatal feedback signals and auditory cortical representations distinguish
 learning from native listening of speech-tone categories (7T fMRI).*
 
-## 0b. Where the evidence stands (updated 2026-11-04)
+## 0b. Where the evidence stands (updated 2026-11-17)
 
 New-pipeline ROI numbers below are from `group_level_two_group.ipynb`: hemispheres and stages
 averaged per participant, FDR across regions within group × contrast × network, learners n=12,
@@ -75,7 +95,7 @@ will move on rerun). Strength: ● supports the claim · ◐ suggestive / indire
 | Cortical PR topography differs | Group × ROI F(13,247)=5.63, p<.001. Learners higher PR in right auditory cortex (R-STGa p_FDR=.017, d=1.65; R-HG/R-STGp p_FDR=.055); natives higher in L-ParsOp (p_FDR=.055) | new, 11/10 | ● (strongest new-pipeline group result) | Complete sample (FLT02 etc.); FST1 baseline to say whether it's experience or trait |
 | Primary vs association hierarchy reverses by group | Learners Primary > Association at middle/final (p=.04/.02 unc.); natives reverse at middle (p=.04 unc.); all p_FDR=.08. Primary-level group difference largest at middle stage (t=-3.38, p_FDR=.019) | new, 11/10 | ◐ | Single mixed model instead of per-stage tests |
 | ~~Striatal response-period activity only in learners~~ | **Dropped (2026-11-04).** `resp` is in the model as a nuisance regressor but not reported: the response is <1 s after the sound at TR=3 s, and group RT differences would confound it. (The new pipeline did show a NAc-shell `resp` group effect, q=.008; not reported for these reasons.) | -- | -- | -- |
-| aCAU feedback decline is learning-specific | Learners, headline `fbcorrectvswrong`: aCAU trend t=−3.30, exact p=.007, LOSO 12/12; aCAU−aPUT t=−2.90, p=.017, LOSO 12/12. **Cross-group test (`fbcorrect`):** aCAU trend learners −0.33 (p=.083), natives +0.07 (p=.70), difference t=−1.59, p=.13, LOSO 1/25 -- not significant. **aCAU−aPUT trend differs between groups:** −0.66, t=−2.52, p=.019, permutation p=.018, LOSO 25/25, 95% CI [−1.15, −0.17] | new, 12/13 | ◐ -- the differential trend is robust, but `fbcorrect` only partly captures the headline effect (R3) | Reframe around what `fbcorrect` measures (§2 R3); FLT15 sensitivity for the planned tests |
+| aCAU feedback decline is learning-specific | Learners, headline `fbcorrectvswrong`: aCAU trend t=−3.30, exact p=.007, LOSO 12/12; aCAU−aPUT t=−2.90, p=.017, LOSO 12/12. **Cross-group test (`fbcorrect`):** aCAU trend learners −0.33 (p=.083), natives +0.07 (p=.70), difference t=−1.59, p=.13, LOSO 1/25 -- not significant. **aCAU−aPUT trend differs between groups:** −0.66, t=−2.52, p=.019, permutation p=.018, LOSO 25/25, 95% CI [−1.15, −0.17]. **A relative difference:** none of the four component trends is significant (learners aCAU −0.33, aPUT +0.07; natives aCAU +0.07, aPUT −0.20). Learners' aCAU starts above natives' and ends level with them (stage gaps +0.30, +0.15, −0.11; t=1.40, 0.62, −0.41) | new, 12/13 | ◐ -- the differential trend is robust, but `fbcorrect` only partly captures the headline effect (R3) | Reframe around what `fbcorrect` measures (§2 R3). Describe the convergence descriptively; it isn't tested |
 | NAc-shell feedback differs by group | `fbcorrect` NAc-shell: learners −0.22, natives +0.13; d=−1.06, p=.016, q=.099 | new, 12/13 | ○ (not FDR-significant) | Exploratory only |
 | Tone-category structure emerges with learning | Learners: Tone RDM fits > Talker across cortex and striatum; Tone fit rises early→late | old, learners only | ◐ for learners, ○ for groups | Natives not analyzed. Old "all regions" tests pool ROI × subject rows as independent (e.g. t=14.6), which inflates them -- redo at subject level |
 | Tone decoding differs by group | Natives' striatal tone decoding near chance (old, partial); cross-group "train native, test learner" decoding started with 5 natives / 7 learners | old, partial | ○ | Not reportable as is |
@@ -102,6 +122,9 @@ will move on rerun). Strength: ● supports the claim · ◐ suggestive / indire
   correct feedback and half more response to wrong feedback; natives can only be measured on
   the first half. The framing decision at Phase 1 step 8 has to be made on this basis (§6).
 - **The strongest group difference overall is still cortical:** PR topography (FLT2).
+- **Wording for the feedback result (2026-11-17):** the groups differ in how aCAU changes
+  *relative to* aPUT, not in either region alone. Don't write "learners' aCAU decreased while
+  aPUT increased": learners' aPUT trend is ≈0 and no single-region trend is significant.
 
 ## 0c. Within-group results (2026-11-11)
 
@@ -181,6 +204,13 @@ from their one-off 2025 reconversion (commit `7639a4b`):
 To do first: one `09_integration/subjects.csv` with group, and per-analysis inclusion flags
 (behavior / striatal GLM / FLT2 PR / FST1), so every n in the paper traces to one file.
 
+Sample gaps outside this repo (as of 2026-10-30):
+- FLT2: FLT02 still absent from the outputs (stale-cache bug, being rerun); FLT22 rerun status
+  unknown. §9a's merge with `participants.tsv` labels only 21 of 23 loaded subjects.
+  `sub_list` in the notebook setup cell is stale (FLT06 loaded but not listed).
+- FLT06/11/14: ran cleanly in FLT2; QA glance (tSNR, voxel counts, R² maps) still owed.
+- FLT27 appears in some FLT2 lists; confirm its status.
+
 Power, stated once and used everywhere: 12 vs 12, two-sided α=.05, 80% power needs d≈1.2 for a
 group difference; interactions need more. So keep the number of primary group tests small,
 report effect sizes with CIs, and support every **"absent in natives"** claim with an equivalence
@@ -196,7 +226,7 @@ This paper uses only this study's own fMRI and behavioral data.*
   `run_accuracies.tsv`, n=12/13 including FLT15, and writes per-run means with 95% CIs, run 6 vs
   run 1 within each group, the group × run mixed ANOVA (GG-corrected) and the two-group figure
   `04_behavior/behav_acc_two-group.{png,svg}`. Its accuracy is per-category accuracy averaged
-  over categories, on answered trials, so expect small differences from the old .38→.82.
+  over categories, on answered trials; learners match the old .38→.82.
 - RT: group × run model still to port from the old repo's `behavior_analysis.ipynb`.
 - Response confusion matrices for both groups (old repo has the code and outputs).
 - SPC / decision-bound modeling: **learners only** -- natives at ceiling make strategy fits
@@ -274,6 +304,13 @@ This paper uses only this study's own fMRI and behavioral data.*
 - Planned group tests on A: aCAU difference not significant (t=−1.59, p=.13, LOSO 1/25).
   aCAU−aPUT differs robustly (−0.66, t=−2.52, p=.019, permutation p=.018, LOSO 25/25,
   CI [−1.15, −0.17]): learners −0.39 (p=.052), natives +0.27 (p=.18).
+- Components (2026-11-17): learners aCAU −0.33, aPUT +0.07; natives aCAU +0.07, aPUT −0.20.
+  None is significant alone, so the result is the *relative* change. In learners it's mostly aCAU
+  falling; in natives it's mostly aPUT falling while aCAU stays flat (TOST-equivalent to 0, R2).
+- Convergence (descriptive): learners − natives aCAU `fbcorrect` by stage is +0.30, +0.15, −0.11
+  (t=1.40, 0.62, −0.41). Learners' aCAU starts above natives' and ends at their level. No stage
+  differs significantly; a formal test would be the trend difference above (aCAU alone p=.13).
+  Fine to show in a figure and describe; don't claim it as a result.
 
 **Framing options (decide before writing; §6):**
 1. Lead with the aCAU−aPUT differential `fbcorrect` trend as the cross-group result, and keep B
@@ -283,7 +320,9 @@ This paper uses only this study's own fMRI and behavioral data.*
    can and can't speak to.
 3. Treat the two-group feedback result as supporting rather than decisive: robust for the
    differential trend, absent for aCAU alone.
-Options 1 and 2 combine naturally.
+Options 1 and 2 combine naturally. **Decided 2026-11-17: 1 + 2** (see Framing at the top). To do:
+learners' `fbwrong` aCAU trend (implied ≈ +0.26) tested with the same battery (sign-flip, LOSO,
+bootstrap) in the two-group notebook.
 
 ### R4. Cortical and PFC ROI networks -- run 2026-11-04; per-group 2026-11-11
 Between-group tests are in `group_level_two_group.ipynb` (IFGo/IFGt dropped as duplicates of
@@ -296,6 +335,11 @@ analysis (ANOVAs, post hocs, Table 5/8-style tables, brain plots) for either gro
 - Per-ROI group differences (section 5b; stage-averaged and per stage): `sound` FMC and STGp
   survive FDR (§0b); OFC `sound` is close (q=.060). Nothing survives per stage.
 - Group × stage ANOVA: only FMC `sound` (group main effect) survives FDR.
+- **Naming:** FMC is presumably Harvard-Oxford "Frontal Medial Cortex" (the other PFC labels
+  match that atlas; confirm against the mask source). Anatomically it's ventromedial PFC. In the
+  text and on slides, write "ventromedial prefrontal cortex (vmPFC; Harvard-Oxford FMC)" once,
+  then vmPFC. Task-related vmPFC deactivation is common, which gives the learner-only
+  deactivation an interpretation (effortful listening) -- untested, so Discussion only.
 - Learners' `fbcorrect` is below baseline in auditory cortex (HG t=−6.15, PP, PT); natives'
   isn't significant but has the same sign.
 
@@ -308,8 +352,22 @@ analysis (ANOVAs, post hocs, Table 5/8-style tables, brain plots) for either gro
 - Existing signal to confirm on the full sample: non-Mandarin higher PR in right auditory
   cortex (R-STGa p_FDR=.017), a Primary-level group difference at the middle stage
   (p_FDR=.019), and Primary > Association in learners vs the reverse in natives.
-- Fixes owed first (from the other plan): FLT02 missing, group labels for all subjects, §13 D1
-  bug, stale markdown, unexecuted §9h/§9i.
+- Current FLT2 result (n=23, groups pooled, 25.2.5/T1w, notebook re-run 2026-09-15): stage
+  main effect F(2,44)=5.37, p=.008 (GG p=.009); stage × ROI n.s. (p_GG=.29). PR is lower in final
+  than early in every region; per ROI early-vs-final FDR across 14 ROIs: R-HG, R-STGa, R-ParsOp
+  (p_FDR=.048), L-STGp, R-ParsTri (.050). Primary composite early-vs-final t(22)=2.39, p=.026,
+  d=.35. These pool groups; the per-group picture is the open question above.
+- Fixes owed before any number goes in the paper (FLT2 `representational_dimensionality.ipynb`):
+  - Sample: FLT02/FLT22, group labels, `sub_list` (§1).
+  - §13 D1: the "all-runs" row repeats the final-stage values (np²=.195 instead of §9c's .229);
+    variable reuse bug.
+  - Stale markdown: §8e-iii says no ROI survives FDR (five do); §13 cites a §9c p=.003 that no
+    longer matches.
+  - Not executed on the recompute: §9h (D_sheng cross-validation), §9i (PR ↔ accuracy), §11
+    searchlight, §13 D2. Searchlight D_sheng loads 0 subjects (searchlight not re-run; group maps
+    would need MNI).
+- Report PR as primary and ROI-level D_sheng (already in `dimensionality_roi.py` CSVs) as
+  robustness; skip the searchlight version.
 
 ### R6. Acoustic baseline (FST1, stgrid)
 Stgrid has no learning and no tone categories, so it answers: **are the FLT2 group differences
@@ -324,15 +382,46 @@ categories (experience)?**
   against the grand mean of all ROIs (non-independent reference) with an RM/mixed ANOVA or a
   stimulus-label permutation.
 - All current FST1 outputs are 22.1.1/MNI; nothing is reportable until rerun.
+- Status (2026-10-30): stgrid GLMsingle (T1w, block design via `stimdur`; one block per stimulus
+  per run, so already single-trial) re-run; masking + `dimensionality_roi.py` not recorded; RD
+  notebook never executed; `analyze_stgrid_spectrotemporal.py` still reads `glmsingle_stgrid/` in
+  MNI.
+- **Integrity checks (open):** fMRIPrep ran twice into the same `denoised_fmriprep-25.2.5/` tree
+  (`--task tonecat` in this repo, then FST1's `run_fmriprep_stgrid.sh` with `--task stgrid`).
+  1. Did the stgrid pass rewrite anatomical outputs this repo depends on (`desc-preproc_T1w`,
+     `from-MNI152NLin2009cAsym_to-T1w` xfm, brain mask)? Compare mtimes/checksums with the
+     tonecat-era files. If they changed, the T1w masks from `05_masking/warp_atlases_to_T1w.sh`
+     were built on a transform that no longer matches -- re-warp or show equivalence.
+  2. tonecat vs stgrid `space-T1w` BOLD affine/shape, one file each per subject (nibabel, five
+     minutes). There's one mask directory per subject, resampled to whichever task's file sorts
+     first; if the grids differ, the fix is per-task mask trees, not a different reference.
 
 ### R7. Integration
-- **Striatum ↔ cortex (analysis B), learners:** aCAU stage trend vs auditory PR stage trend,
-  pre-registered as in `MANUSCRIPT_INTEGRATION_PLAN.md` §3E. Natives have little trend variance,
-  so show them on the same scatter descriptively rather than testing a slope difference
-  (underpowered).
+- **Striatum ↔ cortex (analysis B), learners.** Write this spec, dated, at the top of
+  `integration_B.ipynb` before computing any correlation:
+  - Striatal scalar: aCAU `fbcorrectvswrong` `[-1,0,1]` trend (main; decided 2026-11-17);
+    aCAU−aPUT differential (secondary). From `roi_trend_scalars.csv`.
+  - Cortical scalar: the same `[-1,0,1]` trend on FLT2 PR, Primary composite (HG+PT+PP, L/R
+    pooled; main). R-PP alone as one pre-specified secondary test.
+  - Predicted sign: **positive r** (PR and aCAU feedback both decline). Confirm PR still declines
+    in learners alone (R5) before running B.
+  - Specificity: the original "association composite should be null" check no longer works --
+    association regions decline at least as much as primary (STGa d=.45, ParsOp d=.42 vs HG
+    d=.34). Use (a) a non-auditory control ROI from `carpet_dseg` (needs its own GLMsingle/PR
+    run), or (b) the striatal side: aPUT trend should *not* correlate with PR (costs nothing).
+  - Test: Pearson (Spearman as robustness), bootstrap 95% CI, LOSO, exact sign-flip permutation
+    (`resampling_stats.py`); table via `stats_fmt.py`. n=12, correlational: "co-varies with".
+  - Natives go on the same scatter descriptively (little trend variance; slope difference
+    underpowered).
+- **Merge layer** (`09_integration/`): `subjects.csv` (§1); `roi_crosswalk.csv` (Tian S2 ↔
+  auditory `dseg` ↔ carpet labels); this repo's trend export `roi_trend_scalars.csv` -- done
+  2026-11-03 (last cell of `group_level_all_ROI.ipynb`); FLT2's `sub-*_dimensionality_PR.csv` read
+  directly; `integration_B.ipynb` merges on `participant_id` and runs the battery.
 - **Brain ↔ behavior, learners:** accuracy slope (run 1→6) vs aCAU trend and vs PR trend.
 - **Group difference ↔ baseline:** does the FLT2 group difference in PR survive covarying the
   same subject's stgrid PR (R6)?
+- Later, only if time allows: SPC strategy (`late_minus_early` Δ-BIC, learners) ↔ aCAU feedback
+  trend (REVISION_PLAN Workstream 1, R2's suggested link) and ↔ PR trend.
 
 ### Optional: RSA (decide early)
 Native-vs-learner is the classic RSA comparison: a Tone-category model should fit natives from
@@ -350,11 +439,33 @@ category test. If kept, port the outlier/NaN-masking fix from
   FST1 task; stage split; feedback Contrast A vs B and why; equivalence testing. State that
   response onsets are modeled as a nuisance regressor and not reported (sound–response
   separation <1 s at TR=3 s), and that all ROI tests use one value per participant.
+- **Methods additions for FLT2/FST1:** GLMsingle single-trial estimation (HRF library,
+  GLMdenoise, fracridge; one column per trial) and how it differs from the nilearn
+  condition-level GLM used for the striatum; PR definition and ceiling (min(n_stimuli,
+  n_voxels); 16 stimuli in both tasks) and the voxel-count check (FLT2 §8d-ii); shared stage split
+  (runs 1–2 / 3–4 / 5–6) and `[-1,0,1]` trend; same per-subject T1w `carpet_dseg` masks as the
+  univariate analyses; stgrid task, block design, `stimdur`, separate fMRIPrep pass.
 - **Results order:** R1 behavior → R2/R3 striatum → R4 cortical/PFC networks →
   R5 cortex dimensionality → R6 baseline → R7 integration.
 - **Figures:** every main figure becomes two-group (learners and natives side by side, same
   axes). Fig: behavior; Fig: striatal sound/feedback by stage × group;
   Fig: PR by stage × group; Fig: stgrid baseline; Fig: integration scatter.
+  Status (2026-11-17):
+  - Behavior: `04_behavior/behav_acc_two-group.{png,svg}` -- done.
+  - Striatal feedback by stage × group: `stage_profiles_by_group.png` (two-group section 6) has
+    the right data but isn't paper-ready: four panels (keep the two `fbcorrect` panels, aCAU and
+    aPUT), unshared y-axes, code-name titles ("aCAU · fbcorrect"), saved to the stats folder.
+    Make a two-panel version with a shared y-axis and readable titles in `figures/two-group/`.
+    Pair it with the aCAU−aPUT panel from `group-diff_key-results.png`.
+  - Group differences: `group-diff_forest.png` (supplement), `group-diff_key-results.png` and the
+    ROI maps in `06_univariate/figures/two-group/`. Surface maps are PNG only (SVGs exceed
+    GitHub's limit) and need cropping. The `tian-S2 fbcorrect trend` map shows per-region
+    differences, none significant, so it's supplementary, not a main panel.
+  - PR by stage × group: box+strip per region (existing FLT2 style) plus group eigenspectra by
+    stage. Not started.
+  - Analysis B: scatter of aCAU trend vs PR trend (learners; natives descriptive), LOSO-stable fit
+    and bootstrap band; supplement reuses `plot_robustness_checks.py`. Not started.
+  - Stgrid baseline: not started.
 - **Discussion:** what generalizes across groups (auditory input to striatum, cortical PR
   structure) vs what is learner-specific; limits of n=12 per group.
 
@@ -364,8 +475,7 @@ category test. If kept, port the outlier/NaN-masking fix from
 1. Commit `09_integration/` and `REVISION_PLAN.md`.
 2. Build `subjects.csv`; ~~FLT15~~ (kept, §1) / FLT27 / FLT02.
 3. ~~Count `fb_wrong` per subject × stage, both groups.~~ Done via `roi-values_missing.tsv` (R3).
-4. Integrity checks from the other plan §1d (stgrid fMRIPrep anatomical overwrite; tonecat vs
-   stgrid grid).
+4. Integrity checks (R6: stgrid fMRIPrep anatomical overwrite; tonecat vs stgrid grid).
 
 **Phase 1 -- decisive, cheap tests (go/no-go for the two-group framing)**
 5. Behavior group × run (port existing).
@@ -386,6 +496,8 @@ category test. If kept, port the outlier/NaN-masking fix from
     null as group differences.
 9c. ~~Per-group executed notebooks.~~ Done: `group_level_all_ROI.ipynb` (learners) and
     `group-Mand_ROI.ipynb` (natives).
+9d. Figures: paper-ready stage profiles (two panels, shared y-axis, readable titles; §3) and
+    cropped surface maps. vmPFC naming throughout (R4).
 10. ~~R4 networks with group.~~ Done 2026-11-04 (R4).
 11. R6 FST1: masking + PR for all, trial-matched tonecat PR, tuning port and stats fix.
 12. R7 integration.
@@ -415,15 +527,33 @@ category test. If kept, port the outlier/NaN-masking fix from
 - **Confounds beyond learning:** natives also differ in RT (~0.9 vs ~1.2 s), task difficulty,
   and possibly arousal. RT can enter as a covariate for striatal analyses; difficulty cannot be
   separated from learning in this design -- say so.
+- **Two beta estimators.** FLT2/FST1 use GLMsingle single-trial betas; the striatum uses the
+  nilearn condition-level GLM. Fine for subject-level scalar correlations (each side is internally
+  consistent), but say so in Methods and don't imply one unified model. Same fMRIPrep version,
+  space (T1w) and masks on both sides, so no cross-space caveat.
+- **Causality.** One cohort, correlational: "consistent with / co-varies with", never "drives".
 - **Scope.** This is a bigger rewrite than the non-Mandarin plan. Its payoff is that it answers
   the reviewers' central doubt; it should replace, not add to, weaker sections.
 
 ## 6. Decisions for you
-1. Two-group framing vs the non-Mandarin-only plan (Phase 1 results can decide).
-2. ~~Feedback Contrast A for the cross-group test.~~ Done. **New decision:** how to frame the
-   feedback result now that A ≠ B in learners (R3 framing options 1–3), and whether to add the
-   learners-only `fbwrong` decomposition.
+1. ~~Two-group framing vs the non-Mandarin-only plan.~~ Decided 2026-11-17: both groups, plus
+   learners-only analyses (Framing, top).
+2. ~~Feedback framing.~~ Decided 2026-11-17: R3 options 1 + 2, including the `fbwrong`
+   decomposition.
 2b. ~~FLT15~~ Decided 2026-11-13: included everywhere (§1).
 2c. ~~`resp`~~ Decided 2026-11-04: modeled, not reported.
 3. RSA in or out.
 4. FST1 as a main-text baseline (recommended in this design) or supplement.
+5. Specificity check for analysis B: control ROI (a) or aPUT-null (b) (R7).
+
+## Appendix: repos and what each provides
+
+Same cohort, same sessions, same `data_denoised/sub-*` list in all repos.
+
+| Repo | Role | Per-subject outputs used |
+|---|---|---|
+| `fMRI_auditory-category-learning` (this repo, `manuscript-revision`) | Home of the manuscript: striatal/cortical GLMs, robustness checks, SPC model comparison, masks | ROI betas by stage (`roi-values_scrubbed-splitfb/`), trend scalars (`roi_trend_scalars.csv`), SPC `late_minus_early` Δ-BIC |
+| `FLT2` (branch `representational-dimensionality`, unmerged) | R5: PR of tonecat responses by stage | `sub-*_dimensionality_PR.csv`, `_Dsheng.csv`, `_eigenspectra.npz` per `stage-*/`; GLMsingle 25.2.5/T1w in `glmsingle_fmriprep-25.2.5_space-T1w` |
+| `FST1` | R6: stgrid acoustic baseline | stgrid PR, tuning maps (once rerun in T1w) |
+| `auditory_category_learning` (`sitek/`, original pipeline) | Source material only | RSA outlier/NaN-masking fix (`rsa/rsa_roi.py`, needed only if RSA returns); combined-group behavior summary |
+
