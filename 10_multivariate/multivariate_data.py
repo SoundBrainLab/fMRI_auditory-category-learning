@@ -308,6 +308,8 @@ def load_behavior(bidsroot, participants, task='tonecat'):
     the response labels (None if no response), the correct key's tone, feedback
     ('fb_correct' / 'fb_wrong' / 'fb_noresp'), and the sound and feedback onsets.
 
+    Events label sounds 'sound_di1-aN'; GLMsingle (event_type='stimulus') turns the hyphen
+    into '_', so the RDMs say 'di1_aN' -- converted here to match.
     The events files hold separate sound, resp and fb rows (04_behavior/convert_behav_to_bids.py);
     sorted by onset, each trial is sound -> resp -> fb, so resp and fb rows are assigned to
     the preceding sound. Missed responses have no onset (sorted last) and are skipped; the
@@ -326,7 +328,7 @@ def load_behavior(bidsroot, participants, task='tonecat'):
                     if trial is not None:
                         rows.append(trial)
                     trial = {'participant_id': participant_id, 'participant_group': group_of[participant_id],
-                             'run': run, 'learning_stage': STAGE_OF_RUN.get(run), 'stimulus': trial_type[len('sound_'):],
+                             'run': run, 'learning_stage': STAGE_OF_RUN.get(run), 'stimulus': trial_type[len('sound_'):].replace('-', '_'),
                              'sound_onset': onset, 'response_tone': None, 'correct_tone': None,
                              'feedback': None, 'fb_onset': np.nan}
                 elif trial is None or pd.isna(onset):
