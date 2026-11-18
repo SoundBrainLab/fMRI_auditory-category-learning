@@ -293,3 +293,144 @@ def mean_distance(rdms, participants):
     return pd.DataFrame([_rdm_row(p, group_of[p], roi, stage, 'mean_distance', v.mean())
                          for (p, stage, roi), v in rdm_vectors(rdms).items()])
 
+
+
+# ---- behavioral model RDMs: does a learner's own accuracy/confusion explain their RDM? ----
+
+# response keys -> the tone they label (04_behavior/create_behav_confusion_matrices.py renumbers
+# keys 7, 6, 1, 2 as tones 1-4); checked against each trial's correct key in load_behavior
+KEY_TO_TONE = {'7': 'di1', '6': 'di2', '1': 'di3', '2': 'di4'}
+STAGE_OF_RUN = {1: 'early', 2: 'early', 3: 'middle', 4: 'middle', 5: 'final', 6: 'final'}
+
+
+def load_behavior(bidsroot, participants, task='tonecat'):
+    ''' one row per tonecat trial from the BIDS events files: stimulus ('di1_aN'), the tone
+    the response labels (None if no response), the correct key's tone, feedback
+    ('fb_correct' / 'fb_wrong' / 'fb_noresp'), and the sound and feedback onsets.
+
+    The events files hold separate sound, resp and fb rows (04_behavior/convert_behav_to_bids.py);
+    sorted by onset, each trial is sound -> resp -> fb, so resp and fb rows are assigned to
+    the preceding sound. Missed responses have no onset (sorted last) and are skipped; the
+    trial's fb_noresp row still marks them. '''
+    group_of = participants.set_index('participant_id').participant_group
+    rows = []
+    for participant_id in participants.participant_id:
+        pattern = os.path.join(bidsroot, participant_id, 'func', f'{participant_id}_task-{task}_run-*_events.tsv')
+        for fpath in sorted(glob(pattern)):
+            run = int(os.path.basename(fpath).split('_run-')[1][:2])
+            events = pd.read_csv(fpath, sep='\t', index_col=0).sort_values('onset', na_position='last')
+            trial = None
+            for onset, trial_type, correct_key in zip(events.onset, events.trial_type.astype(str),
+                                                      events.get('correct_key', pd.Series(np.nan, index=events.index))):
+                if trial_type.startswith('sound_'):
+                    if trial is not None:
+                        rows.append(trial)
+                    trial = {'participant_id': participant_id, 'participant_group': group_of[participant_id],
+                             'run': run, 'learning_stage': STAGE_OF_RUN.get(run), 'stimulus': trial_type[len('sound_'):],
+                             'sound_onset': onset, 'response_tone': None, 'correct_tone': None,
+                             'feedback': None, 'fb_onset': np.nan}
+                elif trial is None or pd.isna(onset):
+                    continue
+                elif trial_type.startswith('resp_'):
+                    key = trial_type[len('resp_'):].removesuffix('.0')
+                    trial['response_tone'] = KEY_TO_TONE.get(key)
+                    if pd.notna(correct_key):
+                        trial['correct_tone'] = KEY_TO_TONE.get(str(int(correct_key)))
+                elif trial_type.startswith('fb_'):
+                    trial['feedback'], trial['fb_onset'] = trial_type, onset
+            if trial is not None:
+                rows.append(trial)
+    trials = pd.DataFrame(rows)
+    trials['tone'] = trials.stimulus.str.split('_').str[0]
+    trials['correct'] = trials.feedback.map({'fb_correct': 1.0, 'fb_wrong': 0.0})  # fb_noresp -> NaN
+    trials['fb_delay'] = trials.fb_onset - trials.sound_onset
+    return trials
+
+
+def stimulus_behavior(trials, noresp='drop'):
+    ''' per participant x stage x stimulus: accuracy and the proportions of responses
+    labelling each tone. noresp='drop' leaves missed responses out; 'wrong' counts them
+    as incorrect (and as no tone). '''
+    trials = trials.copy()
+    if noresp == 'wrong':
+        trials['correct'] = trials.correct.fillna(0.0)
+    else:
+        trials = trials[trials.feedback != 'fb_noresp']
+    tones = sorted(KEY_TO_TONE.values())
+    for tone in tones:
+        trials[f'resp_{tone}'] = (trials.response_tone == tone).astype(float)
+    keys = ['participant_id', 'participant_group', 'learning_stage', 'stimulus']
+    return trials.groupby(keys, as_index=False).agg(
+        n=('correct', 'size'), accuracy=('correct', 'mean'),
+        **{f'resp_{tone}': (f'resp_{tone}', 'mean') for tone in tones})
+
+
+def behavior_models(stim_behavior, stimuli, groups=('non-Mandarin',)):
+    ''' {(participant_id, stage): {model name: dissimilarity vector}} over `stimuli` (the RDMs'
+    stimulus order), for participants in `groups`:
+      accuracy_own     |acc_s - acc_t| from the participant's own accuracy that stage
+      confusion_own    Euclidean distance between the stimuli's response-proportion vectors
+      accuracy_group, confusion_group   the same from the mean of the other members of the
+                       participant's group that stage (shared stimulus difficulty)
+    A model with no variance (e.g. a participant at ceiling) is left out. '''
+    from scipy.spatial.distance import pdist
+    resp_cols = [c for c in stim_behavior.columns if c.startswith('resp_')]
+    table = stim_behavior.set_index(['participant_id', 'learning_stage', 'stimulus'])
+    models = {}
+    for (participant_id, stage), sub in stim_behavior.groupby(['participant_id', 'learning_stage']):
+        group = sub.participant_group.iloc[0]
+        if group not in groups:
+            continue
+        peers = stim_behavior[(stim_behavior.participant_group == group) & (stim_behavior.learning_stage == stage)
+                              & (stim_behavior.participant_id != participant_id)]
+        sources = {'own': table.loc[(participant_id, stage)],
+                   'group': peers.groupby('stimulus')[['accuracy'] + resp_cols].mean()}
+        out = {}
+        for source, values in sources.items():
+            values = values.reindex(stimuli)
+            if values[['accuracy'] + resp_cols].isna().any().any():
+                continue   # a stimulus with no (responded) trials
+            for name, matrix in [('accuracy', values[['accuracy']].values), ('confusion', values[resp_cols].values)]:
+                vector = pdist(matrix, 'euclidean')
+                if np.ptp(vector) > 0:
+                    out[f'{name}_{source}'] = vector
+        models[(participant_id, stage)] = out
+    return models
+
+
+def behavior_model_fits(rdms, participants, models, method='tau-a'):
+    ''' each participant x stage x ROI RDM compared with that participant's behavioral
+    models (contrast '<model>_fit'), as model_fits does for the tone/talker models '''
+    from rsatoolbox.rdm import RDMs, compare
+    group_of = participants.set_index('participant_id').participant_group
+    rows = []
+    for (participant_id, stage, region_hemi), v in rdm_vectors(rdms).items():
+        data = RDMs(v[None], dissimilarity_measure='crossnobis')
+        for name, m in models.get((participant_id, stage), {}).items():
+            fit = compare(RDMs(m[None], dissimilarity_measure='euclidean'), data, method=method)[0, 0]
+            rows.append(_rdm_row(participant_id, group_of[participant_id], region_hemi, stage, f'{name}_fit', fit))
+    return pd.DataFrame(rows)
+
+
+def behavior_model_regression(rdms, participants, models, behavioral=('accuracy_own',)):
+    ''' unique contributions: per participant x stage x ROI, the rank-transformed RDM regressed on
+    the rank-transformed tone and talker models plus the given behavioral models (all
+    z-scored; ordinary least squares). Coefficients as contrast '<model>_beta'. Tone,
+    confusion and accuracy are correlated, so a simple fit can't separate them. '''
+    from scipy.stats import rankdata
+    group_of = participants.set_index('participant_id').participant_group
+    vectors = rdm_vectors(rdms)
+    stimuli = next(iter(rdms.values())).pattern_descriptors['stimulus']
+    fixed = {f: m.get_vectors()[0] for f, m in model_rdms(stimuli).items()}
+    z = lambda x: (rankdata(x) - rankdata(x).mean()) / rankdata(x).std()
+    rows = []
+    for (participant_id, stage, region_hemi), v in vectors.items():
+        sub_models = models.get((participant_id, stage), {})
+        if not all(b in sub_models for b in behavioral):
+            continue
+        predictors = {**fixed, **{b: sub_models[b] for b in behavioral}}
+        X = np.column_stack([np.ones(len(v))] + [z(p) for p in predictors.values()])
+        coef = np.linalg.lstsq(X, z(v), rcond=None)[0][1:]
+        for name, c in zip(predictors, coef):
+            rows.append(_rdm_row(participant_id, group_of[participant_id], region_hemi, stage, f'{name}_beta', c))
+    return pd.DataFrame(rows)
