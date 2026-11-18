@@ -140,7 +140,8 @@ def model_fits(rdms, participants, method='tau-a'):
     ''' each subject x stage x ROI RDM compared with each model RDM, as a long table in
     the extract_roi_values.py schema (contrast = '<model>_fit', value in `beta`).
     Kendall's tau-a by default, the usual choice for categorical models (many tied
-    model distances; Nili et al. 2014). '''
+    model distances; Nili et al. 2014). Pairs that are NaN in a data RDM (rsa_roi.py
+    --trials=correct, stimuli without enough correct trials) are left out of that fit. '''
     from rsatoolbox.rdm import compare
     group_of = participants.set_index('participant_id').participant_group
     rows = []
@@ -148,8 +149,11 @@ def model_fits(rdms, participants, method='tau-a'):
         models = model_rdms(sub_rdms.pattern_descriptors['stimulus'])
         for i, region_hemi in enumerate(sub_rdms.rdm_descriptors['ROI']):
             region, hemisphere, network = split_region_hemi(str(region_hemi))
+            data = sub_rdms[i].get_vectors()
             for factor, model in models.items():
-                fit = compare(model, sub_rdms[i], method=method)[0, 0]
+                model_vector = model.get_vectors().copy()
+                model_vector[np.isnan(data)] = np.nan
+                fit = compare(model_vector, data, method=method)[0, 0]
                 rows.append({'participant_id': participant_id,
                              'participant_group': group_of[participant_id],
                              'learning_stage': stage, 'region_hemi': str(region_hemi),
@@ -216,6 +220,25 @@ def load_decoding(dec_dir, participants, held_out='mean'):
     return dec.drop(columns='participant_group', errors='ignore').merge(participants, on='participant_id', how='inner')[
         ['participant_id', 'participant_group', 'region_hemi', 'region', 'hemisphere', 'network',
          'learning_stage', 'contrast', 'beta', 'n_voxels']]
+
+
+def load_outcome_decoding(dec_dir, participants, center='stimulus'):
+    ''' FLT2's decoding_outcome.py output (sub-<id>_decoding-outcome_center-<center>.tsv):
+    correct vs. wrong, balanced accuracy minus chance (0.5) in `beta`, contrast
+    'outcome_center-<center>', with the trial counts (n_correct, n_wrong). Stages
+    early/middle/final; stages without enough trials of each outcome are NaN and dropped. '''
+    files = sorted(glob(os.path.join(dec_dir, f'sub-*_decoding-outcome_center-{center}.tsv')))
+    if not files:
+        raise FileNotFoundError(f'no sub-*_decoding-outcome_center-{center}.tsv files in {dec_dir}')
+    dec = pd.concat([pd.read_csv(f, sep='\t') for f in files], ignore_index=True)
+    dec = dec[dec.stage.isin(STAGE_ORDER)].dropna(subset=['balanced_accuracy'])
+    split = dec.roi.map(split_region_hemi)
+    dec = dec.assign(region_hemi=dec.roi, region=split.str[0], hemisphere=split.str[1], network=split.str[2],
+                     learning_stage=dec.stage, beta=dec.balanced_accuracy - dec.chance,
+                     contrast=f'outcome_center-{center}')
+    return dec.merge(participants, on='participant_id', how='inner')[
+        ['participant_id', 'participant_group', 'region_hemi', 'region', 'hemisphere', 'network',
+         'learning_stage', 'contrast', 'beta', 'n_correct', 'n_wrong']]
 
 
 def rdm_vectors(rdms):
@@ -290,7 +313,7 @@ def mean_distance(rdms, participants):
     discriminability, for checking that stability or native-likeness differences
     aren't just differences in signal strength '''
     group_of = participants.set_index('participant_id').participant_group
-    return pd.DataFrame([_rdm_row(p, group_of[p], roi, stage, 'mean_distance', v.mean())
+    return pd.DataFrame([_rdm_row(p, group_of[p], roi, stage, 'mean_distance', np.nanmean(v))
                          for (p, stage, roi), v in rdm_vectors(rdms).items()])
 
 
