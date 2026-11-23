@@ -30,9 +30,13 @@ GLMSINGLE_DIRNAME = 'glmsingle_fmriprep-25.2.5_space-T1w'
 IGNORE_SUBS = ['sub-FLT27',  # did not participate
                'sub-FLT07']  # bad QA 11/14/23 (as in extract_roi_values.py)
 
-# a-priori composites (FLT2 notebook): primary = core/belt, association = the rest
+# composites: primary = core/belt; association = superior temporal; IFG = inferior frontal.
+# FLT2's notebook grouped STG and IFG as one 'Association' composite; IFG is split out because
+# pars opercularis / triangularis aren't auditory association cortex (all three stay in the
+# planned FDR family, rsa_two_group.ipynb section 9)
 COMPOSITES = {'Primary': ('HG', 'PT', 'PP'),
-              'Association': ('STGa', 'STGp', 'ParsOp', 'ParsTri')}
+              'Association': ('STGa', 'STGp'),
+              'IFG': ('ParsOp', 'ParsTri')}
 
 # stimulus labels are 'di<tone>_<talker>' (e.g. 'di3_bN'): 4 tones x 4 talkers
 STIMULUS_FACTORS = {'tone': lambda stim: stim.split('_')[0], 'talker': lambda stim: stim.split('_')[1]}
