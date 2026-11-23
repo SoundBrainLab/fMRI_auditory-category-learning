@@ -219,7 +219,7 @@ Cluster access obtained — fMRIPrep, atlas warping, and the univariate GLM have
     - Planned test: learners > natives in Association (STG) tone fit, d=1.50, q=.008, LOSO 25/25; tone-specific, not signal strength, holds on correct trials; present from the early stage. Decoding same direction (d=1.03, q=.052).
     - Talker-invariant tone code in both groups. No learning trends in RSA, decoding or PRcv. Outcome decoding at chance once stimulus is controlled. aCAU geometry claim dropped.
     - Natives' repetition- and run-split tone fits agree (repetition split validated).
-    - Analysis B as specified (PR trend) has nothing to correlate with; plan §6 decision 3b.
+    - Analysis B respecified: learners' aCAU `fbcorrectvswrong` trend vs STG tone fit (a level; predicted negative r), with STG talker fit and aPUT trend as specificity checks (plan R7). PRcv has no decline to correlate with.
     - Notebook text and plan updated; ad hoc STGp outlier cells removed from `rsa_two_group.ipynb`.
 
 ## Reviewer issues: status (2026-11-23)
@@ -231,7 +231,7 @@ The manuscript work order is `09_integration/TWO_GROUP_MANUSCRIPT_PLAN.md` §4. 
 | R1: feedback decline won't replicate at n=12 | Robust in learners (aCAU t=−3.30, aCAU−aPUT t=−2.90, LOSO 12/12); natives added as a control (aCAU−aPUT `fbcorrect` trend differs, p=.019) | Workstream 5; plan R3 |
 | R1/R2: is it learning at all? | Two-group design; learners-only `fbcorrectvswrong` kept. Cortex: learners carry more tone-specific STG information than natives (d=1.50, q=.008), not feedback or signal strength; no learning trends at stage resolution | Plan Framing, R3, §0d |
 | R1: behavioral modeling lacks a direct comparison; 16 stimuli | Comparison code built, not run on the full file; write-up not started | Workstreams 0–1 |
-| R2: integrate behavior, striatum and cortex | Analysis B as specified (PR trend) is moot: PRcv doesn't decline. Drop or respecify (plan §6, 3b) | Plan R5, R7 |
+| R2: integrate behavior, striatum and cortex | Analysis B respecified (2026-11-23): learners' aCAU feedback trend vs STG tone fit (PRcv doesn't decline). Spec written, not run | Plan R7 |
 | R2: power / n=12 limitations | Not written | Workstream 4 |
 | Univariate reporting (Table 5/8, Compare contrasts, figures) | Pipeline rerun on `scrubbed-splitfb` (#28–#33); text not updated | Workstream 3; plan R2, R4 |
 | HCP connectivity (R2 ANOVA, caudate breakout, citations) | Moved to a separate manuscript | Workstream 2 |

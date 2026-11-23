@@ -563,33 +563,40 @@ categories (experience)?**
      first; if the grids differ, the fix is per-task mask trees, not a different reference.
 
 ### R7. Integration
-- **Striatum ↔ cortex (analysis B), learners.** Write this spec, dated, at the top of
-  `integration_B.ipynb` before computing any correlation:
+- **Striatum ↔ cortex (analysis B), learners. Respecified 2026-11-23** (the original cortical
+  scalar, the PR trend, has no change to correlate with: PRcv trend ≈0 in learners, §0d). Write
+  this spec, dated, at the top of `integration_B.ipynb` before computing any correlation:
   - Striatal scalar: aCAU `fbcorrectvswrong` `[-1,0,1]` trend (main; decided 2026-11-17);
-    aCAU−aPUT differential (secondary). From `roi_trend_scalars.csv`.
-  - Cortical scalar: the same `[-1,0,1]` trend on FLT2 PR, Primary composite (HG+PT+PP, L/R
-    pooled; main). R-PP alone as one pre-specified secondary test.
-  - Predicted sign: **positive r** (PR and aCAU feedback both decline). Confirm PR still declines
-    in learners alone (R5) before running B. **2026-11-23: it doesn't (PRcv trend ≈0 in learners,
-    §0d), so B as specified has no cortical change to correlate with. Decide whether to drop B or
-    respecify the cortical scalar (e.g. Association tone fit, a level rather than a trend).**
-  - Specificity: the original "association composite should be null" check no longer works --
-    association regions decline at least as much as primary (STGa d=.45, ParsOp d=.42 vs HG
-    d=.34). Use (a) a non-auditory control ROI from `carpet_dseg` (needs its own GLMsingle/PR
-    run), or (b) the striatal side: aPUT trend should *not* correlate with PR (costs nothing).
+    aCAU−aPUT differential (secondary). From `roi_trend_scalars.csv` (learners' univariate
+    export).
+  - Cortical scalar: **STG tone fit** -- RSA tone fit (tau-a, noise-normalized crossnobis) in the
+    Association composite (STGa+STGp), hemispheres and stages averaged per learner. A *level*,
+    not a trend: the learner advantage is present from the first stage and doesn't grow (§0d).
+    From `stats_two-group/rsa_crossnobis-noiseshrinkage_cv-rep/model_fits.tsv` (RSA notebook
+    export). Secondary, pre-specified: STG tone-across-talker decoding (same averaging), from
+    `stats_two-group/decoding_generalization/decoding.tsv`.
+  - Question: do learners whose STG carries more tone information show a larger striatal
+    feedback decline? Predicted sign: **negative r** (higher tone fit ↔ more negative aCAU
+    trend). Two-sided test; the sign is the prediction, not a one-tailed test.
+  - Specificity, both sides, no new runs: (a) cortical -- STG **talker** fit should not
+    correlate with the aCAU trend; (b) striatal -- the aPUT `fbcorrectvswrong` trend should not
+    correlate with STG tone fit. Report both alongside the main r.
   - Test: Pearson (Spearman as robustness), bootstrap 95% CI, LOSO, exact sign-flip permutation
     (`resampling_stats.py`); table via `stats_fmt.py`. n=12, correlational: "co-varies with".
-  - Natives go on the same scatter descriptively (little trend variance; slope difference
-    underpowered).
+    Power is low (r≈.7 needed for 80% at n=12); a null is uninformative and should be reported
+    with its CI.
+  - Natives: not in the test (the headline contrast isn't estimable in participants who rarely
+    err). Their STG tone fit can go on the plot's x-axis range descriptively.
 - **Merge layer** (`09_integration/`): `subjects.csv` (§1); `roi_crosswalk.csv` (Tian S2 ↔
   auditory `dseg` ↔ carpet labels); this repo's trend export `roi_trend_scalars.csv` -- done
-  2026-11-03 (last cell of `group_level_all_ROI.ipynb`); FLT2's `sub-*_dimensionality_PR.csv` read
-  directly; `integration_B.ipynb` merges on `participant_id` and runs the battery.
-- **Brain ↔ behavior, learners:** accuracy slope (run 1→6) vs aCAU trend and vs PR trend.
-- **Group difference ↔ baseline:** does the FLT2 group difference in PR survive covarying the
-  same subject's stgrid PR (R6)?
+  2026-11-03 (last cell of `group_level_all_ROI.ipynb`); the RSA and decoding exports above;
+  `integration_B.ipynb` merges on `participant_id` and runs the battery.
+- **Brain ↔ behavior, learners:** accuracy gain (final − early) and final accuracy vs aCAU trend
+  and vs STG tone fit.
+- **Group difference ↔ baseline:** does the STG tone-fit group difference survive covarying the
+  same subject's stgrid cross-validated signal or PR in STG (R6)? Tells experience from trait.
 - Later, only if time allows: SPC strategy (`late_minus_early` Δ-BIC, learners) ↔ aCAU feedback
-  trend (REVISION_PLAN Workstream 1, R2's suggested link) and ↔ PR trend.
+  trend (REVISION_PLAN Workstream 1, R2's suggested link) and ↔ STG tone fit.
 
 ### RSA and decoding: in (2026-11-23)
 Run and reported (R5, §0d). The predicted pattern -- tone fit in natives from run 1, emerging in
@@ -642,8 +649,9 @@ outlier/NaN fix isn't needed: noise normalization handles the high-variance voxe
     difference present at every stage (not growing); (D) signal controls (mean distance,
     cvsignal) beside it. Supplement: correct-only rerun with the trial-loss table, held-out-run
     decoding, tone − talker, outcome decoding, aCAU/di3_aN, non-normalized RDMs.
-  - Analysis B: scatter of aCAU trend vs PR trend (learners; natives descriptive), LOSO-stable fit
-    and bootstrap band; supplement reuses `plot_robustness_checks.py`. Not started.
+  - Analysis B: scatter of aCAU trend vs STG tone fit (learners), LOSO-stable fit and bootstrap
+    band, with the talker-fit and aPUT specificity checks beside it; supplement reuses
+    `plot_robustness_checks.py`. Not started.
   - Stgrid baseline: not started.
 - **Discussion:** what generalizes across groups (auditory input to striatum, cortical PR
   structure) vs what is learner-specific; limits of n=12 per group.
@@ -745,9 +753,11 @@ outlier/NaN fix isn't needed: noise normalization handles the high-variance voxe
 2b. ~~FLT15~~ Decided 2026-11-13: included everywhere (§1).
 2c. ~~`resp`~~ Decided 2026-11-04: modeled, not reported.
 3. ~~RSA in or out.~~ In (2026-11-23): RSA tone fit carries the planned cortical result (§0d).
-3b. Analysis B: drop, or respecify with a cortical level measure, since PRcv doesn't decline (R7).
+3b. ~~Analysis B: drop or respecify.~~ Decided 2026-11-23: respecified with STG tone fit (a
+    level) as the cortical scalar (R7).
 4. FST1 as a main-text baseline (recommended in this design) or supplement.
-5. Specificity check for analysis B: control ROI (a) or aPUT-null (b) (R7).
+5. ~~Specificity check for analysis B.~~ Decided 2026-11-23: both costless checks, STG talker
+   fit and aPUT trend (R7).
 
 ## Appendix: repos and what each provides
 
