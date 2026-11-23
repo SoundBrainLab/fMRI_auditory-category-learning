@@ -206,16 +206,32 @@ Cluster access obtained — fMRIPrep, atlas warping, and the univariate GLM have
 48. **Framing reopened (2026-11-17).** The three-panel stage-profile figure (aCAU, aPUT, aCAU − aPUT) shows the planned group difference is half natives' low early value, half learners' final-stage drop, with the groups equal at the middle stage. Together with the decomposition (#46), the striatal group difference is too weak to carry the paper. Decision 1 in `TWO_GROUP_MANUSCRIPT_PLAN.md` §6 now depends on the multivariate results: group × stage effects in tone geometry or cross-talker generalization → two-group paper; otherwise back toward learners-only with natives as a short control.
     - `group_level_two_group.ipynb` section 6a: paper/slide figure of correct-feedback stage profiles in aCAU and aPUT (shared y-axis, readable titles, participant lines), saved to `figures/two-group/stage-profiles_contrast-fbcorrect_aCAU-aPUT.{png,svg}`.
 
-## Reviewer issues: status (2026-11-17)
+49. **Feedback in the trial betas: correct-only reruns and outcome decoding (2026-11-20, FLT2 `a204ef9`, `676fce5`, `d79bd5d`).**
+    - `check_feedback_separability.py`: on the 3 s TR grid feedback lands one TR after its sound on every trial (up to 10% in the same TR). Single-trial feedback columns would raise sound-beta VIF ~6.5× (feedback VIF ~7.7); condition-level ones ~1.08× but split only by HRF shape. So no GLMsingle rerun.
+    - `trial_outcomes.py` labels each beta correct/wrong from the events files; `--trials=correct` in `rsa_roi.py` and `decoding_generalization.py`. Noise shrinkage on unequal trial counts uses `prec_from_unbalanced` with `prec_from_measurements`' dof (identical on balanced data).
+    - `decoding_outcome.py`: correct vs wrong per ROI and stage, held-out-talker folds, three centerings. Generalization notebook section 7; RSA section 9 correct-only cell.
+
+50. **Crossnobis noise normalization made primary (2026-11-23, FLT2 `69c1c20`).** Without it several participants' STGp RDMs had mean distances of −374 to 956 (≈0.1 elsewhere): a few high-variance voxels. Shrinkage RDMs for all 25 (plus correct-only, and natives' run split for the check); `rsa_roi.py` defaults to shrinkage for crossnobis; `run_rsa_roi.sh` drops the unused whole-session RDM (it caused time-outs); analysis loops use the 25 analyzed participants (FLT16 doesn't exist).
+
+51. **IFG split out of the Association composite (2026-11-23, `98a98ad`).** Composites are now Primary (HG, PT, PP), Association (STGa, STGp), IFG (ParsOp, ParsTri); all three in the planned FDR family (2 measures × 3). Methods should say IFG was first grouped with STG.
+
+52. **Multivariate results in (2026-11-23).** Details and numbers: `TWO_GROUP_MANUSCRIPT_PLAN.md` §0d.
+    - Planned test: learners > natives in Association (STG) tone fit, d=1.50, q=.008, LOSO 25/25; tone-specific, not signal strength, holds on correct trials; present from the early stage. Decoding same direction (d=1.03, q=.052).
+    - Talker-invariant tone code in both groups. No learning trends in RSA, decoding or PRcv. Outcome decoding at chance once stimulus is controlled. aCAU geometry claim dropped.
+    - Natives' repetition- and run-split tone fits agree (repetition split validated).
+    - Analysis B as specified (PR trend) has nothing to correlate with; plan §6 decision 3b.
+    - Notebook text and plan updated; ad hoc STGp outlier cells removed from `rsa_two_group.ipynb`.
+
+## Reviewer issues: status (2026-11-23)
 
 The manuscript work order is `09_integration/TWO_GROUP_MANUSCRIPT_PLAN.md` §4. This table tracks each reviewer concern; the workstream sections below keep the original detail.
 
 | Concern | Status | Where |
 |---|---|---|
 | R1: feedback decline won't replicate at n=12 | Robust in learners (aCAU t=−3.30, aCAU−aPUT t=−2.90, LOSO 12/12); natives added as a control (aCAU−aPUT `fbcorrect` trend differs, p=.019) | Workstream 5; plan R3 |
-| R1/R2: is it learning at all? | Two-group design; learners-only `fbcorrectvswrong` kept | Plan Framing, R3 |
+| R1/R2: is it learning at all? | Two-group design; learners-only `fbcorrectvswrong` kept. Cortex: learners carry more tone-specific STG information than natives (d=1.50, q=.008), not feedback or signal strength; no learning trends at stage resolution | Plan Framing, R3, §0d |
 | R1: behavioral modeling lacks a direct comparison; 16 stimuli | Comparison code built, not run on the full file; write-up not started | Workstreams 0–1 |
-| R2: integrate behavior, striatum and cortex | Analysis B specified, not run (needs FLT2 fixes) | Plan R5, R7 |
+| R2: integrate behavior, striatum and cortex | Analysis B as specified (PR trend) is moot: PRcv doesn't decline. Drop or respecify (plan §6, 3b) | Plan R5, R7 |
 | R2: power / n=12 limitations | Not written | Workstream 4 |
 | Univariate reporting (Table 5/8, Compare contrasts, figures) | Pipeline rerun on `scrubbed-splitfb` (#28–#33); text not updated | Workstream 3; plan R2, R4 |
 | HCP connectivity (R2 ANOVA, caudate breakout, citations) | Moved to a separate manuscript | Workstream 2 |

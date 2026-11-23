@@ -5,7 +5,7 @@
 (§0c; REVISION_PLAN #34–#35), and 2026-11-12 with the pPUT sound-trend and group × hemisphere
 tests (REVISION_PLAN #36), and 2026-11-13: FLT15 kept, behavior rescored (REVISION_PLAN #39), and
 2026-11-17: what the aCAU−aPUT group difference is made of, FMC naming, figure status
-(REVISION_PLAN #40).
+(REVISION_PLAN #40), and 2026-11-23: the multivariate results (§0d, R5; REVISION_PLAN #49–#52).
 **This is the only live manuscript plan (2026-11-17).** The live parts of
 `MANUSCRIPT_INTEGRATION_PLAN.md` (learners-only framing, 2026-10-30) and `INTEGRATION_PLAN.md`
 (cross-repo technical plan, 2026-09) were merged in: FLT2/FST1 status and integrity checks (R5,
@@ -13,8 +13,8 @@ R6), the analysis-B spec and merge layer (R7), Methods and figure notes (§3), r
 cross-repo risks (Appendix, §5). Both originals are in `09_integration/archive/` for the history
 (e.g. the Workstream I bug log). `../REVISION_PLAN.md` is the progress log.*
 
-**Framing (provisional, 2026-11-17; final call at §6 decision 1 once the multivariate results are
-in): both groups, plus learners-only analyses.** The paper compares
+**Framing (provisional, 2026-11-17; final call at §6 decision 1, whose multivariate input is now
+in -- §0d): both groups, plus learners-only analyses.** The paper compares
 learners and natives throughout, and keeps the analyses only learners can support -- above all
 the `fbcorrectvswrong` headline. Each feedback contrast has one job:
 
@@ -84,8 +84,9 @@ will move on rerun). Strength: ● supports the claim · ◐ suggestive / indire
 | Sound drives auditory cortex in both groups | Sound > baseline: HG, PP, PT, STGa and STGp q<.05 in both groups (learners t=4.65–8.21; natives t=5.65–10.2); ParsOp in natives only (t=2.78). **But it's stronger in natives:** STGp natives > learners (d=−1.23, q=.036; q=.079 without FLT15) | new, 12/13 | ● for "both"; ◐ for the STGp difference | Equivalence tests for the other auditory ROIs; FLT15 decision |
 | Sound drives dorsal striatum in both groups | Sound > baseline: aPUT (learners t=6.96, natives 7.05) and NAc-core (3.93, 2.62) q<.05 in both groups. aCAU only in learners (3.54 vs 1.02); pPUT (3.62) and NAc-shell (2.86) only in natives. **No striatal ROI differs between groups** (aCAU t=1.40, all q>.05) | new, 12/13 | ● for aPUT/NAc-core; ◐ elsewhere | TOST, since "significant in one group only" is not a group difference |
 | Practice speeds responses in both groups | RT run 1→6: learners t=-3.29, p=.007; natives t=-3.05, p=.011 | behavior, 12/12 | ● | Group × run test. Implication: any neural effect that only tracks RT is not learning |
-| Overall cortical dimensionality similar | FLT2 PR group main effect F(1,19)=0.85, p=.37 (but see topography below) | new, 11/10 | ◐ | Full sample; equivalence test |
-| PR declines across stages | F(2,44)=5.37, p=.008, pooled across groups | new, 23 | ◐ for "shared" | **Group × stage** -- the decline could be shared (repetition) or learner-only (learning). Not yet tested |
+| Overall cortical dimensionality similar | **Superseded (2026-11-23, §0d):** cross-validated PR, 12/13: no group difference in any composite; learners higher in HG (d=.98) and PP (d=.84), q=.17. (Old FLT2 plain PR: F(1,19)=0.85, p=.37) | new, 12/13 | ◐ | Equivalence test |
+| ~~PR declines across stages~~ | **Not supported by cross-validated PR (2026-11-23):** no PRcv trend in either group or between groups, any composite. The old pooled decline (F(2,44)=5.37) was plain PR, which noise inflates | new, 12/13 | ○ | -- |
+| Talker-invariant tone code in auditory cortex, both groups | Tone decoded across held-out talkers above chance in Primary, Association and IFG composites at every stage in learners (t=1.95–3.85); natives weaker and less consistent (§0d) | new, 12/13 | ● | -- |
 
 ### Differences between groups
 
@@ -93,13 +94,14 @@ will move on rerun). Strength: ● supports the claim · ◐ suggestive / indire
 |---|---|---|---|---|
 | Learners learn; natives are at ceiling | Accuracy run 1→6 (`two_group_accuracy.py`, 2026-11-13): learners .38→.82 (t(11)=6.68, p<.001); natives .945→.984 (t(12)=2.29, p=.041, nearly all run 1→2, then flat ≈.98: task familiarisation). **Group × run** F(5,115)=19.06, p<.001, ηp²=.45; group F(1,23)=38.9; run F=25.9, p_GG=.0001 | behavior, 12/13 | ● | Rest the claim on the interaction, not on "natives don't change". GG correction not reported for the interaction (pingouin); F is large enough not to matter |
 | Medial frontal cortex responds differently to sound | FMC sound: learners below baseline (−0.35), natives above (+0.40); d=−1.44, q=.013, holds without FLT15 (q=.025); also the only group main effect surviving FDR in the group × stage ANOVA (F=13.0, q=.033) | new, 12/13 | ● (strongest striatal/frontal ROI group difference) | Not predicted -- interpret cautiously; check it isn't driven by `resp` timing (RT differs by group) |
-| Cortical PR topography differs | Group × ROI F(13,247)=5.63, p<.001. Learners higher PR in right auditory cortex (R-STGa p_FDR=.017, d=1.65; R-HG/R-STGp p_FDR=.055); natives higher in L-ParsOp (p_FDR=.055) | new, 11/10 | ● (strongest new-pipeline group result) | Complete sample (FLT02 etc.); FST1 baseline to say whether it's experience or trait |
-| Primary vs association hierarchy reverses by group | Learners Primary > Association at middle/final (p=.04/.02 unc.); natives reverse at middle (p=.04 unc.); all p_FDR=.08. Primary-level group difference largest at middle stage (t=-3.38, p_FDR=.019) | new, 11/10 | ◐ | Single mixed model instead of per-stage tests |
+| Cortical PR topography differs | **Old plain PR, superseded by PRcv (§0d): not reportable.** Group × ROI F(13,247)=5.63, p<.001. Learners higher PR in right auditory cortex (R-STGa p_FDR=.017, d=1.65; R-HG/R-STGp p_FDR=.055); natives higher in L-ParsOp (p_FDR=.055) | new, 11/10 | ● (strongest new-pipeline group result) | Complete sample (FLT02 etc.); FST1 baseline to say whether it's experience or trait |
+| Primary vs association hierarchy reverses by group | **Old plain PR; PRcv mixed model (Primary/Association/IFG) shows no group, stage or level effect (§0d).** Learners Primary > Association at middle/final (p=.04/.02 unc.); natives reverse at middle (p=.04 unc.); all p_FDR=.08. Primary-level group difference largest at middle stage (t=-3.38, p_FDR=.019) | new, 11/10 | ◐ | Single mixed model instead of per-stage tests |
 | ~~Striatal response-period activity only in learners~~ | **Dropped (2026-11-04).** `resp` is in the model as a nuisance regressor but not reported: the response is <1 s after the sound at TR=3 s, and group RT differences would confound it. (The new pipeline did show a NAc-shell `resp` group effect, q=.008; not reported for these reasons.) | -- | -- | -- |
 | aCAU feedback decline is learning-specific | Learners, headline `fbcorrectvswrong`: aCAU trend t=−3.30, exact p=.007, LOSO 12/12; aCAU−aPUT t=−2.90, p=.017, LOSO 12/12. **Cross-group test (`fbcorrect`):** aCAU trend learners −0.33 (p=.083), natives +0.07 (p=.70), difference t=−1.59, p=.13, LOSO 1/25 -- not significant. **aCAU−aPUT trend differs between groups:** −0.66, t=−2.52, p=.019, permutation p=.018, LOSO 25/25, 95% CI [−1.15, −0.17]. **A relative difference:** none of the four component trends is significant (learners aCAU −0.33, aPUT +0.07; natives aCAU +0.07, aPUT −0.20). Learners' aCAU starts above natives' and ends level with them (stage gaps +0.30, +0.15, −0.11; t=1.40, 0.62, −0.41) | new, 12/13 | ◐ -- the differential trend is robust, but `fbcorrect` only partly captures the headline effect (R3) | Reframe around what `fbcorrect` measures (§2 R3). Describe the convergence descriptively; it isn't tested |
 | NAc-shell feedback differs by group | `fbcorrect` NAc-shell: learners −0.22, natives +0.13; d=−1.06, p=.016, q=.099 | new, 12/13 | ○ (not FDR-significant) | Exploratory only |
-| Tone-category structure emerges with learning | Learners: Tone RDM fits > Talker across cortex and striatum; Tone fit rises early→late | old, learners only | ◐ for learners, ○ for groups | Natives not analyzed. Old "all regions" tests pool ROI × subject rows as independent (e.g. t=14.6), which inflates them -- redo at subject level |
-| Tone decoding differs by group | Natives' striatal tone decoding near chance (old, partial); cross-group "train native, test learner" decoding started with 5 natives / 7 learners | old, partial | ○ | Not reportable as is |
+| **Learners carry more tone information in superior temporal cortex** | Planned test (§0d): Association (STGa+STGp) tone fit d=1.50, q=.008, LOSO 25/25; decoding d=1.03, q=.052. Tone-specific (tone − talker d=1.24, p=.005), not signal strength (adjusted p=.002–.003), holds on correct trials only (d=1.39, p=.002). Present from the early stage | new, 12/13 | ● | Equal-trial control optional (§0d) |
+| ~~Tone-category structure emerges with learning~~ | **Not supported (2026-11-23):** no tone-fit or decoding trend in any region or composite, either group. Replaces the old learners-only RSA (22.1.1/MNI, pseudoreplicated "all regions" tests) | new, 12/13 | ○ | -- |
+| ~~Tone decoding differs by group~~ | Replaced by the planned test above (old striatal decoding, 22.1.1/MNI, partial) | -- | -- | -- |
 | Spectrotemporal (FST1) baseline differs | Pooled group sound map (n=21) only; group-difference section never updated; no stgrid PR yet | old | ○ | Everything |
 
 ### In progress
@@ -182,6 +184,84 @@ in the two-group notebook (section 2).
 - FLT15 (natives' trend export): aCAU−aPUT `fbcorrect` trend −0.61, opposite to the native mean
   (+0.27). Keeping them (§1, decided 2026-11-13) makes the planned group difference more
   conservative.
+
+## 0d. Multivariate results (2026-11-23)
+
+All 25 participants (12 learners, 13 natives), GLMsingle single-trial betas, fMRIPrep 25.2.5 T1w.
+Notebooks in `10_multivariate/` (methods in R5). Stages and hemispheres averaged per participant
+unless stated; LOSO = leave-one-out fits that keep the effect.
+
+**Planned test: learners − natives tone information** (`rsa_two_group.ipynb` section 9; FDR over
+2 measures × 3 composites):
+
+| | RSA tone fit | Tone-across-talker decoding |
+|---|---|---|
+| Association (STGa, STGp) | **d=1.50, p=.001, q=.008, LOSO 25/25** | d=1.03, p=.017, q=.052, LOSO 25/25 |
+| Primary (HG, PT, PP) | d=0.80, q=.068, LOSO 4/25 | d=0.85, q=.068, LOSO 10/25 |
+| IFG (ParsOp, ParsTri) | d=0.84, q=.068, LOSO 8/25 | d=0.74, q=.080, LOSO 1/25 |
+
+- **Time course:** Association tone fit d=0.90 / 0.84 / 1.04 (early / middle / final, each
+  p<.05) -- present from the early stage, not built over the session. Decoding grows more
+  (0.49 → 0.96, final p=.026). Per region, the group main effect in the group × stage ANOVA
+  survives FDR in STGa (q=.011) and STGp (q=.034).
+- **Not signal strength:** mean cross-validated distance and cvsignal don't differ in
+  Association (p=.28, .46); the tone-fit effect survives either as covariate (Freedman–Lane
+  p=.003, .002; decoding .042, .023).
+- **Tone-specific:** tone − talker fit d=1.24, p=.005, LOSO 25/25; talker fit and talker
+  decoding don't differ. Tone − talker decoding same direction, p=.086.
+- **IFG is general, not tone-specific:** learners' cvsignal is higher there (d=.89, p=.039), and
+  the IFG effect drops after adjustment (p=.10–.26). Effort/engagement fits IFG; STG is the
+  tone result.
+- **Not feedback:** feedback follows the sound by one TR, so each trial beta includes it (FLT2
+  `check_feedback_separability.py`: separate single-trial feedback betas would inflate sound-beta
+  variance ~6.5×). On correct trials only, Association tone fit holds (d=1.39, p=.002, LOSO 25/25)
+  and Primary strengthens (d=1.16, p=.010, 25/25). Correct-only decoding drops (d≈.3–.4, n.s.),
+  most likely from lost trials (learners keep about half their early trials; 46% of their early
+  RDM pairs are empty), not removed feedback.
+- **Held-out-run decoding** (train on one run, test on the other) is weak everywhere (Association
+  d=.52, p=.21): the most conservative version; report as such.
+
+**Other multivariate results**
+- **Talker-invariant tone code:** tone decodes across held-out talkers in all three composites
+  in learners at every stage; natives weaker and less consistent.
+- **No learning trends anywhere:** RSA tone fit, decoding and PRcv show no `[-1,0,1]` trend in
+  either group or between groups, any region or composite. Stage-to-stage RDM stability: nothing
+  robust (learners' STGp settling p=.057).
+- **Native-likeness:** learners' Primary native-minus-peer likeness rises (p=.022, LOSO 12/12;
+  vs natives p=.013, 25/25). Uncorrected across 3 composites + 2 striatal ROIs × 2 measures;
+  exploratory, supplement at most.
+- **aCAU geometry (dropped):** with non-normalized RDMs learners' aCAU RDMs converged on each
+  other; with noise normalization that's n.s. (p=.15), natives converge too (p=.014), and it
+  rested largely on one stimulus (di3_aN). No behavioral (accuracy/confusion) model fit beyond
+  tone. Supplementary at most.
+- **Outcome decoding (correct vs wrong):** with stimulus centering (main), learners are at
+  chance in every ROI including aCAU, with no trend. The univariate feedback decline has no
+  trial-level pattern counterpart. Without centering IFG/STG are above chance (stimulus
+  difficulty confound); natives come out below chance (7 qualify, ~7 errors each; centering
+  artefact) -- not estimable.
+- **PRcv:** null (no trend, no group × stage × level effect; HG/PP level d≈.9, q=.17). The
+  learners' IFG decline in plain PR (12/12) is not supported by PRcv; plain PR is noise-inflated.
+
+**Methods decisions behind these numbers**
+- Crossnobis with noise shrinkage (multivariate noise normalization) is primary. Without it,
+  a few high-variance voxels dominated several STGp RDMs (mean distances −374 to 956 vs ≈0.1
+  elsewhere). Non-normalized RDMs: sensitivity check only; same direction, weaker.
+- Repetition-split cross-validation validated: in natives, repetition- and run-split tone fits
+  agree (difference 0.000 ± 0.006 per stage).
+- Composites: IFG split out of the original four-region association composite (2026-11-23) on
+  anatomical grounds; all three stay in the planned family. Splitting strengthened Association
+  (four-region d=1.20 → STG-only 1.50). Say in Methods that IFG was first grouped with STG.
+
+**Reading:** learners' superior temporal cortex holds more, tone-specific information than
+natives' from the first stage, and it doesn't grow measurably after that. Consistent with
+rapid, task-driven plasticity for the trained dimension (Feng et al. 2018; Yi et al. 2016;
+animal work) finishing faster than the 2-run stage resolution, or with attention to tone in
+listeners still learning it; timing can't separate them, but tone specificity argues against
+general gain. Don't write that cortex doesn't change.
+
+**Still optional:** a trial-matched correct-only control (subsample natives' correct trials to
+learners' counts) would make the correct-only decoding comparison fair. Not needed for the RSA
+result, which holds as is.
 
 ## 1. Sample
 
@@ -417,34 +497,43 @@ analysis (ANOVAs, post hocs, Table 5/8-style tables, brain plots) for either gro
 - **Where the code lives (2026-11-17):** per-subject processing stays in FLT2; group-level
   analysis is `10_multivariate/dimensionality_two_group.ipynb` here (planned Primary-composite
   trend test, the mixed model above, exploratory per-region tests, D_sheng, PR trend export for
-  R7), via `multivariate_data.py` and `group_stats.py`. Tested on synthetic data only.
-- **RSA (2026-11-17, optional section below):** FLT2 `dfa4908` brings `rsa_roi.py` up to SSP's
-  version, reading the 25.2.5/T1w tree, with `--stage` (crossnobis across each stage's two
-  runs) and opt-in `--noise=shrinkage` (true crossnobis; default is cross-validated Euclidean).
-  `run_mask_glmsingle_betas.sh` now also masks the 12 striatal Tian-S2 ROIs. Since `6bcaa4e`
-  crossnobis is cross-validated over repetition splits (`--cv=rep`), for the same reason as
-  `PRcv`; `--cv=run` is the natives' check. Group level:
-  `10_multivariate/rsa_two_group.ipynb` (tone/talker tau-a fits, noise ceilings, tone-fit trend
-  learners vs natives, per-stage group differences). Tested on synthetic data only. To run:
-  masking (`tian-S2`) → `loop_run_rsa_roi.sh` → notebook. Caveat: tau-a fits to tone and talker
-  trade off; a joint model would separate them.
-- **Multivariate scope (decided 2026-11-17):**
+  R7), via `multivariate_data.py` and `group_stats.py`. Run 2026-11-23: PRcv null throughout
+  (§0d), so the key question above is answered "no decline to explain" -- the old pooled decline
+  was plain PR.
+- **RSA (run 2026-11-23; results §0d):** FLT2 `rsa_roi.py`, per stage, crossnobis on GLMsingle
+  single-trial betas with **noise shrinkage (the default since FLT2 `69c1c20`)**,
+  cross-validated over repetition splits (`--cv=rep`, as for `PRcv`; `--cv=run` is the natives'
+  check). `run_rsa_roi.sh` / `loop_run_rsa_roi.sh` (25 participants, stages only). Group level:
+  `10_multivariate/rsa_two_group.ipynb` -- tone/talker tau-a fits, noise ceilings (≈0
+  everywhere), trends, per-stage group differences, stability, native-likeness, behavioral model
+  RDMs (supplementary), and the planned test (section 9). Caveat: tau-a fits to tone and talker
+  trade off; the tone − talker specificity check addresses it.
+- **Composites** (`multivariate_data.COMPOSITES`, mean of member-region values): Primary (HG, PT,
+  PP), Association (STGa, STGp), IFG (ParsOp, ParsTri). Used by all three multivariate notebooks.
+- **Multivariate scope (decided 2026-11-17; extended 2026-11-23):**
   - No standalone tone decoder: crossnobis tone fit already measures tone discriminability, and
     leave-one-run-out decoding would count learning between runs against it.
   - **Cross-talker generalization decoding** (FLT2 `decoding_generalization.py`,
     `10_multivariate/generalization_two_group.ipynb`): tone trained on three talkers, tested on
     the fourth -- the direct test of a talker-invariant category code -- and talker across tones
-    as the control. Folds split stimuli, not runs.
-  - **RSA, representational change:** stage-to-stage RDM stability within participant, checked
-    against mean cross-validated distance (signal strength).
-  - **RSA, native-likeness:** each participant's RDM vs the natives' leave-one-out template,
-    with same-stage peer-likeness as the reliability control.
-  - Deferred: representational connectivity (striatum–cortex RDM similarity). Needs RDMs from
-    disjoint trial halves per region (shared trial noise) and usable striatal noise ceilings;
-    revisit after the RSA noise ceilings are in.
+    as the control. Folds split stimuli, not runs; `--hold_out_run` as the conservative version.
+  - **Planned learners-vs-natives tone-information test** (RSA section 9): tone fit and tone
+    decoding in the three composites, with signal (mean distance, cvsignal), unlearned-dimension
+    (talker) and specificity (tone − talker) controls, and adjusted (Freedman–Lane) tests.
+  - **Feedback control:** feedback can't be modeled separately per trial (one TR after the
+    sound; FLT2 `check_feedback_separability.py`), so tone measures are rerun on correct trials
+    only (`--trials=correct` in `rsa_roi.py` and `decoding_generalization.py`; trial outcomes from
+    `trial_outcomes.py`).
+  - **Outcome decoding** (FLT2 `decoding_outcome.py`, generalization notebook section 7):
+    correct vs wrong per ROI and stage, centered within run × stimulus (main), run × response
+    key, or run only.
+  - **RSA, representational change** (stage stability) and **native-likeness** (natives'
+    leave-one-out template, peer-likeness control).
+  - Deferred: representational connectivity (striatum–cortex RDM similarity); striatal noise
+    ceilings are ≈0, so not worth it here.
   - Out of this paper: trial-level evidence vs choice, stimulus-vs-choice on errors (motor
-    confound), group-membership decoding, feedback-period patterns.
-  - All tested on synthetic data only. The old `07_rsa/` is archived (`archive/07_rsa/`).
+    confound), group-membership decoding, run-level time courses (single-run RDMs too noisy).
+  - The old `07_rsa/` is archived (`archive/07_rsa/`).
 
 ### R6. Acoustic baseline (FST1, stgrid)
 Stgrid has no learning and no tone categories, so it answers: **are the FLT2 group differences
@@ -481,7 +570,9 @@ categories (experience)?**
   - Cortical scalar: the same `[-1,0,1]` trend on FLT2 PR, Primary composite (HG+PT+PP, L/R
     pooled; main). R-PP alone as one pre-specified secondary test.
   - Predicted sign: **positive r** (PR and aCAU feedback both decline). Confirm PR still declines
-    in learners alone (R5) before running B.
+    in learners alone (R5) before running B. **2026-11-23: it doesn't (PRcv trend ≈0 in learners,
+    §0d), so B as specified has no cortical change to correlate with. Decide whether to drop B or
+    respecify the cortical scalar (e.g. Association tone fit, a level rather than a trend).**
   - Specificity: the original "association composite should be null" check no longer works --
     association regions decline at least as much as primary (STGa d=.45, ParsOp d=.42 vs HG
     d=.34). Use (a) a non-auditory control ROI from `carpet_dseg` (needs its own GLMsingle/PR
@@ -500,12 +591,11 @@ categories (experience)?**
 - Later, only if time allows: SPC strategy (`late_minus_early` Δ-BIC, learners) ↔ aCAU feedback
   trend (REVISION_PLAN Workstream 1, R2's suggested link) and ↔ PR trend.
 
-### Optional: RSA (decide early)
-Native-vs-learner is the classic RSA comparison: a Tone-category model should fit natives from
-run 1 and emerge across runs in learners. PR says how many dimensions there are, not whether
-they are the tone categories. RSA was cut once for "drift", but here it would be the most direct
-category test. If kept, port the outlier/NaN-masking fix from
-`auditory_category_learning/rsa/rsa_roi.py` and recompute on GLMsingle 25.2.5/T1w betas.
+### RSA and decoding: in (2026-11-23)
+Run and reported (R5, §0d). The predicted pattern -- tone fit in natives from run 1, emerging in
+learners -- didn't appear; instead learners exceed natives in superior temporal tone
+information from the first stage. The old `auditory_category_learning/rsa/rsa_roi.py`
+outlier/NaN fix isn't needed: noise normalization handles the high-variance voxels.
 
 ## 3. Manuscript architecture
 
@@ -523,7 +613,13 @@ category test. If kept, port the outlier/NaN-masking fix from
   (runs 1–2 / 3–4 / 5–6) and `[-1,0,1]` trend; same per-subject T1w `carpet_dseg` masks as the
   univariate analyses; stgrid task, block design, `stimdur`, separate fMRIPrep pass.
 - **Results order:** R1 behavior → R2/R3 striatum → R4 cortical/PFC networks →
-  R5 cortex dimensionality → R6 baseline → R7 integration.
+  R5 cortical tone information (planned test, controls, correct-only) and dimensionality →
+  R6 baseline → R7 integration.
+- **Methods additions for the multivariate analyses:** crossnobis with noise shrinkage and why
+  (high-variance voxels); repetition-split cross-validation and the natives' run-split check;
+  cross-talker decoding folds; composites (IFG first grouped with STG, split on anatomical
+  grounds); why feedback can't be modeled per trial and the correct-only rerun; outcome-decoding
+  centering.
 - **Figures:** every main figure becomes two-group (learners and natives side by side, same
   axes). Fig: behavior; Fig: striatal sound/feedback by stage × group;
   Fig: PR by stage × group; Fig: stgrid baseline; Fig: integration scatter.
@@ -538,8 +634,14 @@ category test. If kept, port the outlier/NaN-masking fix from
     ROI maps in `06_univariate/figures/two-group/`. Surface maps are PNG only (SVGs exceed
     GitHub's limit) and need cropping. The `tian-S2 fbcorrect trend` map shows per-region
     differences, none significant, so it's supplementary, not a main panel.
-  - PR by stage × group: box+strip per region (existing FLT2 style) plus group eigenspectra by
-    stage. Not started.
+  - ~~PR by stage × group~~: PRcv is null; supplement at most.
+  - **Cortical tone information (proposed 2026-11-23, not started):** (A) cross-talker decoding
+    schematic and tone-across-talker accuracy by composite × stage × group (finding 2);
+    (B) planned test strip plot per participant, tone fit and decoding × three composites (RSA
+    section 9 figure is the draft); (C) learner − native d by stage with CIs, showing the
+    difference present at every stage (not growing); (D) signal controls (mean distance,
+    cvsignal) beside it. Supplement: correct-only rerun with the trial-loss table, held-out-run
+    decoding, tone − talker, outcome decoding, aCAU/di3_aN, non-normalized RDMs.
   - Analysis B: scatter of aCAU trend vs PR trend (learners; natives descriptive), LOSO-stable fit
     and bootstrap band; supplement reuses `plot_robustness_checks.py`. Not started.
   - Stgrid baseline: not started.
@@ -579,7 +681,8 @@ category test. If kept, port the outlier/NaN-masking fix from
 10. ~~R4 networks with group.~~ Done 2026-11-04 (R4).
 11. R6 FST1: masking + PR for all, trial-matched tonecat PR, tuning port and stats fix.
 12. R7 integration.
-13. RSA, if chosen.
+13. ~~RSA, if chosen.~~ Done 2026-11-23 with decoding, PRcv and the feedback controls (§0d).
+    Left: figures (§3), Methods text, optional trial-matched correct-only control.
 
 **Phase 3 -- writing**
 14. Rewrite Intro/hypotheses for the two-group design; Methods; Results; Discussion.
@@ -630,11 +733,19 @@ category test. If kept, port the outlier/NaN-masking fix from
      contrast can't be estimated in participants who rarely err.
    - Either way, keep: behavior group × run; learners' feedback headline and decomposition; FMC
      sound difference as an unpredicted observation.
+   - **Multivariate input (2026-11-23, §0d):** no group × stage effects anywhere, so neither
+     branch above fits as written. What there is: a robust group *main* effect -- learners carry
+     more tone-specific information in superior temporal cortex from the first stage (d=1.50,
+     q=.008), not explained by signal strength or feedback -- plus a talker-invariant tone code
+     in both groups. That supports a two-group paper built on (1) learners' striatal feedback
+     change, (2) a shared talker-invariant tone code, (3) enhanced tone information in learners'
+     STG, rather than on group × stage interactions. Still your call.
 2. ~~Feedback framing.~~ Decided 2026-11-17: R3 options 1 + 2, including the `fbwrong`
    decomposition.
 2b. ~~FLT15~~ Decided 2026-11-13: included everywhere (§1).
 2c. ~~`resp`~~ Decided 2026-11-04: modeled, not reported.
-3. RSA in or out.
+3. ~~RSA in or out.~~ In (2026-11-23): RSA tone fit carries the planned cortical result (§0d).
+3b. Analysis B: drop, or respecify with a cortical level measure, since PRcv doesn't decline (R7).
 4. FST1 as a main-text baseline (recommended in this design) or supplement.
 5. Specificity check for analysis B: control ROI (a) or aPUT-null (b) (R7).
 
@@ -645,7 +756,7 @@ Same cohort, same sessions, same `data_denoised/sub-*` list in all repos.
 | Repo | Role | Per-subject outputs used |
 |---|---|---|
 | `fMRI_auditory-category-learning` (this repo, `manuscript-revision`) | Home of the manuscript: striatal/cortical GLMs, robustness checks, SPC model comparison, masks | ROI betas by stage (`roi-values_scrubbed-splitfb/`), trend scalars (`roi_trend_scalars.csv`), SPC `late_minus_early` Δ-BIC |
-| `FLT2` (branch `representational-dimensionality`, unmerged) | R5: PR of tonecat responses by stage | `sub-*_dimensionality_PR.csv`, `_Dsheng.csv`, `_eigenspectra.npz` per `stage-*/`; GLMsingle 25.2.5/T1w in `glmsingle_fmriprep-25.2.5_space-T1w` |
+| `FLT2` (branch `representational-dimensionality`, unmerged) | R5: per-subject multivariate pipeline (PRcv, RSA, generalization and outcome decoding, feedback separability) | `stage-*/sub-*_dimensionality_*.csv`; `rsa-roi_glmsingle_rdmcalc-crossnobis-noiseshrinkage_cv-rep[_trials-correct]/`; `decoding_generalization[_trials-correct]/`; `decoding_outcome/`; GLMsingle 25.2.5/T1w in `glmsingle_fmriprep-25.2.5_space-T1w` |
 | `FST1` | R6: stgrid acoustic baseline | stgrid PR, tuning maps (once rerun in T1w) |
-| `auditory_category_learning` (`sitek/`, original pipeline) | Source material only | RSA outlier/NaN-masking fix (`rsa/rsa_roi.py`, needed only if RSA returns); combined-group behavior summary |
+| `auditory_category_learning` (`sitek/`, original pipeline) | Source material only | Combined-group behavior summary (its RSA outlier fix isn't needed: noise normalization covers it) |
 

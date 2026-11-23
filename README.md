@@ -85,7 +85,8 @@ number reported in the paper is computed here.
 - `multivariate_data.py` reads FLT2's per-stage outputs into the same long
   table `06_univariate/extract_roi_values.py` writes (measure in `beta`, its
   name in `contrast`), so `group_stats.py`'s two-group functions run on it
-  unchanged. Also adds the a-priori Primary/Association composites.
+  unchanged. Also adds the composites: Primary (HG, PT, PP), Association
+  (STGa, STGp) and IFG (pars opercularis, pars triangularis).
 - `dimensionality_two_group.ipynb`: cross-validated participation ratio
   (`PRcv`) by group × stage -- the planned composite trend test, a group ×
   stage × level mixed model, exploratory per-region tests, checks against
@@ -96,20 +97,25 @@ number reported in the paper is computed here.
   stimulus into two halves (FLT2 `trial_splits.py`), not runs: learners
   change from run to run, and a run split would count that as noise.
 - `rsa_two_group.ipynb`: RSA on FLT2's per-stage RDMs (`rsa_roi.py --stage`,
-  crossnobis across each stage's two runs). Tone and talker model fits
+  crossnobis with noise shrinkage, cross-validated over repetition splits;
+  RDMs without noise normalization are a sensitivity check). Tone and talker model fits
   (tau-a) per participant × stage × ROI, a repetition- vs run-split check in
   natives, noise ceilings per group × stage,
   fit vs 0 within group, tone-fit trend learners vs natives, and per-stage
   group differences. Needs `rsatoolbox` (only for this notebook).
   Also stage-to-stage RDM stability (does the geometry change?) and
   native-likeness (do learners' RDMs converge on the natives' template,
-  beyond what same-stage peer similarity explains?).
+  beyond what same-stage peer similarity explains?). Section 9 is the planned
+  learners-vs-natives tone-information test (tone fit and decoding in the three
+  composites, with signal and specificity controls and a correct-trials-only
+  rerun, since each trial beta includes its feedback response).
 - `generalization_two_group.ipynb`: decoding from FLT2's
   `decoding_generalization.py` -- tone across talkers (train on three talkers,
   test on the fourth: is the tone code talker-invariant?) and talker across
   tones (control), per stage, with the same two-group tests. Folds split
   stimuli, not runs. No standalone within-stimulus decoder: the crossnobis
-  tone fit already measures tone discriminability.
+  tone fit already measures tone discriminability. Section 7: outcome
+  decoding (correct vs wrong trials, FLT2 `decoding_outcome.py`).
 
 The old RSA code (nilearn LSS betas, MNI, fMRIPrep 22.1.1) is in
 `./archive/07_rsa/` for reference; it isn't part of the current pipeline.
