@@ -41,6 +41,10 @@ Contrasts (ids without separators, as in univariate_glm.py):
 Feedback falls one TR after the sound, so ppisound and the ppifb terms
 share some variance; the QC table records each PPI term's VIF.
 
+Runs with fewer than MIN_RESIDUAL_DOF residual degrees of freedom after
+scrubbing are left out (QC column `included`); unlike the univariate model,
+which keeps every run, since this design has 5 more columns.
+
 Target time series are z-scored within run, so effects are in SD of the
 target per SD of the seed. Runs within a stage are combined by fixed effects
 (nilearn's averaging of run contrasts, as in the univariate model).
@@ -56,6 +60,10 @@ STAGE_RUNS = {'early': [0, 1], 'middle': [2, 3], 'final': [4, 5]}   # as univari
 SEEDS = {'aCAU': ('aCAU-lh', 'aCAU-rh'), 'aPUT': ('aPUT-lh', 'aPUT-rh')}   # bilateral (union of hemispheres)
 SEED_NETWORK = 'tian-S2'
 NO_PPI_TERM = ('resp',)   # task regressor only; see above
+# runs with fewer residual degrees of freedom than this are left out of the stage (heavy
+# scrubbing can leave ~30 volumes against ~60 regressors; at 0 dof the fit is exact and the
+# betas meaningless). Logged in the QC table (`included`); a stage with no runs left is missing.
+MIN_RESIDUAL_DOF = 20
 # contrast id -> {design column: weight}
 CONTRASTS = {'seed': {'seed': 1},
              'ppisound': {'ppi_sound': 1},
@@ -234,17 +242,24 @@ def run_subject(sub_id, args):
                 conf = r['confounds'].iloc[keep].reset_index(drop=True)
                 design = ppi_design(task, conf, r['ts'][seed_name][keep])
                 Y = zscore(np.column_stack([r['ts'][t][keep] for t in target_names]))
-                runs.append((design, Y))
+                residual_dof = len(keep) - np.linalg.matrix_rank(design.values)
+                included = residual_dof >= args.min_dof
+                if included:
+                    runs.append((design, Y))
+                else:
+                    print(f'{seed_name} {stage} run {rx + 1}: {residual_dof} residual dof '
+                          f'(< {args.min_dof}), left out', flush=True)
                 ppi_cols = [c for c in design.columns if c.startswith('ppi_')]
                 counts = r['events'].trial_type.value_counts()
                 qc.append({'participant_id': sub_label, 'seed': seed_name, 'learning_stage': stage,
                            'run': rx + 1, 'n_volumes': len(r['task']), 'n_retained': len(keep),
                            'n_regressors': design.shape[1],
-                           'residual_dof': len(keep) - np.linalg.matrix_rank(design.values),
+                           'residual_dof': residual_dof, 'included': included,
                            'seed_n_voxels': r['n_voxels'][seed_name],
                            **{f'n_{c}': counts.get(c, 0) for c in ('fb_correct', 'fb_wrong', 'fb_noresp')},
                            **{f'vif_{c}': v for c, v in vif(design, ppi_cols).items()}})
             if not runs:
+                print(f'{seed_name} {stage}: no usable runs, stage missing', flush=True)
                 continue
             for contrast_id, (effect, t) in fit_stage(runs).items():
                 for name, e, tv in zip(target_names, effect, t):
@@ -308,6 +323,8 @@ def main(argv=None):
     parser.add_argument('--space', default='T1w', type=str)
     parser.add_argument('--seeds', nargs='+', default=list(SEEDS), choices=list(SEEDS))
     parser.add_argument('--target_networks', nargs='+', default=['auditory'], choices=list(REGION_DICT))
+    parser.add_argument('--min_dof', type=int, default=MIN_RESIDUAL_DOF,
+                        help='leave out runs with fewer residual degrees of freedom (default %(default)s)')
     args = parser.parse_args(argv)
     args.fmriprep_dir = args.fmriprep_dir or os.path.join(args.bidsroot, 'derivatives',
                                                           'denoised_fmriprep-25.2.5')
