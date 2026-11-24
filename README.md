@@ -75,6 +75,10 @@ managed through conda.
    `--sep=tab`. That section of the notebook restricts to non-Mandarin
    participants (`sub_list_nman`), so double check the actual n once real
    data is available; the script doesn't assume n=12.
+4. `ppi_roi.py` runs ROI-to-ROI generalized PPI (striatal seed → auditory
+   ROIs) per learning stage on the same first-level design, with an aCAU
+   seed and an aPUT comparison seed (`loop_ppi_roi.sh`, then
+   `ppi_roi.py --gather`). `ppi_two_group.ipynb` runs the group tests.
 
 ### Multivariate analysis: `./10_multivariate/`
 Group-level analysis of the multivariate measures computed per participant

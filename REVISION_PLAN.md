@@ -222,6 +222,8 @@ Cluster access obtained — fMRIPrep, atlas warping, and the univariate GLM have
     - Analysis B respecified: learners' aCAU `fbcorrectvswrong` trend vs STG tone fit (a level; predicted negative r), with STG talker fit and aPUT trend as specificity checks (plan R7). PRcv has no decline to correlate with.
     - Notebook text and plan updated; ad hoc STGp outlier cells removed from `rsa_two_group.ipynb`.
 
+53. **Striatum–cortex PPI added (2026-11-24; not run yet).** `06_univariate/ppi_roi.py`: ROI-to-ROI generalized PPI per stage, bilateral aCAU seed (aPUT as comparison) → 14 auditory ROIs and the three composites. The univariate `scrubbed-splitfb` design plus seed and seed × condition terms; no deconvolution (TR 3 s); no resp interaction term (VIF ≈ 350 against sound on simulated runs, ≈ 3 without it). Planned: `ppifbcorrect` learners − natives in the composites (level and trend; FDR over 3). Secondary: learners' correct − wrong, `ppisound`, aCAU − aPUT. `ppi_two_group.ipynb` for the group stats. Checked on simulated data (planted effects recovered, nulls ≈ 0). Run: `loop_ppi_roi.sh`, then `python ppi_roi.py --gather --bidsroot=...`, then the notebook. Beta-series correlation (GLMsingle trial betas) remains an alternative, but each trial beta mixes the sound and feedback responses.
+
 ## Reviewer issues: status (2026-11-23)
 
 The manuscript work order is `09_integration/TWO_GROUP_MANUSCRIPT_PLAN.md` §4. This table tracks each reviewer concern; the workstream sections below keep the original detail.
